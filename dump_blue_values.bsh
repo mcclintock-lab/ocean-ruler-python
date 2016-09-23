@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+cd blue_bkground_data	 
+for f in *.jpg
+do
+	echo "running $f"
+	python ../abalone_size.py "$f"
+done
