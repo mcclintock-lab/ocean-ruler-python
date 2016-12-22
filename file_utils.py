@@ -36,11 +36,10 @@ def read_real_sizes(imageName):
 
     return size
 
-def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, ellipseAbaloneLength):
+def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, rulerValue):
 
     all_rows = {}
     all_diffs = {}
-    all_ellipse_diffs = {}
     last_total_diff = 0.0
     total_diffs = 0.0
     if os.path.exists(out_file):
@@ -56,17 +55,13 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
 
                         best_ab_key = row[4]
                         best_ruler_key = row[5]
-                        ellipse_length = row[6]
-                        ellipse_diff = row[7]
 
                         if name != "Total":
                             #print "for {}, best ab key: {}, best ruler key: {}".format(name, best_ab_key, best_ruler_key)
-                            all_rows[name] = [size, real_size, best_ab_key, best_ruler_key, ellipse_length]
+                            all_rows[name] = [size, real_size, best_ab_key, best_ruler_key, rulerValue]
                             all_diffs[name] = float(diff)
-                            all_ellipse_diffs[name] = float(ellipse_diff)
                         else:
                             last_total_diff = float(diff)
-                            last_total_ellipse_diff = float(ellipse_diff)
 
             except StandardError, e:
                 print("problem here: {}".format(e))
@@ -76,28 +71,24 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
         real_size = get_real_size(imageName)
         if real_size > 0.0:
             diff = ((abaloneLength - real_size)/real_size)*100.0
-            ellipse_diff = ((ellipseAbaloneLength - real_size)/real_size)*100.0
-            all_rows[imageName] = [abaloneLength, real_size, bestAbaloneKey, bestRulerKey, ellipseAbaloneLength]
+            all_rows[imageName] = [abaloneLength, real_size, bestAbaloneKey, bestRulerKey, rulerValue]
             all_diffs[imageName] = diff
-            all_ellipse_diffs[imageName] = ellipse_diff
             #total_diffs = np.sum(all_diffs.values())
             total_diffs = sum((abs(d) for d in all_diffs.values()))
-            total_ellipse_diffs = sum((abs(d) for d in all_ellipse_diffs.values()))
             with open(out_file, 'wb') as csvfile:
                 writer = csv.writer(csvfile, delimiter=DELIM, quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(["Name", "Estimated", "Real", "Difference %","Best Abalone Match","Best Ruler Match", "Ellipse Length", "Ellipse Diff %"])
+                writer.writerow(["Name", "Estimated", "Real", "Difference %","Best Abalone Match","Best Ruler Match","Ruler Value"])
                 for name, sizes in all_rows.items():
                     diff = all_diffs.get(name)
-                    ellipse_diff = all_ellipse_diffs.get(name)
                     est_size = sizes[0]
                     real_size = sizes[1]
                     ab_key = sizes[2]
                     ruler_key = sizes[3]
-                    ellipse_size = sizes[4]
+                    rulerValue = sizes[4]
 
-                    writer.writerow([name, est_size, real_size, diff,ab_key,ruler_key, ellipse_size, ellipse_diff])
+                    writer.writerow([name, est_size, real_size, diff,ab_key,ruler_key, rulerValue])
 
-                writer.writerow(["Total", 0,0,total_diffs,"-","-","-", total_ellipse_diffs])
+                writer.writerow(["Total", 0,0,total_diffs,"-","-","-", "-"])
         else:
             print "Couldn't find real size for {}".format(imageName)
         print "last total: {}; this total: {}".format(last_total_diff, total_diffs)

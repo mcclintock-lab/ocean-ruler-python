@@ -19,7 +19,7 @@ def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image,
     shape_dist = sd.computeDistance(target_contour,template_shape)
 
 
-    hull_val = cv2.matchShapes(target_contour,template_shape,2,0.0)
+    hull_val = cv2.matchShapes(targetHull,template_shape,2,0.0)
     hull_haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
 
     '''
@@ -31,39 +31,27 @@ def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image,
     '''
 
     #get centroid of template_shape
-    template_X, template_Y = get_centroid(template_shape)
-    
-
+    template_X, template_Y = utils.get_centroid(template_shape)
     
     #if we use the hull, it loses its offset in x and y
     #need to return x,y
     #or, don't use hull -- use a closed shape
     if is_quarter:
         area = (hullArea/templateArea)
-        val = hull_val
         haus_dist = hull_haus_dist
         #get centroid of target contour hull
-        target_X, target_Y = get_centroid(targetHull)
+        target_X, target_Y = utils.get_centroid(targetHull)
         diffX = abs(template_X - target_X)
         diffY = abs(template_Y - target_Y)
+        #target_contour = targetHull
     else:
         area = (targetArea /templateArea)
-        target_X, target_Y = get_centroid(target_contour)
+        target_X, target_Y = utils.get_centroid(target_contour)
         diffX = abs(template_X - target_X)
         diffY = abs(template_Y - target_Y)
         #val and haus dist are non-quarter by default
         
-
-
     return target_contour, val, area, haus_dist, diffX+diffY, shape_dist
 
-def get_centroid(contour):
-    try:
-        M = cv2.moments(contour)
-        cX = int(M["m10"] / M["m00"])
-        cY = int(M["m01"] / M["m00"])
-    except StandardError, e:
-        cX,cY = 10000.0,10000.0
 
-    return cX,cY
 
