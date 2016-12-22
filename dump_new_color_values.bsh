@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "working on white..."
+cd new_color_bkground_data 
+for f in white/*.jpg; 
+do
+	echo "running $f"
+	python ../abalone_size.py "$f"
+done
+
+
+echo "working on blue..."
+cd new_color_bkground_data 
+for f in blue/*.jpg; 
+do
+	echo "running $f"
+	python ../abalone_size.py "$f"
+done
