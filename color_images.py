@@ -92,7 +92,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
         if use_gray_threshold:
             erode_iterations = 1
         else:
-            erode_iterations = 1
+            erode_iterations = 2
 
     edged = utils.find_edges(img=color_img, thresh_img=threshold_bw, use_gray=use_gray_threshold, showImg=False, 
         erode_iterations=erode_iterations,small_img=small_img)
