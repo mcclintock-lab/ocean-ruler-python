@@ -21,16 +21,32 @@ QUARTER = "_quarter"
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
-def get_template_contours():
+
+def rescale(orig_cols, orig_rows, template_img):
+    template_cols = len(template_img[0])
+    template_rows = len(template_img)
+
+    fx = float(orig_cols)/float(template_cols)
+    fy = float(orig_rows)/float(template_rows)
+
+    scaled_image = cv2.resize(template_img, (0,0), fx = fx, fy = fy)
+    return scaled_image
+
+def get_template_contours(rescaled_image):
     row_offset = 30
     col_offset = 30
 
+    orig_cols = len(rescaled_image[0]) 
+    orig_rows = len(rescaled_image)
+
     #by default, using the big abalone template
     abalone_template = cv2.imread("../big_abalone_only_2x.png")
-    abalone_template = abalone_template[30:len(abalone_template),30:len(abalone_template[0])-30]
+    rescaled_ab_template = rescale(orig_cols, orig_rows, abalone_template)
+    abalone_template = rescaled_ab_template[30:len(rescaled_ab_template),30:len(rescaled_ab_template[0])-30]
 
     small_abalone_template = cv2.imread("../abalone_only_2x.png")
-    small_abalone_template = small_abalone_template[30:len(small_abalone_template),30:len(small_abalone_template[0])-30]
+    rescaled_small_ab_template = rescale(orig_cols, orig_rows, small_abalone_template)
+    small_abalone_template = rescaled_small_ab_template[30:len(rescaled_small_ab_template),30:len(rescaled_small_ab_template[0])-30]
 
     ruler_only = cv2.imread("../ruler_only_2x.png")
     ruler_only = ruler_only[30:len(ruler_only),30:len(ruler_only[0])-30]
@@ -41,7 +57,6 @@ def get_template_contours():
     quarter_only = cv2.imread("../quarter_only_2x.png")
     quarter_only = quarter_only[30:len(quarter_only),30:len(quarter_only[0])-30]
 
-    
     template_edged = cv2.Canny(abalone_template, 15, 100)
     small_template_edged = cv2.Canny(small_abalone_template, 15, 100)
     ruler_only_edged = cv2.Canny(ruler_only, 15, 100)
@@ -54,16 +69,16 @@ def get_template_contours():
     alt_ruler_edged_img =   cv2.dilate(alt_ruler_only_edged, None, iterations=1)  
     quarter_edged_img = cv2.dilate(quarter_only_edged, None, iterations=1)
 
-    im2, abalone_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST,cv2.CHAIN_APPROX_NONE)
+    im2, abalone_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     abalone_shape = abalone_shapes[1]
 
-    small_im, small_abalone_shapes, small_hierarchy = cv2.findContours(small_edged_img, cv2.RETR_LIST,cv2.CHAIN_APPROX_NONE)
+    small_im, small_abalone_shapes, small_hierarchy = cv2.findContours(small_edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     small_abalone_shape = small_abalone_shapes[1]
 
-    im2_e, ruler_shapes, hierarchy2 = cv2.findContours(ruler_edged_img,  cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    im2_e, ruler_shapes, hierarchy2 = cv2.findContours(ruler_edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     ruler_shape = ruler_shapes[0]
 
-    im2_alt_e, alt_ruler_shapes, hierarchy2 = cv2.findContours(alt_ruler_edged_img,  cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    im2_alt_e, alt_ruler_shapes, hierarchy2 = cv2.findContours(alt_ruler_edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     alt_ruler_shape = alt_ruler_shapes[1] 
 
     quarter_e, quarter_shapes, hierarchy2 = cv2.findContours(quarter_edged_img,  cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
@@ -76,26 +91,26 @@ def get_width_from_ruler(dB, rulerWidth):
 
 def get_scaled_image(image_full):
     target_cols = 1280.0
-    target_rows = 960.0
-
+    #target_rows = 960.0
 
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
  
+    target_rows = (float(orig_rows)/(float(orig_cols))*1280.0)
     fx = float(target_cols/orig_cols)
     fy = float(target_rows/orig_rows)
-
-    scaled_image = cv2.resize( image_full, (0,0), fx = fx, fy = fx)
+    scaled_image = cv2.resize( image_full, (0,0), fx = fx, fy = fy)
     
     rows = int(len(scaled_image))
     cols = int(len(scaled_image[0]))
     
     scaled_image = scaled_image[30:rows,50:cols-50]
 
+    #return image_full, orig_rows-30, orig_cols-100
     return scaled_image, rows-30, cols-100
 
 
-def get_quarter_image(input_image, thresh_val, blur,showImg=False):
+def get_bw_quarter_image(input_image, thresh_val, blur,showImg=False):
 
     rows = len(input_image)
     cols = len(input_image[0])      
@@ -111,6 +126,7 @@ def get_quarter_image(input_image, thresh_val, blur,showImg=False):
     if showImg:
         utils.show_img("thresh 2 {}x{}".format(thresh_val, blur), thresh2)
         utils.show_img("threshold {}x{}".format(thresh_val, blur), threshold)
+
     return input_image, gray, thresh2, int(rows/2)
 
 
@@ -158,7 +174,7 @@ def get_ruler_image(input_image, thresh_val, blur_window,showImg=False):
     return input_image, gray, threshold, int(rows/2)
 
 
-def get_image(input_image, thresh_val, blur_window):
+def get_bw_image(input_image, thresh_val, blur_window):
 
     rows = len(input_image)
     cols = len(input_image[0])    
@@ -177,7 +193,9 @@ def get_image(input_image, thresh_val, blur_window):
     mid_patch = gray[mid_row_start:mid_row_end, mid_col_start:mid_col_end]
     mn = np.mean(mid_patch) 
 
-    retval, threshold = cv2.threshold(gray,mn,255,cv2.THRESH_BINARY)
+
+    #check these again - what is first number??
+    retval, threshold = cv2.threshold(gray,150,255,cv2.THRESH_BINARY)
     
     return image, gray, threshold, int(rows/2)
 
@@ -196,25 +214,29 @@ def read_args():
 
     ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
     args = vars(ap.parse_args())
-    print "parse ok..."
+    
     showResults = args["show"]
     showResults = bool(showResults)
 
     out_file = args['output_file']
     if not out_file:
-        out_file ="./data.csv"
+        out_file ="data.csv"
+    else:
+        print "the outfile is {}".format(out_file)
 
     imageName = args["image"]
     if imageName is None or len(imageName) == 0:
         showResults = False
-        out_file ="./data.csv"
-
+        out_file ="data.csv"
+        #out_file = "data.csv"
         allImageNames = args['allimages'][0]
-        print "all image names -->> {}".format(allImageNames)
+
         imageParts = allImageNames.split()
 
         if(len(imageParts) > 1):
             imageName = "{} {}".format(imageParts[0], imageParts[1])
+        else:
+            imageName = imageParts[0]
 
     rulerWidth = 8.5
 
@@ -255,6 +277,9 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     y = brect[1] + top_offset
     width=brect[2]
     height=brect[3]
+    print "-->>width is: {}".format(width)
+    print"..>>height is: {}".format(height)
+
     tl = (x, y+height)
     tr = (x+width, y+height)
     bl = (x,y)
@@ -270,13 +295,16 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     (trbrX, trbrY) = midpoint(tr, br)
   
     # draw the midpoints on the image
-    cv2.circle(base_img, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-    cv2.circle(base_img, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(tlblX), int(tlblY)), 2, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(trbrX), int(trbrY)), 2, (255, 0, 0), -1)
 
     # draw lines between the midpoints
 
-    cv2.line(base_img, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
-        (255, 0, 255), 1)
+    left_mid_point = (int(tlblX), int(tlblY))
+    right_mid_point = (int(trbrX), int(trbrY))
+
+    cv2.line(base_img, left_mid_point, right_mid_point,
+        (0, 255, 255), 7)
 
     if top_offset == 0:
         left_ruler_top = (int(tlblX), int(tlblY)-100)
@@ -289,6 +317,8 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
         cv2.line(base_img, right_ruler_top, right_ruler_bottom,
             (255, 0, 255), 1)
 
+    dB1 = dist.euclidean(left_mid_point, right_mid_point)
+
     # compute the Euclidean distance between the midpoints
     dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
     dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
@@ -299,7 +329,12 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     if pixelsPerMetric is None:
         pixelsPerMetric = get_width_from_ruler(dB, rulerWidth)
         
-
+    print "----------------"
+    print "dimA: {}".format(dA)
+    print "dimB: {}".format(dB)
+    print "-->>  db1: {}".format(dB1)
+    print "pixelsPerMetric: {}".format(pixelsPerMetric)
+    print "--------------"
     # compute the size of the object
     dimA = dA / pixelsPerMetric
     dimB = dB / pixelsPerMetric
@@ -362,7 +397,6 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
     lowest_dist = ab_by_dist[0][2]
     lowest_cdiff = ab_by_dist[0][6]
 
-
     minValue = 1000000
     targetContour = None
     targetKey = ""
@@ -380,7 +414,6 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         else:
             norm_dist = haus_dist/lowest_dist
         
-
         area_perc = values[1]
         contour = values[3]
         contour_key = values[4]
@@ -397,24 +430,19 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         #check to see if the ruler contour is inside the abalone contour. if it is, its a bogus shape
         contour_is_enclosed = False
         if enclosing_contour is not None:
+            #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
             contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour)
 
         if contour_is_enclosed:
-            print "contour is enclosed!!!!!!!"
             #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
             continue
-
-
-        #if contour_key.endswith(QUARTER) and not retry:
-        #    lower_area = 0.5
-        #    x+=1
 
         if retry:
             print "{} {}.combined: {}; val:{};dist:{};key:{};area:{};cdiff:{}".format(which_one, i,combined,val,haus_dist,contour_key,area_perc,centroid_diff)
                 
         #drop contours that fill the image, like the cutting board edges
         if which_one == ABALONE:
-            width_limit = 0.80
+            width_limit = 0.85
             height_limit = 0.91
         else:
             if contour_key.endswith(QUARTER):
@@ -424,7 +452,8 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
                 width_limit = 0.8
 
             height_limit = 0.3
-        print "area perc: {}".format(area_perc)
+
+
         if area_perc > lower_area and area_perc < upper_area:
 
             x,y,w,h = cv2.boundingRect(contour)
@@ -432,9 +461,11 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
             hprop = float(h)/float(scaled_rows)
             wprop = float(w)/float(scaled_cols)
             if i < 40:
-                print "{}-{} :: val:{};area:{};wprop:{};hprop:{}".format(which_one,contour_key,val,area_perc,wprop, hprop)
+                print "{}-{} :: combined:{};  val:{}; haus_dist:{}; centroid_diff:{}".format(which_one,contour_key,combined, val,haus_dist, centroid_diff)
+            
             i+=1
             if (combined < minValue) and (wprop < width_limit) and (hprop < height_limit):
+                
                 minValue = combined
                 targetContour = contour
                 targetKey = contour_key
@@ -446,14 +477,17 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
 
 #get the set of largest contours, then find the one that has the best shape match
 #note: have to cycle through the whole set because there can be contours of the same size that are diff
-def get_abalone_contour(input_image, template_contour, thresh_val, blur):
+def get_bw_abalone_contour(input_image, template_contour, thresh_val, blur, use_gray):
     #segmentation and edge finding
-    orig_image, gray, thresh1, mid_row = get_image(input_image, thresh_val, blur)
+    orig_image, gray, thresh1, mid_row = get_bw_image(input_image, thresh_val, blur)
     orig = orig_image.copy()
-    edged = utils.find_edges(img=gray, thresh_img=thresh1, use_gray=False, showImg=False, erode_iterations=1)
-    cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
-        cv2.CHAIN_APPROX_SIMPLE)
+    
+    edged = utils.find_edges(img=gray, thresh_img=thresh1, use_gray=use_gray, showImg=False, erode_iterations=1)
+    cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+
+
+    #imageName, input_image, contour, template_contour
 
     #get all the largest edges
     contours, size = utils.get_largest_edge(cnts)
@@ -463,8 +497,10 @@ def get_abalone_contour(input_image, template_contour, thresh_val, blur):
     aperc = 1000000
     adist = 1000000
     cdiff = 1000000
+
     for contour in contours:
         the_contour, result_val, area_perc, area_dist, centroid_diff, shape_dist= matching.sort_by_matching_shape(contour, template_contour, False,input_image)
+
         comb = result_val*area_dist
         if comb < smallest_combined:
             smallest_combined = comb
@@ -474,24 +510,28 @@ def get_abalone_contour(input_image, template_contour, thresh_val, blur):
             target_contour = the_contour
             cdiff = centroid_diff
 
-    #epsilon = 0.003*cv2.arcLength(target_contour,True)
-    #approx = cv2.approxPolyDP(target_contour,epsilon,True)
+    if False:
+        #print "is cv2? {}".format(imutils.is_cv2())
+        #print "cnts: {}".format(cnts)
+        cv2.fillPoly(input_image, [target_contour], (0,255,255))
+        cv2.imshow("gray and all edges {}x{}".format(thresh_val, blur), input_image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     return target_contour
 
 
-def is_roundish(contour):
+def is_roundish(contour, thresh_val, blur):
     x,y,w,h = cv2.boundingRect(contour)
     
     w_v_h = float(w)/float(h)
 
-    lim = 0.75
+    lim = 0.65
     is_round = (w_v_h >= lim and w_v_h <= (1.0/lim))
-    
     return is_round
 
-def get_ruler_contour(input_image, template_contour, thresh_val, blur, showImg, top_offset, use_quarter, use_gray):
+def get_bw_ruler_contour(input_image, template_contour, thresh_val, blur, showImg, top_offset, use_quarter, use_gray):
     #if use_quarter:
-    ruler_image, ruler_gray, ruler_thresh, yoffset = get_quarter_image(input_image, thresh_val, blur, showImg)
+    ruler_image, ruler_gray, ruler_thresh, yoffset = get_bw_quarter_image(input_image, thresh_val, blur, showImg)
     ruler_edged = utils.find_edges(img=ruler_gray, thresh_img=ruler_thresh, use_gray=use_gray, showImg=showImg, erode_iterations=1)
     
     #else:
@@ -500,8 +540,8 @@ def get_ruler_contour(input_image, template_contour, thresh_val, blur, showImg, 
     
     
     #find the contours in the ruler half image
-    #these were APPROX_SIMPLE and RETR_EXTR
-    ruler_contours = cv2.findContours(ruler_edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    #use chain approx none to return all the points so enclosed contour works
+    ruler_contours = cv2.findContours(ruler_edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     ruler_contours = ruler_contours[0] if imutils.is_cv2() else ruler_contours[1]
     
     smallest_combined = 10000000.0
@@ -512,12 +552,14 @@ def get_ruler_contour(input_image, template_contour, thresh_val, blur, showImg, 
     for contour in ruler_contours:
         the_contour, result_val, area_perc, area_dist, centroid_diff, shape_dist = matching.sort_by_matching_shape(contour, template_contour, showImg,input_image, use_quarter)
         comb = result_val*area_dist
-        if comb < smallest_combined and area_perc > 0.25 and area_perc < 2.0 and is_roundish(the_contour):
+        if comb < smallest_combined and area_perc > 0.25 and area_perc < 2.0 and is_roundish(the_contour,thresh_val,blur):
+
             smallest_combined = comb
             target_contour = the_contour
             ok_contours.append(the_contour)
 
-    if showImg:
+    if False:
+        cv2.drawContours(input_image, ruler_contours, -1, (0,255,0), 1)
         if target_contour is not None:
             cv2.fillPoly(input_image, [target_contour], (255,0,0))
 
@@ -529,7 +571,7 @@ def get_ruler_contour(input_image, template_contour, thresh_val, blur, showImg, 
 
 
 def add_shape_with_color(shapes, input_image, template_contour, thresh_val, blur, key, showImg=False,
-    contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None, first_pass=True):
+    contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None, first_pass=True,is_small=False):
     #find the matching shape using the color images with blue background
     #showImg=False, contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None
     col_contour, val, area_perc, dist, centroid_diff = ci.do_color_image_match(input_image, template_contour, thresh_val, blur, 
@@ -547,7 +589,7 @@ def add_shape_by_match(shapes, input_image, target_contour, template_contour, th
     #find the matching ruler shape with the alt ruler 
     s_contour, val, area_perc, dist, centroid_diff, shape_dist = matching.sort_by_matching_shape(target_contour, template_contour, False, input_image, is_quarter)
     if showImg:
-        cv2.fillPoly(ii, [s_contour], (0,255,0), offset=(0,top_offset))
+       
         #cv2.fillPoly(ii, [template_contour], (0,0,255), offset=(0,top_offset))
         utils.show_img("color shape {}x{}".format(thresh_val, blur), ii)
     shapes.append((val, area_perc, dist, s_contour, key, val*dist*centroid_diff, centroid_diff))
@@ -596,8 +638,8 @@ def get_quarter_contour_and_center(quarter_contour):
     #print "qcon[:,1]: {}".format(qcon[:,1])
     #print "radius: {}".format(radius)
 
-    xmin = center[0]-(int(w/2))
-    xmax = center[0]+(int(w/2))
+    xmin = center[0]-((int(w/2)+2))
+    xmax = center[0]+((int(w/2))+2)
     for pt in qcon:
         if pt[0] < xmin:
             pt[0] = xmin
@@ -624,18 +666,18 @@ def is_color(input_image):
             vals.append(image[i][j][1])
 
     mean_val = np.mean(vals)
-
     return mean_val > 50
 
-def get_color_abalone(thresholds, blurs, abalone_shapes, abalone_template, rescaled_image,first_pass=True):
+def get_color_abalone(thresholds, blurs, abalone_shapes, abalone_template, rescaled_image,first_pass,is_small, 
+    use_gray_threshold=False):
     for thresh_val in thresholds:
         for blur in blurs:
             key = "{}thresh_{}blur".format(thresh_val, blur)
-            print "working on color abalone {}x{}".format(thresh_val, blur)
+
             abalone_shapes = add_shape_with_color(abalone_shapes, rescaled_image.copy(), 
                 abalone_template.copy(), thresh_val, blur, (key+"_color_ab"),
-                showImg=False,contour_color=(0,0,255), is_ruler=False, use_gray_threshold=False, 
-                enclosing_contour=None,first_pass=first_pass)
+                showImg=True, contour_color=(0,0,255), is_ruler=False, use_gray_threshold=use_gray_threshold, 
+                enclosing_contour=None,first_pass=first_pass,is_small=is_small)
     return abalone_shapes
 
 def get_color_ruler(thresholds, blurs, ruler_shapes, ruler_template, ruler_image, abalone_contour, 
@@ -643,13 +685,10 @@ def get_color_ruler(thresholds, blurs, ruler_shapes, ruler_template, ruler_image
     #do the quarter selection
     for thresh_val in thresholds:
         for blur in blurs:
-            
             if use_gray_threshold:
                 key = "{}thresh_{}blur_{}".format(thresh_val, blur, "gray_quarter")
-                print "------>>>>working on gray threshold ruler {}x{}".format(thresh_val, blur)
             else:
                 key = "{}thresh_{}blur_{}".format(thresh_val, blur, "color_quarter")
-                print "------>>>>working on color ruler {}x{}".format(thresh_val, blur)
 
             si = not use_gray_threshold
             ruler_shapes = add_shape_with_color(ruler_shapes,ruler_image.copy(), 
@@ -659,14 +698,12 @@ def get_color_ruler(thresholds, blurs, ruler_shapes, ruler_template, ruler_image
 
     return ruler_shapes
 
-def get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template, rescaled_image):
+def get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template, rescaled_image, use_gray):
     for thresh_val in thresholds:
         for blur in blurs:
             key = "{}thresh_{}blur".format(thresh_val, blur)
-
-            print "working on black and white abalone {}x{}".format(thresh_val, blur)
             #read the image for the abalone contour with these settings
-            tgt_contour = get_abalone_contour(rescaled_image.copy(), abalone_template, thresh_val, blur)
+            tgt_contour = get_bw_abalone_contour(rescaled_image.copy(), abalone_template, thresh_val, blur, use_gray)
             abalone_shapes = add_shape_by_match(abalone_shapes, rescaled_image.copy(), tgt_contour, 
                 abalone_template.copy(),thresh_val, blur, (key+"_bw_ab"),False, 0, False)
     return abalone_shapes
@@ -674,23 +711,20 @@ def get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template, rescaled
 def get_bw_ruler(thresholds, blurs, ruler_shapes, ruler_template, ruler_image, use_gray=False):
     for thresh_val in thresholds:
         for blur in blurs:
-            
-
             key = "{}thresh_{}blur".format(thresh_val, blur)
             if use_gray:
                 key = key+"_gray_quarter"
             else:
                 key = key+"_quarter"
-            print "working on bw ruler {}x{}".format(thresh_val, blur)
 
-            tgt_contour = get_ruler_contour(ruler_image.copy(), ruler_template.copy(), thresh_val,blur,False,0,True, use_gray)
+            tgt_contour = get_bw_ruler_contour(ruler_image.copy(), ruler_template.copy(), thresh_val,blur,False,0,True, use_gray)
             bw_ruler_shapes = add_shape_by_match(ruler_shapes, ruler_image.copy(),
                 tgt_contour, ruler_template.copy(), thresh_val, blur, key, False, 0, True)
                 
     return ruler_shapes
 
-def noResults(key):
-    if key is None or len(key) == 0:
+def noResults(key, val):
+    if key is None or len(key) == 0 or val >= 50000:
         return True
     else:
         return False
@@ -710,7 +744,13 @@ def find_image():
 
     (imageName, showResults, rulerWidth, out_file) = read_args()
 
-    abalone_template_contour, small_abalone_template_contour, ruler_template_contour, alt_ruler_template_contour, quarter_template_contour = get_template_contours()
+
+    #read the image
+    image_full = cv2.imread(imageName)
+    orig_cols = len(image_full[0]) 
+    orig_rows = len(image_full)
+    rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
+    abalone_template_contour, small_abalone_template_contour, ruler_template_contour, alt_ruler_template_contour, quarter_template_contour = get_template_contours(rescaled_image)
 
     minEdged = None
     large_color_abalone_shapes = []
@@ -721,10 +761,12 @@ def find_image():
     gray_ruler_shapes = []
     pixelsPerMetric = None
     
-    image_full = cv2.imread(imageName)
-    #image_full = cv2.cvtColor(image_full, cv2.COLOR_BGR2HSV)
+    if orig_cols < 1250:
+        is_small = True
+    else:
+        is_small = False
 
-    rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
+    
     #ruler_image = rescaled_image[int(rows/2):rows, 0:cols].copy()
     ruler_image = rescaled_image.copy()
 
@@ -741,74 +783,101 @@ def find_image():
     if is_color_bkground:
         print "working on color image..."
         large_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
-            large_color_abalone_shapes, abalone_template_contour, rescaled_image, first_pass=True)
+            large_color_abalone_shapes, abalone_template_contour, rescaled_image, first_pass=True, is_small=is_small, use_gray_threshold=False)
         newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(large_color_abalone_shapes, 0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
         
         print "best abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
         
-        if noResults(bestAbaloneKey):
+        if noResults(bestAbaloneKey, bestAbaloneValue):
             small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
-                small_color_abalone_shapes, small_abalone_template_contour, rescaled_image)
+                small_color_abalone_shapes, small_abalone_template_contour, rescaled_image,first_pass=False,
+                is_small=is_small, use_gray_threshold=False)
 
-            newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(small_color_abalone_shapes, 0.75, 1.6, ABALONE, None, False, scaled_rows, scaled_cols)
+            newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(small_color_abalone_shapes, 
+                0.75, 1.6, ABALONE, None, False, scaled_rows, scaled_cols)
             print "best small abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
 
-        
+            if noResults(bestAbaloneKey, bestAbaloneValue) and is_small:
+                small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
+                    small_color_abalone_shapes, small_abalone_template_contour, rescaled_image,first_pass=False,
+                    is_small=is_small, use_gray_threshold=True)
+
+                newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(small_color_abalone_shapes, 
+                    0.10, 1.0, ABALONE, None, False, scaled_rows, scaled_cols)
+
+                print "best small abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
+
         ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, False, first_pass=True)
-        newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
+        newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.6, 1.1, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
         
-        if noResults(bestRulerKey):
+        if noResults(bestRulerKey, bestRulerValue):
             #trying getting results with a lower boundary
             ruler_shapes = []
             ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, False, first_pass=False)
             newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.40, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy(), )
         
-        if noResults(bestRulerKey):
+        if noResults(bestRulerKey, bestRulerValue):
             gray_ruler_shapes = get_color_ruler(thresholds, blurs, gray_ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, True,first_pass=True)
             newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(gray_ruler_shapes, 0.5, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-            if noResults(bestRulerKey):
+            if noResults(bestRulerKey, bestRulerValue):
                 bw_ruler_shapes = get_bw_ruler(thresholds, blurs, bw_ruler_shapes, quarter_template_contour, ruler_image)
                 newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(bw_ruler_shapes, 0.5, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
     else:
         print "working on b&w image....."
         abalone_shapes = []
-        babalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, rescaled_image)
+        #try it with gray thresholding first....
+        abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, rescaled_image, False)
         #if there is still nothing, loosen the area restrictions and try again
-        
         newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes, 0.46, 1.75, ABALONE, None, False, scaled_rows, scaled_cols)
-        if noResults(bestAbaloneKey):
-            print "falling back to color in what looks like a b&w: best abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
         
-            large_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
-                large_color_abalone_shapes, abalone_template_contour, rescaled_image,first_pass=True)
-            newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(large_color_abalone_shapes, 0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
+        if noResults(bestAbaloneKey, bestAbaloneValue):
+            print "trying without gray threshold..."
+            abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, rescaled_image, True)
+            #if there is still nothing, loosen the area restrictions and try again
+            newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes, 0.46, 1.75, ABALONE, None, False, scaled_rows, scaled_cols)
             
+            if noResults(bestAbaloneKey, bestAbaloneValue):
+                print "falling back to color in what looks like a b&w: best abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
+                large_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
+                    large_color_abalone_shapes, abalone_template_contour, rescaled_image,first_pass=True, is_small=is_small, use_gray_threshold=False)
+                newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(large_color_abalone_shapes, 0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
+                
+                if noResults(bestAbaloneKey, bestAbaloneValue):
+                    if is_small:
+                        small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
+                            small_color_abalone_shapes, small_abalone_template_contour, rescaled_image,first_pass=False,
+                            is_small=is_small, use_gray_threshold=True)
+
+                        newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(small_color_abalone_shapes, 
+                            0.10, 1.0, ABALONE, None, False, scaled_rows, scaled_cols)
+
+                        print "best small abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
+
         bw_ruler_shapes = get_bw_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, False)
         newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(bw_ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
-        if noResults(bestRulerKey):
+        if noResults(bestRulerKey, bestRulerValue):
             gray_ruler_shapes = get_bw_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, True)
             newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(gray_ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
-            if noResults(bestRulerKey):
+            if noResults(bestRulerKey, bestRulerValue):
                 ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, False, first_pass=True)
                 newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
+
     #add this for abalone, too, to prevent empty results
-    if noResults(bestRulerKey):
+    if noResults(bestRulerKey, bestRulerValue):
         print "looking for ruler key with looser guidelines..."
         newBestRulerContour,bestRulerKey, bestRulerValue = get_best_contour((bw_ruler_shapes+ruler_shapes+gray_ruler_shapes), 0.2, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols)
 
-    is_quarter = True
+    if noResults(bestAbaloneKey, bestAbaloneValue):
+        print "falling back on abalone with very loose guidelines..."
 
-    '''
-    try:
-        bounding_ellipse = cv2.fitEllipse(newBestAbaloneContour)
-    except Exception as e:
-        print "error making bounding ellipse: {}".format(e)
-        bounding_ellipse = None
-    '''
+        newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes+large_color_abalone_shapes+small_color_abalone_shapes, 
+            0.10, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
+    
+    is_quarter = True
 
     #fit a centroid to the quarter and trim outlying scratches/lines
     centroidX, centroidY, qell, quarter_ellipse = get_quarter_contour_and_center(newBestRulerContour)
@@ -837,10 +906,15 @@ def find_image():
             offy = 0
 
         cv2.namedWindow(imageName, cv2.WINDOW_NORMAL)
-        cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (255,0,0), 3)
+        #cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (255,0,0), 3)
         cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),2)
-        if quarter_ellipse:
-            cv2.ellipse(rescaled_image,quarter_ellipse,(150,150,150),2,1)
+        if newBestAbaloneContour is not None:
+            #cv2.fillPoly(rescaled_image, [newBestAbaloneContour], (200,200,100))
+            cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (255,255,0), 2)
+        else:
+            print "NO ABALONE CONTOUR !!!!!!!!!!!!!!"
+        #if quarter_ellipse:
+        #    cv2.ellipse(rescaled_image,quarter_ellipse,(150,150,150),2,1)
         
 
         cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 1)

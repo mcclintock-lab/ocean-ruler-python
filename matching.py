@@ -19,16 +19,8 @@ def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image,
     shape_dist = sd.computeDistance(target_contour,template_shape)
 
 
-    hull_val = cv2.matchShapes(targetHull,template_shape,2,0.0)
+    #hull_val = cv2.matchShapes(targetHull,template_shape,2,0.0)
     hull_haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
-
-    '''
-    template_moments = cv2.moments(template_shape)
-    template_hu = cv2.HuMoments(template_moments)
-
-    target_moments = cv2.moments(target_contour)
-    target_hu = cv2.HuMoments(target_moments)
-    '''
 
     #get centroid of template_shape
     template_X, template_Y = utils.get_centroid(template_shape)

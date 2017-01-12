@@ -21,13 +21,13 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
     rows = len(orig_image)
     cols = len(orig_image[0])
     row_starts = [100, rows-105]
-    row_ends = [115, rows-95]
+    row_ends = [110, rows-95]
     if first_pass:
         col_starts = [100, cols-75]
         col_ends = [103, cols-70]
     else:
         col_starts = [75, cols-75]
-        col_ends = [85, cols-70]
+        col_ends = [83, cols-70]
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for x in range(0,2):
@@ -59,30 +59,43 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
     return bgr
 
 
-def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,first_pass=True):
+def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,first_pass, is_ruler):
 
     rows = len(input_image)
     cols = len(input_image[0])
     image = input_image
-    res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass)
+    color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass)
     
     #maybe use this to see if we should threshold?
-    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(color_res, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
     
-    retval, threshold = cv2.threshold(gray.copy(),1,255,cv2.THRESH_BINARY)
-    if show_img:
-        utils.show_img("color img, one thats returned {};{}".format(thresh_val, blur_window),res)
-        utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold)
-    return image, threshold, res, rows
+
+    retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+    #if show_img:
+    #    utils.show_img("color img, one thats returned {};{}".format(thresh_val, blur_window),res)
+    #   utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
+
+    return image, threshold_bw, color_res, rows
 
 def do_color_image_match(input_image, template_contour, thresh_val, blur_window, showImg=False, 
-    contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None, first_pass=True):
+    contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None, first_pass=True, 
+    small_img=False):
     #try the color image
-    color_image, gray_img, threshold_img, mid_row = get_image_with_color_mask(input_image, thresh_val, 
-        blur_window, showImg, first_pass=first_pass)
-    erode_iterations = 1 if is_ruler else 3
-    edged = utils.find_edges(img=gray_img, thresh_img=threshold_img, use_gray=use_gray_threshold, showImg=showImg, erode_iterations=erode_iterations)
+    color_image, threshold_bw, color_img, mid_row = get_image_with_color_mask(input_image, thresh_val, 
+        blur_window, showImg, first_pass, is_ruler)
+
+    if is_ruler:
+        erode_iterations = 1
+    else:
+        if use_gray_threshold:
+            erode_iterations = 1
+        else:
+            erode_iterations = 1
+
+    edged = utils.find_edges(img=color_img, thresh_img=threshold_bw, use_gray=use_gray_threshold, showImg=False, 
+        erode_iterations=erode_iterations,small_img=small_img)
 
     # find contours in the edge map
     cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
@@ -103,42 +116,40 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     adist = 1000000
     cdiff = 1000000
     
-    if showImg:
+    if False:
         print "number of contours: {}".format(len(contours))
-        cv2.drawContours(input_image, contours, -1, (255,255,200), 2)
-        cv2.imshow("all contours", input_image)
+        cv2.fillPoly(input_image, contours, -1, (255,255,200), 5)
+        cv2.imshow("!!!!!  ---- all contours", input_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    for contour in contours:
+    min_area = 0.25
+    if small_img:
+        min_area = 0.10
 
+    for contour in contours:
         the_contour, result_val, area_perc, area_dist, centroid_diff, shape_dist= matching.sort_by_matching_shape(contour, template_contour, False,input_image)
         #ditch the outliers -- this is fine tuned later
         if area_perc < 0.25 or area_perc > 2.0:
+            #print "ditching because the area is too small: {}".format(area_perc)
             continue
 
         if is_ruler:
-            print "here..."
-            
             x,y,w,h = cv2.boundingRect(contour)
-            tgt_ratio = 0.50
+            tgt_ratio = 0.65
+
             ratio = float(w)/float(h)
             if ratio < tgt_ratio or 1.0/ratio < tgt_ratio:
-                print "skipping non-circular contour, ratio is {}".format(ratio)
                 continue
-            else:
-                print "this ratio is ok: {}".format(ratio)
             
-
             #if its the ruler (quarter), check to see if its enclosed
             is_enclosed = utils.is_contour_enclosed(the_contour, enclosing_contour)
             if is_enclosed:
                 continue
 
         comb = result_val*area_dist
-
+        #comb = result_val
         if comb < smallest_combined:
-
             if (not is_ruler) or (is_ruler and area_perc > 0.25):
                 smallest_combined = comb
                 rval = result_val
@@ -147,7 +158,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
                 target_contour = the_contour
                 cdiff = centroid_diff
 
-    if showImg:
+    if False:
         if is_ruler:
             utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, shape_dist, rval), input_image, target_contour, enclosing_contour,0)
 

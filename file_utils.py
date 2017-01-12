@@ -91,6 +91,7 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
                 writer.writerow(["Total", 0,0,total_diffs,"-","-","-", "-"])
         else:
             print "Couldn't find real size for {}".format(imageName)
+            
         print "last total: {}; this total: {}".format(last_total_diff, total_diffs)
     except StandardError, e:
         print "error trying to write the real size and diff: {}".format(e)
