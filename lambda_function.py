@@ -886,7 +886,7 @@ def find_abalone_length(is_deployed, req):
     pixelsPerMetric, rulerLength, = draw_contour(rescaled_image, newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter)
     pixelsPerMetric, abaloneLength = draw_contour(rescaled_image, newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False)
     start_time = print_time(start_time, "done drawing")
-    
+
     all_rows = {}
     if is_mac():
         file_utils.read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, bestRulerValue)
@@ -933,7 +933,7 @@ def find_abalone_length(is_deployed, req):
         cv2.destroyAllWindows()
 
     rval = {"abalone_key":bestAbaloneKey, "ruler_key":bestRulerKey, "length":abaloneLength}
-    print rval
+    
     return rval
 
 
@@ -941,7 +941,8 @@ def find_abalone_length(is_deployed, req):
 def lambda_handler(event, context):
     
     ab_length = find_abalone_length(True, event)
-    return ab_length
+    print ab_length
+    return "{}".format(ab_length)
 
 def is_mac():
     os_name = sys.platform
