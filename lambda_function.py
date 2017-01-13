@@ -1,5 +1,4 @@
 # import the necessary packages
-from scipy.spatial import distance as dist
 import numpy as np
 import argparse
 import imutils
@@ -239,7 +238,7 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
 
         cv2.line(base_img,left_edge,right_edge,(50, 50,50),4)
 
-        dB = dist.euclidean(left_edge, right_edge)
+        dB = abs(right_edge[0] - left_edge[0])
         dimB = dB / pixelsPerMetric
 
         return pixelsPerMetric,dimB
@@ -295,11 +294,11 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
         cv2.line(base_img, right_ruler_top, right_ruler_bottom,
             (255, 0, 255), 1)
 
-    dB1 = dist.euclidean(left_mid_point, right_mid_point)
+
 
     # compute the Euclidean distance between the midpoints
-    dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
-    dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
+    dA = abs(blbrX - tltrX)
+    dB = abs(trbrX - tlblX)
 
     # if the pixels per metric has not been initialized, then
     # compute it as the ratio of pixels to supplied metric
