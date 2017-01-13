@@ -878,7 +878,7 @@ def find_abalone_length(is_deployed, req):
     
     print "final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue)
     print "final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue)
-    if showResults:
+    if showResults and is_mac():
         if bestRulerKey.endswith("_masked_quarter"):
             offx = qoffset_x
             offy = qoffset_y
@@ -924,6 +924,10 @@ def lambda_handler(event, context):
     
     ab_length = find_abalone_length(True, event)
     return ab_length
+
+def is_mac():
+    os_name = sys.platform
+    return os_name == "darwin"
 
 def run_program():
     os_name = sys.platform
