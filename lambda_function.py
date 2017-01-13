@@ -428,7 +428,7 @@ def get_bw_abalone_contour(input_image, template_contour, thresh_val, blur, use_
     
     edged = utils.find_edges(img=gray, thresh_img=thresh1, use_gray=use_gray, showImg=False, erode_iterations=1)
     cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    cnts = cnts[0] #if imutils.is_cv2() else cnts[1]
+    cnts = cnts[1] #if imutils.is_cv2() else cnts[1]
 
 
     #imageName, input_image, contour, template_contour
@@ -484,7 +484,7 @@ def get_bw_ruler_contour(input_image, template_contour, thresh_val, blur, showIm
     #find the contours in the ruler half image
     #use chain approx none to return all the points so enclosed contour works
     ruler_contours = cv2.findContours(ruler_edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    ruler_contours = ruler_contours[0] #if imutils.is_cv2() else ruler_contours[1]
+    ruler_contours = ruler_contours[1] #if imutils.is_cv2() else ruler_contours[1]
     
     smallest_combined = 10000000.0
     target_contour = None

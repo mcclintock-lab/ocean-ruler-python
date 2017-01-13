@@ -59,27 +59,34 @@ def get_largest_edge(cnts):
     if len(cnts) == 0:
         print "no edges..."
         return None, None
-    
-    max_size = 0
-    targetDex = 0
-    target_contours = []
+    try:
+        max_size = 0
+        targetDex = 0
+        target_contours = []
 
-    for i, contour in enumerate(cnts):
-        carea = cv2.contourArea(contour)    
-        #thull = cv2.convexHull(contour)
-        #harea = cv2.contourArea(thull)        
+        for i, contour in enumerate(cnts):
+            if len(contour) == 0:
+                continue
 
-        if carea > max_size:
-            max_size = carea
+            carea = cv2.contourArea(contour)    
+            #thull = cv2.convexHull(contour)
+            #harea = cv2.contourArea(thull)        
+
+            if carea > max_size:
+                max_size = carea
 
 
-    #include ties
-    for i, contour in enumerate(cnts):
-        carea = cv2.contourArea(contour)    
-        #thull = cv2.convexHull(contour)
-        #harea = cv2.contourArea(thull)    
-        if carea >= max_size:
-            target_contours.append(contour)
+        #include ties
+        for i, contour in enumerate(cnts):
+            carea = cv2.contourArea(contour)    
+            #thull = cv2.convexHull(contour)
+            #harea = cv2.contourArea(thull)    
+            if carea >= max_size:
+                target_contours.append(contour)
+
+    except  StandardError, e:
+        print "skipping contour with no points..."
+        return None, None
 
     return target_contours, max_size
 

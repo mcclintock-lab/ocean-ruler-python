@@ -96,7 +96,8 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
 
     # find contours in the edge map
     cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    cnts = cnts[0] #if imutils.is_cv2() else cnts[1]
+
+    cnts = cnts[1] #if imutils.is_cv2() else cnts[1]
 
     if is_ruler:
         contours= utils.get_large_edges(cnts)
