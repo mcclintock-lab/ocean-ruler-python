@@ -873,9 +873,9 @@ def find_abalone_length(is_deployed, req):
     pixelsPerMetric, rulerLength, = draw_contour(rescaled_image, newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter)
     pixelsPerMetric, abaloneLength = draw_contour(rescaled_image, newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False)
 
-
     all_rows = {}
-    file_utils.read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, bestRulerValue)
+    if is_mac():
+        file_utils.read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, bestRulerValue)
     
     print "final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue)
     print "final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue)
