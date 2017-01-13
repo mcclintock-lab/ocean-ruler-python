@@ -373,14 +373,7 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         combined = val*haus_dist*centroid_diff
 
         #check to see if the ruler contour is inside the abalone contour. if it is, its a bogus shape
-        contour_is_enclosed = False
-        if enclosing_contour is not None:
-            #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
-            contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour)
 
-        if contour_is_enclosed:
-            #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
-            continue
 
         if retry:
             print "{} {}.combined: {}; val:{};dist:{};key:{};area:{};cdiff:{}".format(which_one, i,combined,val,haus_dist,contour_key,area_perc,centroid_diff)
@@ -410,7 +403,15 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
             
             i+=1
             if (combined < minValue) and (wprop < width_limit) and (hprop < height_limit):
-                
+                if contour_key.endswith(QUARTER):
+                    contour_is_enclosed = False
+                    if enclosing_contour is not None:
+                        #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
+                        contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour)
+
+                    if contour_is_enclosed:
+                        #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
+                        continue
                 minValue = combined
                 targetContour = contour
                 targetKey = contour_key
@@ -696,7 +697,15 @@ def noResults(key, val):
     else:
         return False
 
+def print_time(start_time, msg):
+    now = time.time()
+    elapsed = now - start_time
+    print "{} time elapsed: {}".format(msg, elapsed)
+    return elapsed
+
 def find_abalone_length(is_deployed, req):
+    start_time = time.time()
+    start_time = print_time(start_time, "start")
     #width of US quarter in inches
     quarter_width = 0.955
 
@@ -731,7 +740,7 @@ def find_abalone_length(is_deployed, req):
     orig_rows = len(image_full)
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
     abalone_template_contour, small_abalone_template_contour, quarter_template_contour = get_template_contours(rescaled_image)
-
+    start_time = print_time(start_time, "template loads...")
     minEdged = None
     large_color_abalone_shapes = []
     small_color_abalone_shapes = []
@@ -767,7 +776,7 @@ def find_abalone_length(is_deployed, req):
         newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(large_color_abalone_shapes, 0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
         
         print "best abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
-        
+        start_time = print_time(start_time, "loading big abalone")
         if noResults(bestAbaloneKey, bestAbaloneValue):
             small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
                 small_color_abalone_shapes, small_abalone_template_contour, rescaled_image,first_pass=False,
@@ -787,9 +796,10 @@ def find_abalone_length(is_deployed, req):
 
                 print "best small abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
 
+        start_time = print_time(start_time, "done with all ab")
         ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, False, first_pass=True)
         newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.6, 1.1, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-        
+        start_time = print_time(start_time, "ruler time")
         if noResults(bestRulerKey, bestRulerValue):
             #trying getting results with a lower boundary
             ruler_shapes = []
@@ -859,27 +869,31 @@ def find_abalone_length(is_deployed, req):
     
     is_quarter = True
 
+    start_time = print_time(start_time, "done with all lengths")
     #fit a centroid to the quarter and trim outlying scratches/lines
     centroidX, centroidY, qell, quarter_ellipse = get_quarter_contour_and_center(newBestRulerContour)
     origRulerContour = newBestRulerContour.copy()
     if qell is not None and len(qell) > 0:
         newBestRulerContour = qell.copy()
 
+    start_time = print_time(start_time, "clipped quarter")
     #add a loose ellipse to the abalone and trim the width. trying to get rid of large horizontal lines/outliers
     #trimmed_ab_contour, ab_ell = trim_abalone_contour(newBestAbaloneContour.copy())
     #if trimmed_ab_contour is None or len(trimmed_ab_contour) == 0:
     #    trimmed_ab_contour = newBestAbaloneContour.copy()
 
+
     pixelsPerMetric, rulerLength, = draw_contour(rescaled_image, newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter)
     pixelsPerMetric, abaloneLength = draw_contour(rescaled_image, newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False)
-
+    start_time = print_time(start_time, "done drawing")
+    
     all_rows = {}
     if is_mac():
         file_utils.read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, bestRulerValue)
     
     print "final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue)
     print "final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue)
-    if showResults and is_mac():
+    if False and is_mac():
         if bestRulerKey.endswith("_masked_quarter"):
             offx = qoffset_x
             offy = qoffset_y
@@ -934,13 +948,17 @@ def is_mac():
     return os_name == "darwin"
 
 def run_program():
+    start_time = time.time()
     os_name = sys.platform
     if os_name == "darwin":
         res = find_abalone_length(False, None)
     else:
         res = find_abalone_length(False, None)
 
+    end_time = time.time()
+
     print "{}".format(res)
+    print "took {} sec".format(end_time-start_time)
 
 if __name__ == "__main__":
     run_program()

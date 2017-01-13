@@ -17,14 +17,14 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
     #make this adjust to look for background with color?
     rows = len(orig_image)
     cols = len(orig_image[0])
-    row_starts = [100, rows-105]
-    row_ends = [110, rows-95]
+    row_starts = [100, rows-104]
+    row_ends = [104, rows-100]
     if first_pass:
-        col_starts = [100, cols-75]
-        col_ends = [103, cols-70]
+        col_starts = [100, cols-72]
+        col_ends = [102, cols-70]
     else:
-        col_starts = [75, cols-75]
-        col_ends = [83, cols-70]
+        col_starts = [75, cols-77]
+        col_ends = [77, cols-75]
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for x in range(0,2):
