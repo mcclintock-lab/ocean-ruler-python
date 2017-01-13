@@ -929,6 +929,9 @@ def run_program():
     os_name = sys.platform
     if os_name == "darwin":
         res = find_abalone_length(False, None)
+    else:
+        res = find_abalone_length(False, None)
+
     print "{}".format(res)
 
 if __name__ == "__main__":
