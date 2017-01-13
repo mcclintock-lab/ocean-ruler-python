@@ -13,7 +13,7 @@ def get_real_size(imageName):
 
 def read_real_sizes(imageName):
     real_sizes = {}
-    real_sizes_file = "../real_sizes.csv"
+    real_sizes_file = "../data/real_sizes.csv"
     size = -1.0
     with open(real_sizes_file, 'rU') as csvfile:
 
