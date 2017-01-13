@@ -918,7 +918,10 @@ def find_abalone_length(is_deployed, req):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    return {"abalone_key":bestAbaloneKey, "ruler_key":bestRulerKey, "length":abaloneLength}
+    rval = {"abalone_key":bestAbaloneKey, "ruler_key":bestRulerKey, "length":abaloneLength}
+    print rval
+    return rval
+
 
 
 def lambda_handler(event, context):
