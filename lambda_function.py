@@ -942,7 +942,7 @@ def lambda_handler(event, context):
     
     ab_length = find_abalone_length(True, event)
     print ab_length
-    return "{}".format(ab_length)
+    return rval
 
 def is_mac():
     os_name = sys.platform
