@@ -192,8 +192,14 @@ def read_args():
     ap.add_argument("--output_file", required=False,
         help="file to read/write results from")
 
-    ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
-    args = vars(ap.parse_args())
+    try:
+        args = vars(ap.parse_args())
+        if args['image'] is None:
+            ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
+            args = vars(ap.parse_known_args())
+    except SystemExit, e:
+        ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
+        args = vars(ap.parse_args())  
     
     showResults = args["show"]
     showResults = bool(showResults)
@@ -700,7 +706,7 @@ def noResults(key, val):
 def print_time(start_time, msg):
     now = time.time()
     elapsed = now - start_time
-    print "{} time elapsed: {}".format(msg, elapsed)
+    #print "{} time elapsed: {}".format(msg, elapsed)
     return elapsed
 
 def find_abalone_length(is_deployed, req):
@@ -742,6 +748,8 @@ def find_abalone_length(is_deployed, req):
     abalone_template_contour, small_abalone_template_contour, quarter_template_contour = get_template_contours(rescaled_image)
     start_time = print_time(start_time, "template loads...")
     minEdged = None
+            
+    abalone_shapes = []
     large_color_abalone_shapes = []
     small_color_abalone_shapes = []
     bw_abalone_shapes = []
@@ -815,7 +823,6 @@ def find_abalone_length(is_deployed, req):
 
     else:
         print "working on b&w image....."
-        abalone_shapes = []
         #try it with gray thresholding first....
         abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, rescaled_image, False)
         #if there is still nothing, loosen the area restrictions and try again
@@ -893,7 +900,7 @@ def find_abalone_length(is_deployed, req):
     
     print "final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue)
     print "final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue)
-    if False and is_mac():
+    if showResults and is_mac():
         if bestRulerKey.endswith("_masked_quarter"):
             offx = qoffset_x
             offy = qoffset_y
@@ -934,7 +941,7 @@ def find_abalone_length(is_deployed, req):
 
     rval = {"abalone_key":bestAbaloneKey, "ruler_key":bestRulerKey, "length":abaloneLength}
     
-    return rval
+    return "{}".format(abaloneLength)
 
 
 
