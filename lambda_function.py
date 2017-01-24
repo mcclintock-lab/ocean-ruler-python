@@ -946,8 +946,11 @@ def find_abalone_length(is_deployed, req):
 
 
 def lambda_handler(event, context):
-    
-    ab_length = find_abalone_length(True, event)
+    try:
+        ab_length = find_abalone_length(True, event)
+    except StandardError, e:
+        ab_length = "Unknown"
+        
     print ab_length
     return ab_length
 
