@@ -331,7 +331,7 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
             (int(trbrX)+10, int(trbrY)+50), cv2.FONT_HERSHEY_SIMPLEX,
             0.65, (255, 255, 255), 2)
 
-    return pixelsPerMetric, dimB
+    return pixelsPerMetric, dimB, left_mid_point, right_mid_point
 
 
 def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contour, retry, scaled_rows, scaled_cols, input_image=None):
@@ -744,6 +744,8 @@ def find_abalone_length(is_deployed, req):
     image_full = cv2.imread(imageName)
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
+    print "cols: {}, rows:{}".format(orig_cols, orig_rows)
+
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
     abalone_template_contour, small_abalone_template_contour, quarter_template_contour = get_template_contours(rescaled_image)
     start_time = print_time(start_time, "template loads...")
@@ -890,8 +892,8 @@ def find_abalone_length(is_deployed, req):
     #    trimmed_ab_contour = newBestAbaloneContour.copy()
 
 
-    pixelsPerMetric, rulerLength, = draw_contour(rescaled_image, newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter)
-    pixelsPerMetric, abaloneLength = draw_contour(rescaled_image, newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False)
+    pixelsPerMetric, rulerLength,left_ruler_point, right_ruler_point = draw_contour(rescaled_image, newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter)
+    pixelsPerMetric, abaloneLength, left_point, right_point = draw_contour(rescaled_image, newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False)
     start_time = print_time(start_time, "done drawing")
 
     all_rows = {}
@@ -939,9 +941,9 @@ def find_abalone_length(is_deployed, req):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    rval = {"abalone_key":bestAbaloneKey, "ruler_key":bestRulerKey, "length":abaloneLength}
+    rval = {"left_point":left_point, "right_point":right_point, "length":abaloneLength}
     
-    return "{}".format(abaloneLength)
+    return "{}".format(rval)
 
 
 
