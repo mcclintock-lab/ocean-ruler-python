@@ -725,8 +725,15 @@ def find_abalone_length(is_deployed, req):
     bestAbaloneContour = None
 
     if is_deployed:
-        img_str = req[u'base64Image']
+        #user info
+        name = req[u'name']
+        email = req[u'email']
+        uuid = req[u'uuid']
+        locCode = req[u'locCode']
+        picDate = req[u'picDate']
 
+        #img info
+        img_str = req[u'base64Image']
         img_data = base64.b64decode(img_str)
         tmp_filename = '/tmp/ab_length_{}.png'.format(time.time())  
         with open(tmp_filename, 'wb') as f:
@@ -736,6 +743,7 @@ def find_abalone_length(is_deployed, req):
         showResults = False
         rulerWidth = quarter_width
         out_file = None
+        print "name: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
 
