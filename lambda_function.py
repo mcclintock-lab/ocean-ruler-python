@@ -11,6 +11,7 @@ import matching
 import utils
 import color_images as ci
 import file_utils
+import boto3
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -709,6 +710,28 @@ def print_time(start_time, msg):
     #print "{} time elapsed: {}".format(msg, elapsed)
     return elapsed
 
+def do_dynamo_put(image_data, name, email, uuid, locCode, picDate):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('ab_length')
+    table.put_item(
+        Item={
+            'name': name,
+            'email': email,
+            'uuid': uuid,
+            'locCode': locCode,
+            'picDate': picDate
+        }
+    )
+
+    response = table.get_item(
+        Key={
+            'uuid': uuid
+        }
+    )
+
+    print "response: {}".format(response)
+
+
 def find_abalone_length(is_deployed, req):
     start_time = time.time()
     start_time = print_time(start_time, "start")
@@ -743,10 +766,12 @@ def find_abalone_length(is_deployed, req):
         showResults = False
         rulerWidth = quarter_width
         out_file = None
+        do_dynamo_put(img_data, name, email, uuid, locCode, picDate)
         print "name: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
-
+        print 'doing dynamo put...'
+        do_dynamo_put(None, "Dan", "foo@bar.com", '1234568', 'N16 North Something', "Feb 6, 2017")
 
     #read the image
     image_full = cv2.imread(imageName)
