@@ -12,6 +12,7 @@ import utils
 import color_images as ci
 import file_utils
 import boto3
+from boto3.dynamodb.types import Binary
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -719,17 +720,10 @@ def do_dynamo_put(image_data, name, email, uuid, locCode, picDate):
             'email': email,
             'uuid': uuid,
             'locCode': locCode,
-            'picDate': picDate
+            'picDate': picDate,
+            'base64Image':Binary(image_data)
         }
     )
-
-    response = table.get_item(
-        Key={
-            'uuid': uuid
-        }
-    )
-
-    print "response: {}".format(response)
 
 
 def find_abalone_length(is_deployed, req):
@@ -771,7 +765,7 @@ def find_abalone_length(is_deployed, req):
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
         print 'doing dynamo put...'
-        do_dynamo_put(None, "Dan", "foo@bar.com", '1234568', 'N16 North Something', "Feb 6, 2017")
+        do_dynamo_put("xx", "Dan", "foo@bar.com", '1234568', 'N16 North Something', "Feb 6, 2017")
 
     #read the image
     image_full = cv2.imread(imageName)
