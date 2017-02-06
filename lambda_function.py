@@ -12,6 +12,7 @@ import utils
 import color_images as ci
 import file_utils
 import boto3
+import time
 from boto3.dynamodb.types import Binary
 
 ABALONE = "abalone"
@@ -711,7 +712,7 @@ def print_time(start_time, msg):
     #print "{} time elapsed: {}".format(msg, elapsed)
     return elapsed
 
-def do_dynamo_put(image_data, name, email, uuid, locCode, picDate):
+def do_dynamo_put(name, email, uuid, locCode, picDate):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ab_length')
     table.put_item(
@@ -720,11 +721,13 @@ def do_dynamo_put(image_data, name, email, uuid, locCode, picDate):
             'email': email,
             'uuid': uuid,
             'locCode': locCode,
-            'picDate': picDate,
-            'base64Image':Binary(image_data)
+            'picDate': picDate
         }
     )
 
+def do_s3_upload(image_data, uuid):
+    s3 = boto3.resource('s3')
+    s3.Bucket('abalone').put_object(Key=uuid, Body=image_data)
 
 def find_abalone_length(is_deployed, req):
     start_time = time.time()
@@ -760,12 +763,16 @@ def find_abalone_length(is_deployed, req):
         showResults = False
         rulerWidth = quarter_width
         out_file = None
-        do_dynamo_put(img_data, name, email, uuid, locCode, picDate)
+        do_dynamo_put(name, email, uuid, locCode, picDate)
+        do_s3_upload(image_data, uuid)
         print "name: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
         print 'doing dynamo put...'
-        do_dynamo_put("xx", "Dan", "foo@bar.com", '1234568', 'N16 North Something', "Feb 6, 2017")
+        fake_uuid = "{}".format(time.time());
+        do_dynamo_put("Dan", "foo@bar.com", fake_uuid, 'N16 North Something', "Feb 6, 2017")
+        local_data = open(imageName, 'rb')
+        do_s3_upload(local_data, fake_uuid)
 
     #read the image
     image_full = cv2.imread(imageName)
