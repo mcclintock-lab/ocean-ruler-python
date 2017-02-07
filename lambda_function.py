@@ -764,7 +764,7 @@ def find_abalone_length(is_deployed, req):
         rulerWidth = quarter_width
         out_file = None
         do_dynamo_put(name, email, uuid, locCode, picDate)
-        do_s3_upload(image_data, uuid)
+        do_s3_upload(img_data, uuid)
         print "name: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
