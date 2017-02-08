@@ -717,7 +717,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate):
     table = dynamodb.Table('ab_length')
     table.put_item(
         Item={
-            'name': name,
+            'username': name,
             'email': email,
             'uuid': uuid,
             'locCode': locCode,
@@ -746,7 +746,7 @@ def find_abalone_length(is_deployed, req):
 
     if is_deployed:
         #user info
-        name = req[u'name']
+        name = req[u'username']
         email = req[u'email']
         uuid = req[u'uuid']
         locCode = req[u'locCode']
@@ -765,14 +765,14 @@ def find_abalone_length(is_deployed, req):
         out_file = None
         do_dynamo_put(name, email, uuid, locCode, picDate)
         do_s3_upload(img_data, uuid)
-        print "name: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
+        print "username: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
-        print 'doing dynamo put...'
-        fake_uuid = "{}".format(time.time());
-        do_dynamo_put("Dan", "foo@bar.com", fake_uuid, 'N16 North Something', "Feb 6, 2017")
-        local_data = open(imageName, 'rb')
-        do_s3_upload(local_data, fake_uuid)
+        #print 'doing dynamo put...'
+        #fake_uuid = "{}".format(time.time());
+        #do_dynamo_put("Dan", "foo@bar.com", fake_uuid, 'N16 North Something', "Feb 6, 2017")
+        #local_data = open(imageName, 'rb')
+        #do_s3_upload(local_data, fake_uuid)
 
     #read the image
     image_full = cv2.imread(imageName)

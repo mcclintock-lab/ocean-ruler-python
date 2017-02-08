@@ -8,7 +8,16 @@ QUOTECHAR = '|'
 
 
 def get_real_size(imageName):
-    return read_real_sizes(imageName)
+    #IMG_8.93_60.jpg
+    parts = imageName.split("_")
+    print "parts: {}".format(parts)
+    try:
+        size = float(parts[2])
+        print "real size from name is :{}".format(size)
+        return size
+    except StandardError, e:
+
+        return read_real_sizes(imageName)
     
 
 def read_real_sizes(imageName):
