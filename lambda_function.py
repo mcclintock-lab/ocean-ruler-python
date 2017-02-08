@@ -725,9 +725,23 @@ def do_dynamo_put(name, email, uuid, locCode, picDate):
         }
     )
 
-def do_s3_upload(image_data, uuid):
+def do_s3_upload(image_data, thumb, uuid):
     s3 = boto3.resource('s3')
-    s3.Bucket('abalone').put_object(Key=uuid, Body=image_data)
+    s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
+    s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
+
+def get_thumbnail(image_full):
+    target_cols = 200.0
+
+    orig_cols = len(image_full[0]) 
+    orig_rows = len(image_full)
+ 
+    target_rows = (float(orig_rows)/(float(orig_cols))*200.0)
+    fx = float(target_cols/orig_cols)
+    fy = float(target_rows/orig_rows)
+
+    thumb = cv2.resize( image_full, (0,0), fx = fx, fy = fy)
+    return thumb
 
 def find_abalone_length(is_deployed, req):
     start_time = time.time()
@@ -755,30 +769,36 @@ def find_abalone_length(is_deployed, req):
         #img info
         img_str = req[u'base64Image']
         img_data = base64.b64decode(img_str)
-        tmp_filename = '/tmp/ab_length_{}.png'.format(time.time())  
+        tmp_filename = '/tmp/ab_length_{}.png'.format(time.time()) 
+
         with open(tmp_filename, 'wb') as f:
             f.write(img_data)
         
+
         imageName = tmp_filename
+        image_full = cv2.imread(imageName)
+        thumb = get_thumbnail(image_full)
+
+        
         showResults = False
         rulerWidth = quarter_width
         out_file = None
         do_dynamo_put(name, email, uuid, locCode, picDate)
-        do_s3_upload(img_data, uuid)
+        thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+        do_s3_upload(img_data, thumb_str, uuid)
         print "username: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
-        #print 'doing dynamo put...'
-        #fake_uuid = "{}".format(time.time());
-        #do_dynamo_put("Dan", "foo@bar.com", fake_uuid, 'N16 North Something', "Feb 6, 2017")
-        #local_data = open(imageName, 'rb')
-        #do_s3_upload(local_data, fake_uuid)
+        image_full = cv2.imread(imageName)
+        #thumb = get_thumbnail(image_full)
+        #uuid = "12345567"
+        #full_str = cv2.imencode('.png', image_full)[1].tostring()
+        #thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+        #do_s3_upload(full_str, thumb_str, uuid)
 
     #read the image
-    image_full = cv2.imread(imageName)
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
-    print "cols: {}, rows:{}".format(orig_cols, orig_rows)
 
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
     abalone_template_contour, small_abalone_template_contour, quarter_template_contour = get_template_contours(rescaled_image)
