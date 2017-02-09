@@ -14,10 +14,24 @@ import file_utils
 import boto3
 import time
 from boto3.dynamodb.types import Binary
+from boto3.dynamodb.conditions import Key, Attr
+from botocore.exceptions import ClientError
+import decimal
+import json
 
 ABALONE = "abalone"
 RULER = "ruler"
 QUARTER = "_quarter"
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
 
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
@@ -337,7 +351,7 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     return pixelsPerMetric, dimB, left_mid_point, right_mid_point
 
 
-def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contour, retry, scaled_rows, scaled_cols, input_image=None):
+def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contour, retry, scaled_rows, scaled_cols, input_image=None, all_bets_are_off=False):
     if len(shapes) == 0:
         return None, None, None
 
@@ -411,19 +425,20 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
                 print "{}-{} :: combined:{};  val:{}; haus_dist:{}; centroid_diff:{}".format(which_one,contour_key,combined, val,haus_dist, centroid_diff)
             
             i+=1
-            if (combined < minValue) and (wprop < width_limit) and (hprop < height_limit):
-                if contour_key.endswith(QUARTER):
-                    contour_is_enclosed = False
-                    if enclosing_contour is not None:
-                        #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
-                        contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour)
+            if (combined < minValue):
+                if all_bets_are_off or ((wprop < width_limit) and (hprop < height_limit)):
+                    if contour_key.endswith(QUARTER):
+                        contour_is_enclosed = False
+                        if enclosing_contour is not None:
+                            #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
+                            contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour)
 
-                    if contour_is_enclosed:
-                        #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
-                        continue
-                minValue = combined
-                targetContour = contour
-                targetKey = contour_key
+                        if contour_is_enclosed:
+                            #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
+                            continue
+                    minValue = combined
+                    targetContour = contour
+                    targetKey = contour_key
 
 
     #ellipse = cv2.fitEllipse(targetContour)
@@ -712,6 +727,33 @@ def print_time(start_time, msg):
     #print "{} time elapsed: {}".format(msg, elapsed)
     return elapsed
 
+
+def do_dynamo_length_put(uuid, len_in_inches):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('ab_length')
+
+
+    try:
+        lenfloat = round(float(len_in_inches),2)
+    except StandardError, e:
+        lenfloat = -1.0
+
+    try:
+        response = table.update_item(
+            Key={
+                'uuid': uuid
+            },
+            UpdateExpression="set length_in_inches = :li",
+            ExpressionAttributeValues={
+                ':li': decimal.Decimal('{}'.format(lenfloat))
+            }
+        )
+
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print("{} length updated to {}".format(uuid, lenfloat))
+
 def do_dynamo_put(name, email, uuid, locCode, picDate):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ab_length')
@@ -721,7 +763,8 @@ def do_dynamo_put(name, email, uuid, locCode, picDate):
             'email': email,
             'uuid': uuid,
             'locCode': locCode,
-            'picDate': picDate
+            'picDate': picDate,
+            'length_in_inches':decimal.Decimal('0.0')
         }
     )
 
@@ -786,15 +829,16 @@ def find_abalone_length(is_deployed, req):
         do_dynamo_put(name, email, uuid, locCode, picDate)
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
         do_s3_upload(img_data, thumb_str, uuid)
-        print "username: {};email:{};uuid:{};locCode:{};picDate:{}".format(name, email, uuid, locCode, picDate)
+        
     else:
         (imageName, showResults, rulerWidth, out_file) = read_args()
         image_full = cv2.imread(imageName)
-        #thumb = get_thumbnail(image_full)
-        #uuid = "12345567"
-        #full_str = cv2.imencode('.png', image_full)[1].tostring()
-        #thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-        #do_s3_upload(full_str, thumb_str, uuid)
+        thumb = get_thumbnail(image_full)
+        uuid = "delete_me"
+        full_str = cv2.imencode('.png', image_full)[1].tostring()
+        thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+        do_dynamo_put("get", "rid", "delete_me", "of", "me")
+        do_s3_upload(full_str, thumb_str, uuid)
 
     #read the image
     orig_cols = len(image_full[0]) 
@@ -930,8 +974,12 @@ def find_abalone_length(is_deployed, req):
         newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes+large_color_abalone_shapes+small_color_abalone_shapes, 
             0.10, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
     
-    is_quarter = True
+        if noResults(bestAbaloneKey, bestAbaloneValue):
+            print "ok, trying one more time with width and height limits turned off"
+            newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes+large_color_abalone_shapes+small_color_abalone_shapes, 
+                0.10, 1.25, ABALONE, None, False, scaled_rows, scaled_cols, None, True)
 
+    is_quarter = True
     start_time = print_time(start_time, "done with all lengths")
     #fit a centroid to the quarter and trim outlying scratches/lines
     centroidX, centroidY, qell, quarter_ellipse = get_quarter_contour_and_center(newBestRulerContour)
@@ -994,6 +1042,8 @@ def find_abalone_length(is_deployed, req):
         cv2.imshow(imageName, bounded_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    do_dynamo_length_put(uuid, abaloneLength)
 
     rval = {"left_point":left_point, "right_point":right_point, "length":abaloneLength}
     
