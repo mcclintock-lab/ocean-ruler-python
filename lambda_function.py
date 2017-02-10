@@ -788,7 +788,7 @@ def find_abalone_length(is_deployed, req):
     quarter_width = 0.955
 
     #all the work
-    thresholds = [10, 30, 50,70]
+    thresholds = [10, 30, 70]
     blurs = [1,3,5,7]
 
 
@@ -1019,7 +1019,6 @@ def find_abalone_length(is_deployed, req):
 
         cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 1)
         #draw the sampling point in the upper left
-        cv2.rectangle(rescaled_image, (100,110), (103,120),(5,5,5),2)
         #draw the sampling point in the lower right
         rows = len(rescaled_image)
         cols = len(rescaled_image[0])
@@ -1039,9 +1038,12 @@ def find_abalone_length(is_deployed, req):
         do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength)
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
         do_s3_upload(img_data, thumb_str, uuid)
+        
+    rows = len(rescaled_image)
+    cols = len(rescaled_image[0])
+    rval = {"left_point":left_point, "right_point":right_point, "length":abaloneLength,"width":cols,"height":rows}
+    print "{}".format(rval)
 
-    rval = {"left_point":left_point, "right_point":right_point, "length":abaloneLength}
-    
     return "{}".format(rval)
 
 
