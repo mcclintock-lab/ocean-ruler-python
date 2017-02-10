@@ -7,7 +7,8 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
     if len(image) > 500:
-        mask = cv2.inRange(image, np.array([0,0,255]), np.array([300,7,255]))
+        mask = cv2.inRange(image, np.array([0,0,255]), np.array([300,0,255]))
+        
         notmask = cv2.bitwise_not(mask)
         image = cv2.bitwise_and(orig_image,orig_image,mask=notmask)
         
@@ -17,24 +18,36 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
     #make this adjust to look for background with color?
     rows = len(orig_image)
     cols = len(orig_image[0])
-    row_starts = [100, rows-104]
-    row_ends = [104, rows-100]
+
+    row_first = int(rows/8)
+    row_mid = int(rows/2)
+    row_last = int(rows*0.85)
+
     if first_pass:
-        col_starts = [100, cols-72]
-        col_ends = [102, cols-70]
+        col_first = int(cols/8)
+        col_last = int(cols*0.925)
     else:
-        col_starts = [75, cols-77]
-        col_ends = [77, cols-75]
+        col_first = int(cols/8.25)
+        col_last = int(cols*0.9)
+    col_mid = int(cols/2)
+
+    upper_left = (row_first, col_first)
+    mid_left = (row_mid, col_first)
+    mid_right = (row_mid, col_last)
+    bottom_right = (row_last, col_last)
+    bottom_left = (row_last, col_first)
+    upper_right = (row_first, col_last)
+    pts = [upper_left, mid_left, mid_right, upper_right]
+    #final_image = np.zeros((rows,cols,3), np.uint8)
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
-    for x in range(0,2):
-        row_start = row_starts[x]
-        col_start = col_starts[x]
-        row_end = row_ends[x]
-        col_end = col_ends[x]
-        for i in range(row_start,row_end):
-            for j in range(col_start,col_end):
-                val = orig_image[i,j]
+    for pt in pts:
+        for i in range(0,2):
+            for j in range(0,2):
+                tgt_row = pt[0]+i
+                tgt_col = pt[1]+j
+                val = orig_image[tgt_row,tgt_col]
+                #print "color val: {}".format(val)
                 huemin = get_min(val[0]-hue_offset)
                 satmin = get_min(val[1]-(hue_offset+sat_offset))
                 valmin = get_min(val[2]-(hue_offset+val_offset))
@@ -52,7 +65,18 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
                 image = cv2.bitwise_and(image,image,mask=notmask)
 
     bgr = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
-
+    if False:
+        rows = len(image)
+        cols = len(image[0])
+        print "rows: {}, cols:{}".format(rows,cols)
+        for pt in pts:
+            print "drawing pt {}".format(pt)
+            endpt = (pt[0]+2, pt[1]+2)
+            print "drawing endpt {}".format(endpt)
+            cv2.rectangle(image, (pt[1],pt[0]), (endpt[1],endpt[0]),(255,0,0),10)
+        cv2.imshow("result", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     return bgr
 
 
@@ -62,7 +86,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     cols = len(input_image[0])
     image = input_image
     color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass)
-    
+    #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
     #maybe use this to see if we should threshold?
     gray = cv2.cvtColor(color_res, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
@@ -70,9 +94,8 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
 
     retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-    #if show_img:
-    #    utils.show_img("color img, one thats returned {};{}".format(thresh_val, blur_window),res)
-    #   utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
+    if False:
+        utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
 
     return image, threshold_bw, color_res, rows
 
@@ -109,11 +132,10 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
 
     smallest_combined = 10000000.0
     target_contour = None
-    rval = 1000000
-    aperc = 1000000
-    adist = 1000000
-    cdiff = 1000000
-    
+    rval = 10000000
+    aperc = 10000000
+    adist = 10000000
+    cdiff = 10000000
     if False:
         print "number of contours: {}".format(len(contours))
         cv2.fillPoly(input_image, contours, -1, (255,255,200), 5)
@@ -126,7 +148,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
         min_area = 0.10
 
     for contour in contours:
-        the_contour, result_val, area_perc, area_dist, centroid_diff, shape_dist= matching.sort_by_matching_shape(contour, template_contour, False,input_image)
+        the_contour, result_val, area_perc, area_dist, centroid_diff = matching.sort_by_matching_shape(contour, template_contour, False,input_image)
         #ditch the outliers -- this is fine tuned later
         if area_perc < 0.25 or area_perc > 2.0:
             #print "ditching because the area is too small: {}".format(area_perc)
@@ -145,7 +167,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
             if is_enclosed:
                 continue
 
-        comb = result_val*area_dist
+        comb = result_val*area_dist*centroid_diff
         #comb = result_val
         if comb < smallest_combined:
             if (not is_ruler) or (is_ruler and area_perc > 0.25):
@@ -155,13 +177,14 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
                 adist = area_dist
                 target_contour = the_contour
                 cdiff = centroid_diff
+                
 
     if False:
         if is_ruler:
-            utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, shape_dist, rval), input_image, target_contour, enclosing_contour,0)
+            utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, enclosing_contour,0)
 
         else:
-            utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, shape_dist, rval), input_image, target_contour, template_contour,0)
+            utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, template_contour,0)
 
     #epsilon = 0.003*cv2.arcLength(target_contour,True)
     #approx = cv2.approxPolyDP(target_contour,epsilon,True)

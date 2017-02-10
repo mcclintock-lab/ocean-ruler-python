@@ -4,20 +4,19 @@ import numpy as np
 DELIM = ","
 QUOTECHAR = '|'
 
-
-
-
 def get_real_size(imageName):
     #IMG_8.93_60.jpg
-    parts = imageName.split("_")
-    print "parts: {}".format(parts)
-    try:
-        size = float(parts[2])
-        print "real size from name is :{}".format(size)
-        return size
-    except StandardError, e:
-
-        return read_real_sizes(imageName)
+    if imageName.startswith("feb_2017"):
+        filename = imageName.split("/")
+        parts = filename[1].split("_")
+        try:
+            size = float(parts[1])
+            return size
+        except StandardError, e:
+            return read_real_sizes(imageName)
+    else:
+        filename = imageName.split("/")
+        return read_real_sizes(filename[1])
     
 
 def read_real_sizes(imageName):
@@ -32,16 +31,16 @@ def read_real_sizes(imageName):
                 name = row[0]
                 currSize = row[1]
                 name = name.replace(":", "_")
-                
                 imageName = imageName.replace(".jpg","")
                 imageName = imageName.replace(".JPG","")
                 imageName = imageName.replace("white/","")
                 imageName = imageName.replace("blue/","")
                 if name == imageName:
-                    return float(currSize)
+                    size = float(currSize)
+                    return size
 
         except StandardError, e:
-            print "can't real real files: {}".format(e)
+            print "can't read real files: {}".format(e)
 
     return size
 
@@ -76,7 +75,6 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
                 print("problem here: {}".format(e))
 
     try:
-        
         real_size = get_real_size(imageName)
         if real_size > 0.0:
             diff = ((abaloneLength - real_size)/real_size)*100.0

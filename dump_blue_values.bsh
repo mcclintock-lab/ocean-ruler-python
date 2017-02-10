@@ -1,9 +1,8 @@
 #!/bin/bash
 
-
-cd blue_bkground_data	 
-for f in *.jpg
+ 
+for f in blue_bkground_data/*.jpg
 do
 	echo "running $f"
-	python ../abalone_size.py "$f"
+	python lambda_function.py "$f"
 done
