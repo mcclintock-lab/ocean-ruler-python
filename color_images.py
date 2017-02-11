@@ -37,7 +37,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
     bottom_right = (row_last, col_last)
     bottom_left = (row_last, col_first)
     upper_right = (row_first, col_last)
-    pts = [upper_left, mid_left, mid_right, upper_right]
+    pts = [upper_left, bottom_left, bottom_right, upper_right]
     #final_image = np.zeros((rows,cols,3), np.uint8)
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
@@ -91,8 +91,11 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     gray = cv2.cvtColor(color_res, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
     
-
-    retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    is_bright = utils.is_bright_background(image)
+    if is_ruler or not is_bright:
+        retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    else:
+        threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,3);
 
     if False:
         utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
@@ -150,7 +153,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     for contour in contours:
         the_contour, result_val, area_perc, area_dist, centroid_diff = matching.sort_by_matching_shape(contour, template_contour, False,input_image)
         #ditch the outliers -- this is fine tuned later
-        if area_perc < 0.25 or area_perc > 2.0:
+        if the_contour is None or (area_perc < 0.25 or area_perc > 2.0):
             #print "ditching because the area is too small: {}".format(area_perc)
             continue
 

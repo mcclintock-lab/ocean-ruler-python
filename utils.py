@@ -1,5 +1,5 @@
 import cv2
-
+import numpy as np
 
 def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_iterations=1,small_img=False):
     # perform edge detection, then perform a dilation + erosion to
@@ -115,3 +115,60 @@ def get_centroid(contour):
         cX,cY = 10000.0,10000.0
 
     return cX,cY
+
+def is_bright_background(input_image):
+    image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+    h_vals = []
+    s_vals = []
+    v_vals = []
+    for i in range(130,132):
+        for j in range(131,133):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+    rows = len(image)
+    cols = len(image[0])
+    
+    for i in range(rows-85, rows-83):
+        for j in range(cols-85, cols-83):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+
+    mean_s_val = np.mean(s_vals)
+    mean_v_val = np.mean(v_vals)
+    mean_h_val = np.mean(h_vals) 
+
+    return (mean_s_val < 30 or mean_h_val < 30)
+
+def is_color(input_image):
+    image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+    h_vals = []
+    s_vals = []
+    v_vals = []
+    for i in range(130,132):
+        for j in range(131,133):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+    rows = len(image)
+    cols = len(image[0])
+    
+    for i in range(rows-85, rows-83):
+        for j in range(cols-85, cols-83):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+
+    mean_s_val = np.mean(s_vals)
+    mean_v_val = np.mean(v_vals)
+    mean_h_val = np.mean(h_vals) 
+
+    print "hue vals: {}".format(mean_h_val)
+    print "sat vals: {}".format(mean_s_val)
+    print "val vals: {}".format(mean_v_val)
+    return (mean_v_val > 50)

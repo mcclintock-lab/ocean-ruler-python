@@ -3,6 +3,8 @@ import utils
 
 
 def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image, is_quarter=False):
+    if target_contour is None:
+        return None, None, None, None, None
     templateHull = cv2.convexHull(template_shape)
     templateArea = cv2.contourArea(template_shape)
 
