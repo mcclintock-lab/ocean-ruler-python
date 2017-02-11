@@ -193,6 +193,7 @@ def get_bw_image(input_image, thresh_val, blur_window, use_gray):
     mn = np.mean(mid_patch) 
     '''
     is_bright = utils.is_bright_background(input_image)
+    print "is bright? {}".format(is_bright)
 
     if not is_bright:
         retval, threshold = cv2.threshold(gray,150,255,cv2.THRESH_BINARY)
