@@ -3,7 +3,7 @@ import utils
 import numpy as np
 import matching
 
-def get_color_image(orig_image, hue_offset, first_pass=True):
+def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
     if len(image) > 500:
@@ -49,6 +49,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True):
                 val = orig_image[tgt_row,tgt_col]
                 #print "color val: {}".format(val)
                 huemin = get_min(val[0]-hue_offset)
+
                 satmin = get_min(val[1]-(hue_offset+sat_offset))
                 valmin = get_min(val[2]-(hue_offset+val_offset))
                 
@@ -85,19 +86,20 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     rows = len(input_image)
     cols = len(input_image[0])
     image = input_image
-    color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass)
+    is_bright = utils.is_bright_background(image)
+    color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright)
     #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
     #maybe use this to see if we should threshold?
     gray = cv2.cvtColor(color_res, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
     
-    is_bright = utils.is_bright_background(image)
-    print "is bright? {}".format(is_bright)
+    
+    
     if is_ruler or not is_bright:
         retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     else:
         #light brown are all failing
-        threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,3);
+        threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,23,11);
 
     if False:
         utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
@@ -129,6 +131,11 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
 
     if is_ruler:
         contours= utils.get_large_edges(cnts)
+        if False:
+            cv2.drawContours(input_image, contours, -1, (0,255,0), 1)
+            cv2.imshow("color image {}x{}".format(thresh_val, blur_window), input_image)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
     else:
         contours, size = utils.get_largest_edge(cnts)
 
