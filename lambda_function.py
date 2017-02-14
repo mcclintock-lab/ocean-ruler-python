@@ -93,15 +93,16 @@ def get_scaled_image(image_full):
 
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
- 
+    print "orig rows:{}, orig cols:{}".format(orig_rows, orig_cols)
     target_rows = (float(orig_rows)/(float(orig_cols))*1280.0)
     fx = float(target_cols/orig_cols)
     fy = float(target_rows/orig_rows)
+    print "fx: {}, fy:{}".format(fx, fy)
     scaled_image = cv2.resize( image_full, (0,0), fx = fx, fy = fy)
     
     rows = int(len(scaled_image))
     cols = int(len(scaled_image[0]))
-    
+    print "rows:{}, cols:{}".format(rows, cols)
     scaled_image = scaled_image[30:rows,50:cols-50]
 
     #return image_full, orig_rows-30, orig_cols-100
