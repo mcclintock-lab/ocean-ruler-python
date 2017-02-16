@@ -726,7 +726,7 @@ def print_time(msg):
 
 
 
-def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches):
+def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ab_length')
     try:
@@ -742,7 +742,9 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches):
                 'uuid': uuid,
                 'locCode': locCode,
                 'picDate': picDate,
-                'length_in_inches':decimal.Decimal('{}'.format(lenfloat))
+                'length_in_inches':decimal.Decimal('{}'.format(lenfloat)),
+                'rating':decimal.Decimal('{}'.format(rating)),
+                'notes': notes
             }
         )
     except ClientError as e:
@@ -789,7 +791,8 @@ def find_abalone_length(is_deployed, req):
         uuid = req[u'uuid']
         locCode = req[u'locCode']
         picDate = req[u'picDate']
-
+        rating = req[u'rating']
+        notes = req[u'notes']
         #img info
         img_str = req[u'base64Image']
         img_data = base64.b64decode(img_str)
@@ -813,8 +816,15 @@ def find_abalone_length(is_deployed, req):
         image_full = cv2.imread(imageName)
         thumb = get_thumbnail(image_full)
         uuid = "delete_me"
-        full_str = cv2.imencode('.png', image_full)[1].tostring()
+        img_data = cv2.imencode('.png', image_full)[1].tostring()
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+        rating = '-1'
+        notes = 'none'
+        name = 'dtest'
+        email = 'foo@bar.c'
+        uuid = 'a412c020-3254-430a-a108-243113f9fde5'
+        locCode = "S88 Bodega Head"
+        picDate = "Fri Feb 10 2017"
 
 
     #read the image
@@ -1021,13 +1031,12 @@ def find_abalone_length(is_deployed, req):
         xend = cols-70
 
         bounded_image = cv2.copyMakeBorder(rescaled_image,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,0,0))
-
         cv2.imshow(imageName, bounded_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
     if is_deployed:
-        do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength)
+        do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
         do_s3_upload(img_data, thumb_str, uuid)
 
