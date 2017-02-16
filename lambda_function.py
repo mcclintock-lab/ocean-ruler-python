@@ -791,8 +791,8 @@ def find_abalone_length(is_deployed, req):
         uuid = req[u'uuid']
         locCode = req[u'locCode']
         picDate = req[u'picDate']
-        rating = req[u'rating']
-        notes = req[u'notes']
+        rating = '-1'
+        notes = 'none'
         #img info
         img_str = req[u'base64Image']
         img_data = base64.b64decode(img_str)
