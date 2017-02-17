@@ -744,7 +744,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 'picDate': picDate,
                 'length_in_inches':decimal.Decimal('{}'.format(lenfloat)),
                 'rating':decimal.Decimal('{}'.format(rating)),
-                'notes': notes
+                'usernotes': notes
             }
         )
     except ClientError as e:
