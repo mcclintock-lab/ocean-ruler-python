@@ -57,7 +57,6 @@ def get_large_edges(cnts):
 
 def get_largest_edge(cnts):
     if len(cnts) == 0:
-        print "no edges..."
         return None, None
     try:
         max_size = 0
@@ -141,7 +140,7 @@ def is_bright_background(input_image):
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
 
-    return (mean_s_val < 30 or mean_h_val < 30)
+    return (mean_h_val < 30 and mean_s_val > 50)
 
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
@@ -168,7 +167,90 @@ def is_color(input_image):
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
 
-    print "hue vals: {}".format(mean_h_val)
-    print "sat vals: {}".format(mean_s_val)
-    print "val vals: {}".format(mean_v_val)
     return (mean_v_val > 50)
+
+def is_background_similar_color(input_image):
+    ab_h, ab_s, ab_v = get_mean_abalone_color(input_image)
+    back_h, back_s, back_v = get_mean_background_color(input_image)
+
+
+    diff_h = abs(ab_h - back_h)
+    diff_s = abs(ab_s - back_s)
+    diff_v = abs(ab_v - back_v)
+    
+    return diff_v
+
+def get_mean_background_color(input_image):
+    image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+    h_vals = []
+    s_vals = []
+    v_vals = []
+    for i in range(130,145):
+        for j in range(130,145):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+    rows = len(image)
+    cols = len(image[0])
+    
+    for i in range(rows-100, rows-85):
+        for j in range(cols-100, cols-85):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+
+    mean_s_val = np.mean(s_vals)
+    mean_v_val = np.mean(v_vals)
+    mean_h_val = np.mean(h_vals) 
+    return mean_h_val, mean_s_val, mean_v_val
+
+def get_points(rows, cols, first_pass):
+    row_first = int(rows/8)
+    row_mid = int(rows/2)
+    row_last = int(rows*0.85)
+
+    if first_pass:
+        col_first = int(cols/8)
+        col_last = int(cols*0.925)
+    else:
+        col_first = int(cols/8.25)
+        col_last = int(cols*0.9)
+    col_mid = int(cols/2)
+
+    upper_left = (row_first, col_first)
+    mid_left = (row_mid, col_first)
+    mid_right = (row_mid, col_last)
+    bottom_right = (row_last, col_last)
+    bottom_left = (row_last, col_first)
+    upper_right = (row_first, col_last)
+    if first_pass:
+        pts = [upper_left, upper_right, bottom_left, bottom_right, mid_left, mid_right]
+    else:
+        pts = [mid_left, bottom_left, bottom_right, mid_right]
+
+    return pts
+
+def get_mean_abalone_color(input_image):
+    image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+    h_vals = []
+    s_vals = []
+    v_vals = []
+
+    rows = len(image)
+    cols = len(image[0])
+    
+    for i in range((rows/2)-25, (rows/2)+25):
+        for j in range((cols/2)-25, (cols/2)+25):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+
+    mean_s_val = np.mean(s_vals)
+    mean_v_val = np.mean(v_vals)
+    mean_h_val = np.mean(h_vals) 
+
+
+    return mean_h_val, mean_s_val, mean_v_val

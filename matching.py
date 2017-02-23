@@ -2,7 +2,7 @@ import cv2
 import utils
 
 
-def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image, is_quarter=False):
+def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image, is_quarter, first_pass):
     if target_contour is None:
         return None, None, None, None, None
     templateHull = cv2.convexHull(template_shape)
@@ -15,16 +15,10 @@ def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image,
     hausdorffDistanceExtractor = cv2.createHausdorffDistanceExtractor()
     val = cv2.matchShapes(target_contour, template_shape, 2, 0.0)
     
-
-    #doesn't work yet in python opencv - always 0
-    #sd = cv2.createShapeContextDistanceExtractor()
-    #shape_dist = sd.computeDistance(target_contour,template_shape)
-
-
-    #hull_val = cv2.matchShapes(targetHull,template_shape,2,0.0)
-    
+    #hull_val = cv2.matchShapes(targetHull,template_shape,2,0.0)   
     if is_quarter:
-        area = (hullArea/templateArea)
+
+        area = (targetArea/templateArea)
         haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
     else:
         area = (targetArea /templateArea)
@@ -42,7 +36,10 @@ def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image,
         target_X, target_Y = utils.get_centroid(targetHull)
         diffX = abs(template_X - target_X)
         diffY = abs(template_Y - target_Y)
-        centroid_diff = diffX+diffY
+        if first_pass:
+            centroid_diff = diffX+diffY
+        else:
+            centroid_diff = 1
     else:
         target_X, target_Y = utils.get_centroid(target_contour)
         diffX = abs(template_X - target_X)

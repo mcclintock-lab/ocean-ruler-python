@@ -8,6 +8,7 @@ def get_real_size(imageName):
     #IMG_8.93_60.jpg
     if imageName.startswith("feb_2017"):
         filename = imageName.split("/")
+
         parts = filename[1].split("_")
         try:
             size = float(parts[1])
@@ -16,10 +17,12 @@ def get_real_size(imageName):
             return read_real_sizes(imageName)
     else:
         filename = imageName.split("/")
-        return read_real_sizes(filename[1])
+        return read_real_sizes(filename[len(filename)-1])
     
 
 def read_real_sizes(imageName):
+    print "imageName: {}".format(imageName)
+
     real_sizes = {}
     real_sizes_file = "data/real_sizes.csv"
     size = -1.0
@@ -44,7 +47,7 @@ def read_real_sizes(imageName):
 
     return size
 
-def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, rulerValue):
+def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, rulerValue, background_val_diff):
 
     all_rows = {}
     all_diffs = {}
@@ -63,10 +66,10 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
 
                         best_ab_key = row[4]
                         best_ruler_key = row[5]
-
+                        val_diff = row[6]
                         if name != "Total":
                             #print "for {}, best ab key: {}, best ruler key: {}".format(name, best_ab_key, best_ruler_key)
-                            all_rows[name] = [size, real_size, best_ab_key, best_ruler_key, rulerValue]
+                            all_rows[name] = [size, real_size, best_ab_key, best_ruler_key, val_diff]
                             all_diffs[name] = float(diff)
                         else:
                             last_total_diff = float(diff)
@@ -78,24 +81,24 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
         real_size = get_real_size(imageName)
         if real_size > 0.0:
             diff = ((abaloneLength - real_size)/real_size)*100.0
-            all_rows[imageName] = [abaloneLength, real_size, bestAbaloneKey, bestRulerKey, rulerValue]
-            all_diffs[imageName] = diff
+            all_rows[imageName] = [abaloneLength, real_size, bestAbaloneKey, bestRulerKey, background_val_diff]
+            
+            all_diffs[imageName] = abs(diff)
             #total_diffs = np.sum(all_diffs.values())
             total_diffs = sum((abs(d) for d in all_diffs.values()))
             with open(out_file, 'wb') as csvfile:
                 writer = csv.writer(csvfile, delimiter=DELIM, quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(["Name", "Estimated", "Real", "Difference %","Best Abalone Match","Best Ruler Match","Ruler Value"])
+                writer.writerow(["Name", "Estimated", "Real", "Difference %","Best Abalone Match","Best Ruler Match","Val Diff"])
                 for name, sizes in all_rows.items():
                     diff = all_diffs.get(name)
                     est_size = sizes[0]
                     real_size = sizes[1]
                     ab_key = sizes[2]
                     ruler_key = sizes[3]
-                    rulerValue = sizes[4]
+                    valDiff = sizes[4]
+                    writer.writerow([name, est_size, real_size, diff,ab_key,ruler_key, valDiff])
 
-                    writer.writerow([name, est_size, real_size, diff,ab_key,ruler_key, rulerValue])
-
-                writer.writerow(["Total", 0,0,total_diffs,"-","-","-", "-"])
+                writer.writerow(["Total", 0,0,total_diffs,"-","-","-"])
         else:
             print "Couldn't find real size for {}".format(imageName)
             

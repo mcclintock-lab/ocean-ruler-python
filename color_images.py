@@ -13,49 +13,31 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
         image = cv2.bitwise_and(orig_image,orig_image,mask=notmask)
         
     sat_offset =  10
-    val_offset = 50
+    val_offset = 20
 
     #make this adjust to look for background with color?
     rows = len(orig_image)
     cols = len(orig_image[0])
 
-    row_first = int(rows/8)
-    row_mid = int(rows/2)
-    row_last = int(rows*0.85)
+    pts = utils.get_points(rows, cols, first_pass)
 
-    if first_pass:
-        col_first = int(cols/8)
-        col_last = int(cols*0.925)
-    else:
-        col_first = int(cols/8.25)
-        col_last = int(cols*0.9)
-    col_mid = int(cols/2)
-
-    upper_left = (row_first, col_first)
-    mid_left = (row_mid, col_first)
-    mid_right = (row_mid, col_last)
-    bottom_right = (row_last, col_last)
-    bottom_left = (row_last, col_first)
-    upper_right = (row_first, col_last)
-    pts = [upper_left, bottom_left, bottom_right, upper_right]
     #final_image = np.zeros((rows,cols,3), np.uint8)
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for pt in pts:
-        for i in range(0,2):
-            for j in range(0,2):
+        for i in range(0,4):
+            for j in range(0,3):
                 tgt_row = pt[0]+i
                 tgt_col = pt[1]+j
                 val = orig_image[tgt_row,tgt_col]
                 #print "color val: {}".format(val)
                 huemin = get_min(val[0]-hue_offset)
-
                 satmin = get_min(val[1]-(hue_offset+sat_offset))
                 valmin = get_min(val[2]-(hue_offset+val_offset))
                 
                 huemax = get_max(int(val[0])+hue_offset)
                 satmax = get_max(int(val[1])+(hue_offset+sat_offset))
-                valmax = get_max(int(val[2])+(hue_offset+val_offset))
+                valmax = get_max(int(val[2])+(hue_offset+val_offset*2))
                 bl = np.array([huemin, satmin, valmin])
                 bu = np.array([huemax, satmax, valmax])
 
@@ -81,25 +63,27 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
     return bgr
 
 
-def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,first_pass, is_ruler):
-
+def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,first_pass, is_ruler, use_adaptive):
     rows = len(input_image)
     cols = len(input_image[0])
     image = input_image
+
     is_bright = utils.is_bright_background(image)
     color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright)
+    
     #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
     #maybe use this to see if we should threshold?
     gray = cv2.cvtColor(color_res, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
     
-    
-    
-    if is_ruler or not is_bright:
-        retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    if is_bright:
+        if is_ruler and use_adaptive:
+            threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,23,11);
+        else:
+            retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+            
     else:
-        #light brown are all failing
-        threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,23,11);
+        retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     if False:
         utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
@@ -108,10 +92,12 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
 
 def do_color_image_match(input_image, template_contour, thresh_val, blur_window, showImg=False, 
     contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None, first_pass=True, 
-    small_img=False):
+    small_img=False, use_adaptive=False):
     #try the color image
     color_image, threshold_bw, color_img, mid_row = get_image_with_color_mask(input_image, thresh_val, 
-        blur_window, showImg, first_pass, is_ruler)
+        blur_window, showImg, first_pass, is_ruler, use_adaptive)
+    rows = len(input_image)
+    cols = len(input_image[0])
 
     if is_ruler:
         erode_iterations = 1
@@ -126,7 +112,6 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
 
     # find contours in the edge map
     cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-
     cnts = cnts[1] #if imutils.is_cv2() else cnts[1]
 
     if is_ruler:
@@ -148,9 +133,9 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     aperc = 10000000
     adist = 10000000
     cdiff = 10000000
+
     if False:
-        print "number of contours: {}".format(len(contours))
-        cv2.fillPoly(input_image, contours, -1, (255,255,200), 5)
+        cv2.drawContours(input_image, contours, -1, (0,255,0), 1)
         cv2.imshow("!!!!!  ---- all contours", input_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -158,22 +143,28 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     min_area = 0.25
     if small_img:
         min_area = 0.10
+    theratio = 0
+    ratio = 0
+
 
     for contour in contours:
-        the_contour, result_val, area_perc, area_dist, centroid_diff = matching.sort_by_matching_shape(contour, template_contour, False,input_image)
+        the_contour, result_val, area_perc, area_dist, centroid_diff = matching.sort_by_matching_shape(contour, template_contour, 
+            False, input_image, is_ruler, first_pass)
         #ditch the outliers -- this is fine tuned later
         if the_contour is None or (area_perc < 0.25 or area_perc > 2.0):
-            #print "ditching because the area is too small: {}".format(area_perc)
             continue
 
         if is_ruler:
             x,y,w,h = cv2.boundingRect(contour)
-            tgt_ratio = 0.65
-
+            tgt_ratio = 0.70
             ratio = float(w)/float(h)
+
             if ratio < tgt_ratio or 1.0/ratio < tgt_ratio:
                 continue
-            
+            width_perc = float(h)/float(cols)
+            if width_perc > 0.10:
+                continue
+                
             #if its the ruler (quarter), check to see if its enclosed
             is_enclosed = utils.is_contour_enclosed(the_contour, enclosing_contour)
             if is_enclosed:
@@ -189,17 +180,22 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
                 adist = area_dist
                 target_contour = the_contour
                 cdiff = centroid_diff
-                
-
+                theratio = ratio
+    
     if False:
         if is_ruler:
-            utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, enclosing_contour,0)
+            #get rid of this
+            if thresh_val == 10:
+                '''
+                templateHull = cv2.convexHull(template_contour)
+                templateArea = cv2.contourArea(template_contour)
+                targetHull = cv2.convexHull(target_contour)
+                targetArea = cv2.contourArea(target_contour)
+                hullArea = cv2.contourArea(targetHull)
+                print "target area: {}, hullArea: {}, template area: {}".format(targetArea, hullArea, templateArea)
+                '''
+            utils.show_img_and_contour("big color img {}x{};val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, enclosing_contour,0)
 
-        else:
-            utils.show_img_and_contour("big color img {}x{}; shape dist: {}, val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, template_contour,0)
-
-    #epsilon = 0.003*cv2.arcLength(target_contour,True)
-    #approx = cv2.approxPolyDP(target_contour,epsilon,True)
     return target_contour, rval, aperc, adist, cdiff
 
 
