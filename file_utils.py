@@ -80,7 +80,7 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
     try:
         real_size = get_real_size(imageName)
         if real_size > 0.0:
-            diff = ((abaloneLength - real_size)/real_size)*100.0
+            diff = abs(abaloneLength - real_size)
             all_rows[imageName] = [abaloneLength, real_size, bestAbaloneKey, bestRulerKey, background_val_diff]
             
             all_diffs[imageName] = abs(diff)

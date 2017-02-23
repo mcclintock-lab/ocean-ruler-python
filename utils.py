@@ -162,12 +162,11 @@ def is_color(input_image):
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])
 
-
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-
-    return (mean_v_val > 50)
+    print "hsv::::   {}, {}, {}".format(mean_h_val, mean_s_val, mean_v_val)
+    return (mean_s_val > 75)
 
 def is_background_similar_color(input_image):
     ab_h, ab_s, ab_v = get_mean_abalone_color(input_image)

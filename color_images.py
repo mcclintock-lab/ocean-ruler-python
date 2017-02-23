@@ -6,12 +6,13 @@ import matching
 def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
+    '''
     if len(image) > 500:
         mask = cv2.inRange(image, np.array([0,0,255]), np.array([300,0,255]))
         
         notmask = cv2.bitwise_not(mask)
         image = cv2.bitwise_and(orig_image,orig_image,mask=notmask)
-        
+    '''
     sat_offset =  10
     val_offset = 20
 

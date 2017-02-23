@@ -196,10 +196,10 @@ def get_bw_image(input_image, thresh_val, blur_window, use_gray):
     mid_patch = gray[mid_row_start:mid_row_end, mid_col_start:mid_col_end]
     mn = np.mean(mid_patch) 
     '''
-    is_bright = utils.is_bright_background(input_image)
 
+    is_bright = utils.is_bright_background(input_image)
     if not is_bright:
-        retval, threshold = cv2.threshold(gray,150,255,cv2.THRESH_BINARY)
+        retval, threshold = cv2.threshold(gray,140,255,cv2.THRESH_BINARY)
     else:
         threshold = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
                 cv2.THRESH_BINARY,11,3)
@@ -417,13 +417,8 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
             width_limit = 0.85
             height_limit = 0.91
         else:
-            if contour_key.endswith(QUARTER):
-                width_limit = 0.20
-            else:
-                #if we get rid of ruler completely, we can remove this branch
-                width_limit = 0.8
-
-            height_limit = 0.3
+            width_limit = 0.2
+            height_limit = 0.2
 
         if area_perc > lower_area and area_perc < upper_area:
 
@@ -431,8 +426,8 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
             #get rid of the ones with big outlying streaks or edges
             hprop = float(h)/float(scaled_rows)
             wprop = float(w)/float(scaled_cols)
-            #if i < 6:
-            #    print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{}".format(which_one,contour_key,combined, val,haus_dist,area_perc)
+            if i < 8:
+                print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{}".format(which_one,contour_key,combined, val,haus_dist,area_perc)
             
             i+=1
             if (combined < minValue):
@@ -450,7 +445,6 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
                     minValue = combined
                     targetContour = contour
                     targetKey = contour_key
-
 
     #ellipse = cv2.fitEllipse(targetContour)
     return targetContour, targetKey, minValue
@@ -893,7 +887,7 @@ def find_abalone_length(is_deployed, req):
         large_color_abalone_shapes, abalone_template_contour, rescaled_image, 
         first_pass=True, is_small=is_small, use_gray_threshold=False, description="strict_large")
     print_time("done with color")
-    if True:
+    if not is_color_bkground:
         bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
             rescaled_image, True, description="strict")
     print_time("done with bw")
@@ -901,7 +895,7 @@ def find_abalone_length(is_deployed, req):
         0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
     
     if noResults(bestAbaloneKey, bestAbaloneValue):
-        if False:
+        if is_color_bkground:
             bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
                 rescaled_image, True, description="strict")
             #if there is still nothing, loosen the area restrictions and try again
