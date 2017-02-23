@@ -25,7 +25,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for pt in pts:
-        for i in range(0,4):
+        for i in range(0,3):
             for j in range(0,3):
                 tgt_row = pt[0]+i
                 tgt_col = pt[1]+j
@@ -164,7 +164,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
             width_perc = float(h)/float(cols)
             if width_perc > 0.10:
                 continue
-                
+
             #if its the ruler (quarter), check to see if its enclosed
             is_enclosed = utils.is_contour_enclosed(the_contour, enclosing_contour)
             if is_enclosed:
