@@ -834,7 +834,7 @@ def find_abalone_length(is_deployed, req):
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
         rating = '-1'
         notes = 'none'
-        name = 'dtest'
+        name = 'DUploadTest'
         email = 'foo@bar.c'
         uuid = 'a412c020-3254-430a-a108-243113f9fde5'
         locCode = "S88 Bodega Head"
@@ -1088,9 +1088,10 @@ def find_abalone_length(is_deployed, req):
     if is_deployed:
         #final_tmp_filename = '/tmp/ab_final_{}.png'.format(time.time())
         #cv2.imwrite(final_tmp_filename,rescaled_image) 
+        final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
         do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-        do_s3_upload(img_data, thumb_str, rescaled_image, uuid)
+        do_s3_upload(img_data, thumb_str, final_image, uuid)
     else:
         final_tmp_filename = 'ab_final_tmp.png'
         cv2.imwrite(final_tmp_filename,rescaled_image) 
