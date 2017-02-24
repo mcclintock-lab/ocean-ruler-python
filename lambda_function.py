@@ -1103,7 +1103,8 @@ def find_abalone_length(is_deployed, req):
                 "width":str(cols),"height":str(rows),
                 "quarter_left_x":str(left_ruler_point[0]),
                 "quarter_right_x":str(right_ruler_point[0]),
-                "quarter_y":str(left_ruler_point[1])
+                "quarter_y":str(left_ruler_point[1]),
+                "uuid":str(uuid)
             }
     print rval
     return rval
