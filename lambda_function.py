@@ -197,7 +197,7 @@ def get_bw_image(input_image, thresh_val, blur_window, use_gray):
     mn = np.mean(mid_patch) 
     '''
 
-    is_bright = utils.is_bright_background(input_image)
+    is_bright = utils.is_color(input_image)
     if not is_bright:
         retval, threshold = cv2.threshold(gray,140,255,cv2.THRESH_BINARY)
     else:
@@ -318,13 +318,13 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
         (0, 255, 255), 3)
 
     if top_offset == 0:
-        left_ruler_top = (int(tlblX), int(tlblY)-100)
-        left_ruler_bottom = (int(tlblX), int(tlblY)+150)
+        left_ruler_top = (int(tlblX), int(tlblY)-50)
+        left_ruler_bottom = (int(tlblX), int(tlblY)+50)
         cv2.line(base_img, left_ruler_top, left_ruler_bottom,
             (255, 0, 255), 3)
 
-        right_ruler_top = (int(trbrX), int(trbrY)-100)
-        right_ruler_bottom = (int(trbrX), int(trbrY)+100)
+        right_ruler_top = (int(trbrX), int(trbrY)-50)
+        right_ruler_bottom = (int(trbrX), int(trbrY)+50)
         cv2.line(base_img, right_ruler_top, right_ruler_bottom,
             (255, 0, 255), 3)
 
@@ -346,18 +346,18 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     dimB = dB / pixelsPerMetric
     if pre == "Ruler":
             # draw the object sizes on the image
-        cv2.putText(base_img, "{}: {}in".format(pre,dimB),
-            (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
+        cv2.putText(base_img, "{}: {}in".format("U.S. Quarter",dimB),
+            (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
+            1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
     else:
         # draw the object sizes on the image
         cv2.putText(base_img, "{}".format(pre),
-            (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
+            (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
+            1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
         cv2.putText(base_img, "{:.1f}in".format(dimB),
-            (int(trbrX)+10, int(trbrY)+50), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
+            (int(trbrX)+10, int(trbrY)+50), cv2.FONT_HERSHEY_TRIPLEX,
+            1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
     return pixelsPerMetric, dimB, left_mid_point, right_mid_point
 
@@ -426,8 +426,8 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
             #get rid of the ones with big outlying streaks or edges
             hprop = float(h)/float(scaled_rows)
             wprop = float(w)/float(scaled_cols)
-            if i < 8:
-                print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{}".format(which_one,contour_key,combined, val,haus_dist,area_perc)
+            #if i < 8:
+            #    print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{}".format(which_one,contour_key,combined, val,haus_dist,area_perc)
             
             i+=1
             if (combined < minValue):
@@ -763,10 +763,11 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     else:
         print("{} length updated to {}".format(uuid, lenfloat))
 
-def do_s3_upload(image_data, thumb, uuid):
+def do_s3_upload(image_data, thumb, final_image, uuid):
     s3 = boto3.resource('s3')
     s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
     s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
+    s3.Bucket('abalone').put_object(Key="final/"+uuid+".png", Body=final_image)
 
 def get_thumbnail(image_full):
     target_cols = 200.0
@@ -843,6 +844,14 @@ def find_abalone_length(is_deployed, req):
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
 
+    #if its vertical, flip it 90
+    if orig_cols < orig_rows:
+        img = cv2.transpose(image_full)  
+        img = cv2.flip(img, 0)
+        image_full = img.copy()
+        orig_cols = len(image_full[0])
+        orig_rows = len(image_full)
+
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
     abalone_template_contour, small_abalone_template_contour, quarter_template_contour = get_template_contours(rescaled_image)
     print_time("template loads...")
@@ -888,6 +897,7 @@ def find_abalone_length(is_deployed, req):
         first_pass=True, is_small=is_small, use_gray_threshold=False, description="strict_large")
     print_time("done with color")
     if not is_color_bkground:
+        print "not a color background"
         bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
             rescaled_image, True, description="strict")
     print_time("done with bw")
@@ -896,6 +906,7 @@ def find_abalone_length(is_deployed, req):
     
     if noResults(bestAbaloneKey, bestAbaloneValue):
         if is_color_bkground:
+            print "doing bw for color...."
             bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
                 rescaled_image, True, description="strict")
             #if there is still nothing, loosen the area restrictions and try again
@@ -1050,51 +1061,48 @@ def find_abalone_length(is_deployed, req):
     
     print "final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue)
     print "final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue)
-    if showResults and is_mac():
-        if bestRulerKey.endswith("_masked_quarter"):
-            offx = qoffset_x
-            offy = qoffset_y
-        else:
-            offx = 0
-            offy = 0
 
+    if bestRulerKey.endswith("_masked_quarter"):
+        offx = qoffset_x
+        offy = qoffset_y
+    else:
+        offx = 0
+        offy = 0
+
+    cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),2,lineType=cv2.LINE_AA)
+    if newBestAbaloneContour is not None:
+        cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 2,lineType=cv2.LINE_AA)
+    cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 1,lineType=cv2.LINE_AA)
+    
+    bounded_image = cv2.copyMakeBorder(rescaled_image,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,0,0))
+    if showResults and not is_deployed:
         cv2.namedWindow(imageName, cv2.WINDOW_NORMAL)
-        #cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (255,0,0), 3)
-        cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),2)
-        if newBestAbaloneContour is not None:
-            #cv2.fillPoly(rescaled_image, [newBestAbaloneContour], (200,200,100))
-
-            cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 2)
-            #cv2.drawContours(rescaled_image, [trimmed_ab_contour], 0, (255,255,0), 3)
-            #cv2.ellipse(rescaled_image,ab_ell,(150,150,150),2,1)
-        else:
-            print "NO ABALONE CONTOUR !!!!!!!!!!!!!!"
-
-        cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 1)
-        #draw the sampling point in the upper left
-        #draw the sampling point in the lower right
-        rows = len(rescaled_image)
-        cols = len(rescaled_image[0])
-        ystart = rows-105
-        yend = rows-95
-        xstart = cols-75
-        xend = cols-70
-
-        bounded_image = cv2.copyMakeBorder(rescaled_image,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,0,0))
         cv2.imshow(imageName, bounded_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
     if is_deployed:
+        final_tmp_filename = '/tmp/ab_final_{}.png'.format(time.time())
+        cv2.imwrite(final_tmp_filename,rescaled_image) 
         do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-        do_s3_upload(img_data, thumb_str, uuid)
+        do_s3_upload(img_data, thumb_str, final_tmp_filename, uuid)
+    else:
+        final_tmp_filename = 'ab_final_tmp.png'
+        cv2.imwrite(final_tmp_filename,rescaled_image) 
 
     rows = len(rescaled_image)
     cols = len(rescaled_image[0])
-    rval = {"left_x":left_point[0], "right_x":right_point[0], "y":left_point[1], "length":abaloneLength,"width":cols,"height":rows}
-    print "{}".format(rval)
-    return "{}".format(rval)
+    rval =  {
+                "left_x":str(left_point[0]), "right_x":str(right_point[0]), "y":str(left_point[1]),
+                "length":str(abaloneLength),
+                "width":str(cols),"height":str(rows),
+                "quarter_left_x":str(left_ruler_point[0]),
+                "quarter_right_x":str(right_ruler_point[0]),
+                "quarter_y":str(left_ruler_point[1])
+            }
+    print rval
+    return rval
 
 def lambda_handler(event, context):
     try:

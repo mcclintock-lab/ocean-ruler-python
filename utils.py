@@ -139,8 +139,9 @@ def is_bright_background(input_image):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-
+    #print "{}, {}, {}".format(mean_h_val, mean_s_val, mean_v_val)
     return (mean_h_val < 30 and mean_s_val > 50)
+    #return mean_s_val > 75
 
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
@@ -165,7 +166,7 @@ def is_color(input_image):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-    print "hsv::::   {}, {}, {}".format(mean_h_val, mean_s_val, mean_v_val)
+    #print "hsv::::   {}, {}, {}".format(mean_h_val, mean_s_val, mean_v_val)
     return (mean_s_val > 75)
 
 def is_background_similar_color(input_image):
