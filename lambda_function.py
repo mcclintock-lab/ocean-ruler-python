@@ -256,7 +256,7 @@ def read_args():
     return imageName, showResults, rulerWidth, out_file
 
 
-def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_quarter):
+def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_quarter,draw_text):
     if pre == "Ellipse":
 
         pts = cv2.boxPoints(con)
@@ -315,18 +315,18 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     right_mid_point = (int(trbrX), int(trbrY))
 
     cv2.line(base_img, left_mid_point, right_mid_point,
-        (0, 255, 255), 3)
+        (255, 0, 255), 4)
 
     if top_offset == 0:
         left_ruler_top = (int(tlblX), int(tlblY)-50)
         left_ruler_bottom = (int(tlblX), int(tlblY)+50)
         cv2.line(base_img, left_ruler_top, left_ruler_bottom,
-            (255, 0, 255), 3)
+            (255, 0, 255), 4)
 
         right_ruler_top = (int(trbrX), int(trbrY)-50)
         right_ruler_bottom = (int(trbrX), int(trbrY)+50)
         cv2.line(base_img, right_ruler_top, right_ruler_bottom,
-            (255, 0, 255), 3)
+            (255, 0, 255), 4)
 
 
 
@@ -344,20 +344,21 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     # compute the size of the object
     dimA = dA / pixelsPerMetric
     dimB = dB / pixelsPerMetric
-    if pre == "Ruler":
+    if draw_text:
+        if pre == "Ruler":
+                # draw the object sizes on the image
+            cv2.putText(base_img, "{}: {}in".format("U.S. Quarter",dimB),
+                (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
+                1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
+        else:
             # draw the object sizes on the image
-        cv2.putText(base_img, "{}: {}in".format("U.S. Quarter",dimB),
-            (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
-            1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
-    else:
-        # draw the object sizes on the image
-        cv2.putText(base_img, "{}".format(pre),
-            (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
-            1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+            cv2.putText(base_img, "{}".format(pre),
+                (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
+                1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-        cv2.putText(base_img, "{:.1f}in".format(dimB),
-            (int(trbrX)+10, int(trbrY)+50), cv2.FONT_HERSHEY_TRIPLEX,
-            1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+            cv2.putText(base_img, "{:.1f}in".format(dimB),
+                (int(trbrX)+10, int(trbrY)+50), cv2.FONT_HERSHEY_TRIPLEX,
+                1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
     return pixelsPerMetric, dimB, left_mid_point, right_mid_point
 
@@ -1050,9 +1051,11 @@ def find_abalone_length(is_deployed, req):
     #if trimmed_ab_contour is None or len(trimmed_ab_contour) == 0:
     #    trimmed_ab_contour = newBestAbaloneContour.copy()
 
-
-    pixelsPerMetric, rulerLength,left_ruler_point, right_ruler_point = draw_contour(rescaled_image, newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter)
-    pixelsPerMetric, abaloneLength, left_point, right_point = draw_contour(rescaled_image, newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False)
+    showText = showResults and not is_deployed
+    pixelsPerMetric, rulerLength,left_ruler_point, right_ruler_point = draw_contour(rescaled_image, 
+        newBestRulerContour, None, "Ruler", 0, rulerWidth,is_quarter, showText)
+    pixelsPerMetric, abaloneLength, left_point, right_point = draw_contour(rescaled_image, 
+        newBestAbaloneContour, pixelsPerMetric, "Abalone", 0, rulerWidth, False,showText)
     print_time("done drawing")
 
     all_rows = {}
@@ -1069,10 +1072,11 @@ def find_abalone_length(is_deployed, req):
         offx = 0
         offy = 0
 
-    cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),2,lineType=cv2.LINE_AA)
+
+    cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),3,lineType=cv2.LINE_AA)
     if newBestAbaloneContour is not None:
-        cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 2,lineType=cv2.LINE_AA)
-    cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 1,lineType=cv2.LINE_AA)
+        cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 3,lineType=cv2.LINE_AA)
+    cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 3,lineType=cv2.LINE_AA)
     
     bounded_image = cv2.copyMakeBorder(rescaled_image,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,0,0))
     if showResults and not is_deployed:
