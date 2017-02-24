@@ -1086,11 +1086,11 @@ def find_abalone_length(is_deployed, req):
         cv2.destroyAllWindows()
 
     if is_deployed:
-        final_tmp_filename = '/tmp/ab_final_{}.png'.format(time.time())
-        cv2.imwrite(final_tmp_filename,rescaled_image) 
+        #final_tmp_filename = '/tmp/ab_final_{}.png'.format(time.time())
+        #cv2.imwrite(final_tmp_filename,rescaled_image) 
         do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-        do_s3_upload(img_data, thumb_str, final_tmp_filename, uuid)
+        do_s3_upload(img_data, thumb_str, rescaled_image, uuid)
     else:
         final_tmp_filename = 'ab_final_tmp.png'
         cv2.imwrite(final_tmp_filename,rescaled_image) 
