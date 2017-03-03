@@ -103,13 +103,13 @@ def get_scaled_image(image_full):
     rows = int(len(scaled_image))
     cols = int(len(scaled_image[0]))
 
-    scaled_image = scaled_image[30:rows,50:cols-50]
+    #scaled_image = scaled_image[30:rows,50:cols-50]
 
     #return image_full, orig_rows-30, orig_cols-100
-    return scaled_image, rows-30, cols-100
+    return scaled_image, rows, cols
 
 
-def get_bw_quarter_image(input_image, thresh_val, blur,showImg=False):
+def get_bw_quarter_image(input_image, thresh_val, blur,use_adaptive=True, showImg=False):
 
     rows = len(input_image)
     cols = len(input_image[0])      
@@ -124,9 +124,11 @@ def get_bw_quarter_image(input_image, thresh_val, blur,showImg=False):
     #pts = utils.get_points(rows, cols, True)
 
     #retval, threshold = cv2.threshold(threshold,val,255,cv2.THRESH_BINARY)
-    thresh2 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,23,3)
-    
-    if False:
+    if use_adaptive:
+        thresh2 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,23,3)
+    else:
+        retval, thresh2 = cv2.threshold(threshold,val,255,cv2.THRESH_BINARY)
+    if showImg:
         utils.show_img("thresh 2 {}x{}".format(thresh_val, blur), thresh2)
 
     return input_image, gray, thresh2, int(rows/2)
@@ -290,49 +292,59 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     y = brect[1] + top_offset
     width=brect[2]
     height=brect[3]
-
     tl = (x, y+height)
     tr = (x+width, y+height)
     bl = (x,y)
     br = (x+width, y)
     corners = [tl, tr, br, bl]
+    #the abalone is rotated vertically in the image
+    print "height is: ", height, " width is ", width, "ratio is ", float(height)/float(width)
+    if height > width and not is_quarter:
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        startLinePoint = midpoint(tl, tr)
+        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
+        endLinePoint = midpoint(bl, br)
+        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+        dB = abs(startLinePoint[1] - endLinePoint[1])
+    else:
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        startLinePoint = midpoint(tl, bl)
+        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
+        endLinePoint = midpoint(tr, br)
+        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+        # compute the Euclidean distance between the midpoints
 
-    (tltrX, tltrY) = midpoint(tl, tr)
-    (blbrX, blbrY) = midpoint(bl, br)
-
-    # compute the midpoint between the top-left and top-right points,
-    # followed by the midpoint between the top-righ and bottom-right
-    (tlblX, tlblY) = midpoint(tl, bl)
-    (trbrX, trbrY) = midpoint(tr, br)
+        dB = abs(startLinePoint[0] - endLinePoint[0])
   
     # draw the midpoints on the image
-    cv2.circle(base_img, (int(tlblX), int(tlblY)), 2, (255, 0, 0), -1)
-    cv2.circle(base_img, (int(trbrX), int(trbrY)), 2, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 0), -1)
 
     # draw lines between the midpoints
 
-    left_mid_point = (int(tlblX), int(tlblY))
-    right_mid_point = (int(trbrX), int(trbrY))
 
-    cv2.line(base_img, left_mid_point, right_mid_point,
+    cv2.line(base_img, startLinePoint, endLinePoint,
         (255, 0, 255), 4)
 
-    if top_offset == 0:
-        left_ruler_top = (int(tlblX), int(tlblY)-50)
-        left_ruler_bottom = (int(tlblX), int(tlblY)+50)
-        cv2.line(base_img, left_ruler_top, left_ruler_bottom,
-            (255, 0, 255), 4)
+    if height > width and not is_quarter:
+        firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
+        firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
+        secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
+        secondHatchEnd = (int(endLinePoint[0]+50), int(endLinePoint[1]))
+    else:
+        firstHatchStart = (int(startLinePoint[0]), int(startLinePoint[1]-50))
+        firstHatchEnd = (int(startLinePoint[0]), int(startLinePoint[1]+50))
+        secondHatchStart = (int(endLinePoint[0]), int(endLinePoint[1]-50))
+        secondHatchEnd = (int(endLinePoint[0]), int(endLinePoint[1]+50))
 
-        right_ruler_top = (int(trbrX), int(trbrY)-50)
-        right_ruler_bottom = (int(trbrX), int(trbrY)+50)
-        cv2.line(base_img, right_ruler_top, right_ruler_bottom,
-            (255, 0, 255), 4)
+    cv2.line(base_img, firstHatchStart, firstHatchEnd,
+        (255, 0, 255), 4)
 
+    cv2.line(base_img, secondHatchStart, secondHatchEnd,
+        (255, 0, 255), 4)
 
-
-    # compute the Euclidean distance between the midpoints
-    dA = abs(blbrX - tltrX)
-    dB = abs(trbrX - tlblX)
 
     # if the pixels per metric has not been initialized, then
     # compute it as the ratio of pixels to supplied metric
@@ -341,26 +353,25 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
         pixelsPerMetric = get_width_from_ruler(dB, rulerWidth)
         
 
-    # compute the size of the object
-    dimA = dA / pixelsPerMetric
+
     dimB = dB / pixelsPerMetric
     if draw_text:
         if pre == "Ruler":
                 # draw the object sizes on the image
             cv2.putText(base_img, "{}: {}in".format("U.S. Quarter",dimB),
-                (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
+                (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
                 1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
         else:
             # draw the object sizes on the image
             cv2.putText(base_img, "{}".format(pre),
-                (int(trbrX)+10, int(trbrY)), cv2.FONT_HERSHEY_TRIPLEX,
+                (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
                 1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
             cv2.putText(base_img, "{:.1f}in".format(dimB),
-                (int(trbrX)+10, int(trbrY)+50), cv2.FONT_HERSHEY_TRIPLEX,
+                (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
                 1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-    return pixelsPerMetric, dimB, left_mid_point, right_mid_point
+    return pixelsPerMetric, dimB, startLinePoint, endLinePoint
 
 
 def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contour, retry, scaled_rows, scaled_cols, input_image=None, all_bets_are_off=False):
@@ -506,9 +517,9 @@ def is_roundish(contour, thresh_val, blur):
     is_round = (w_v_h >= lim and w_v_h <= (1.0/lim))
     return is_round
 
-def get_bw_ruler_contour(input_image, template_contour, thresh_val, blur, showImg, top_offset, use_quarter, use_gray):
+def get_bw_ruler_contour(input_image, template_contour, enclosing_contour, thresh_val, blur, showImg, top_offset, use_quarter, use_gray):
     #if use_quarter:
-    ruler_image, ruler_gray, ruler_thresh, yoffset = get_bw_quarter_image(input_image, thresh_val, blur, showImg)
+    ruler_image, ruler_gray, ruler_thresh, yoffset = get_bw_quarter_image(input_image, thresh_val, blur, use_gray, False)
     ruler_edged = utils.find_edges(img=ruler_gray, thresh_img=ruler_thresh, use_gray=use_gray, showImg=showImg, erode_iterations=1)
     
     #else:
@@ -533,8 +544,13 @@ def get_bw_ruler_contour(input_image, template_contour, thresh_val, blur, showIm
             continue
 
         comb = result_val*area_dist*centroid_diff
-        if comb < smallest_combined and area_perc > 0.25 and area_perc < 2.0 and is_roundish(the_contour,thresh_val,blur):
 
+        if comb < smallest_combined and area_perc > 0.25 and area_perc < 2.0 and is_roundish(the_contour,thresh_val,blur):
+            if enclosing_contour is not None:
+                #if its the ruler (quarter), check to see if its enclosed
+                is_enclosed = utils.is_contour_enclosed(the_contour, enclosing_contour)
+                if is_enclosed:
+                    continue
             smallest_combined = comb
             target_contour = the_contour
             ok_contours.append(the_contour)
@@ -709,7 +725,7 @@ def get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template, rescaled
                 abalone_template.copy(),thresh_val, blur, (key+"_bw_ab"),False, 0, False, True)
     return abalone_shapes
 
-def get_bw_ruler(thresholds, blurs, ruler_shapes, ruler_template, ruler_image, use_gray=False,description='x'):
+def get_bw_ruler(thresholds, blurs, ruler_shapes, ruler_template, enclosing_contour, ruler_image, use_gray=False,description='x'):
     for thresh_val in thresholds:
         for blur in blurs:
             key = "{}th_{}bl".format(thresh_val, blur)
@@ -719,7 +735,8 @@ def get_bw_ruler(thresholds, blurs, ruler_shapes, ruler_template, ruler_image, u
                 key = key+"_quarter"
 
             key = "{}_{}".format(key, description)
-            tgt_contour = get_bw_ruler_contour(ruler_image.copy(), ruler_template.copy(), thresh_val,blur,False,0,True, use_gray)
+            tgt_contour = get_bw_ruler_contour(ruler_image.copy(), ruler_template.copy(), enclosing_contour,
+                thresh_val,blur,False,0,True, use_gray)
             bw_ruler_shapes = add_shape_by_match(ruler_shapes, ruler_image.copy(),
                 tgt_contour, ruler_template.copy(), thresh_val, blur, key, False, 0, True, True)
                 
@@ -907,7 +924,7 @@ def find_abalone_length(is_deployed, req):
     
     if noResults(bestAbaloneKey, bestAbaloneValue):
         if is_color_bkground:
-            print "doing bw for color...."
+            print "doing bw for color abalone...."
             bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
                 rescaled_image, True, description="strict")
             #if there is still nothing, loosen the area restrictions and try again
@@ -925,7 +942,7 @@ def find_abalone_length(is_deployed, req):
         
     if low_contrast:
         bw_ruler_shapes = get_bw_ruler(thresholds, blurs, 
-                    bw_ruler_shapes, quarter_template_contour, ruler_image, False, description="strict")
+                    bw_ruler_shapes, quarter_template_contour, newBestAbaloneContour, ruler_image, False, description="strict")
         print_time("did bw quarter...")
     ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, 
         newBestAbaloneContour, False, first_pass=True, use_adaptive=True, description="strict")
@@ -942,8 +959,9 @@ def find_abalone_length(is_deployed, req):
 
         if noResults(bestRulerKey, bestRulerValue):
             if not low_contrast:
+                print "working on b&w quarter..."
                 bw_ruler_shapes = get_bw_ruler(thresholds, blurs, 
-                    bw_ruler_shapes, quarter_template_contour, ruler_image, False, description="strict")
+                    bw_ruler_shapes, quarter_template_contour, newBestAbaloneContour, ruler_image, True, description="strict")
                 newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes+bw_ruler_shapes, 0.4, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
             
             if noResults(bestRulerKey, bestRulerValue):
@@ -965,8 +983,14 @@ def find_abalone_length(is_deployed, req):
                     if noResults(bestRulerKey, bestRulerValue):
                         print "failed - trying b&w with looser rules"
                         bw_ruler_shapes = get_bw_ruler(thresholds, blurs, bw_ruler_shapes, 
-                            quarter_template_contour, ruler_image, description="loose")
+                            quarter_template_contour, newBestAbaloneContour, ruler_image, description="loose")
                         newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(bw_ruler_shapes, 0.25, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
+
+                        if noResults(bestRulerKey, bestRulerValue):
+                            print "failed - trying b&w with no enclosing contour"
+                            bw_ruler_shapes = get_bw_ruler(thresholds, blurs, bw_ruler_shapes, 
+                                quarter_template_contour, None, ruler_image, description="loose")
+                            newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(bw_ruler_shapes, 0.25, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
     '''
         else:
@@ -1021,7 +1045,7 @@ def find_abalone_length(is_deployed, req):
         '''
     #add this for abalone, too, to prevent empty results
     if noResults(bestRulerKey, bestRulerValue):
-
+        print "trying quarter with loose guidelines..."
         all_rulers = bw_ruler_shapes+ruler_shapes+gray_ruler_shapes
         newBestRulerContour,bestRulerKey, bestRulerValue = get_best_contour((bw_ruler_shapes+ruler_shapes+gray_ruler_shapes), 0.2, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, None, True)
 
