@@ -340,10 +340,10 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
         secondHatchEnd = (int(endLinePoint[0]), int(endLinePoint[1]+50))
 
     cv2.line(base_img, firstHatchStart, firstHatchEnd,
-        (255, 0, 255), 4)
+        (255, 0, 255), 5)
 
     cv2.line(base_img, secondHatchStart, secondHatchEnd,
-        (255, 0, 255), 4)
+        (255, 0, 255), 5)
 
 
     # if the pixels per metric has not been initialized, then
@@ -1096,12 +1096,12 @@ def find_abalone_length(is_deployed, req):
         offx = 0
         offy = 0
 
-
-    cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),3,lineType=cv2.LINE_AA)
-    if newBestAbaloneContour is not None:
-        cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 3,lineType=cv2.LINE_AA)
-    cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 3,lineType=cv2.LINE_AA)
-    
+    if not is_deployed:
+        cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),3,lineType=cv2.LINE_AA)
+        if newBestAbaloneContour is not None:
+            cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 3,lineType=cv2.LINE_AA)
+        cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 3,lineType=cv2.LINE_AA)
+        
     bounded_image = cv2.copyMakeBorder(rescaled_image,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,0,0))
     if showResults and not is_deployed:
         cv2.namedWindow(imageName, cv2.WINDOW_NORMAL)
