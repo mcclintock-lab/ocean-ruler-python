@@ -1077,7 +1077,7 @@ def find_abalone_length(is_deployed, req):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    if True:
+    if is_deployed:
         t = threading.Thread(target=upload_worker, 
             args=(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes))
         t.start()
@@ -1107,10 +1107,10 @@ def upload_worker(rescaled_image, thumb, img_data,
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
     #print_time("done putting things into dynamo db")
 
-    thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+    #thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
     #do_s3_upload(img_data, thumb_str, final_image, uuid)
-    do_s3_upload(None, thumb_str, None, uuid)
+    #do_s3_upload(None, thumb_str, None, uuid)
     #print_time("done uploading data...")
 
 def lambda_handler(event, context):
