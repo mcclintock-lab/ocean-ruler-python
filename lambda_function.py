@@ -6,6 +6,7 @@ import sys
 import base64
 import time
 import threading
+import logging
 
 #my files
 import matching 
@@ -19,6 +20,16 @@ from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 import decimal
 import json
+'''
+logging.basicConfig(level=logging.DEBUG,
+                    format='(%(threadName)-10s) %(message)s',
+                    )
+logger = logging.getLogger('abalone_length')
+
+fh = logging.FileHandler('output.log')
+fh.setLevel(logging.DEBUG)
+logger.addHandler(fh)
+'''
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -755,7 +766,7 @@ def print_time(msg):
     now = time.time()
     elapsed = now - _start_time
     print "{} time elapsed: {}".format(msg, elapsed)
-
+    #logger.debug(msg)
 
 
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes):
@@ -1053,7 +1064,7 @@ def find_abalone_length(is_deployed, req):
         offy = 0
 
     #drawing these for now...just not showing in web app
-    if True:
+    if not is_deployed:
         cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),3,lineType=cv2.LINE_AA)
         if newBestAbaloneContour is not None:
             cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 3,lineType=cv2.LINE_AA)
@@ -1070,7 +1081,6 @@ def find_abalone_length(is_deployed, req):
         t = threading.Thread(target=upload_worker, 
             args=(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes))
         t.start()
-
     else:
         final_tmp_filename = 'ab_final_tmp.png'
         cv2.imwrite(final_tmp_filename,rescaled_image) 
@@ -1099,6 +1109,7 @@ def upload_worker(rescaled_image, thumb, img_data,
 
     thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
+    #do_s3_upload(img_data, thumb_str, final_image, uuid)
     do_s3_upload(None, thumb_str, None, uuid)
     #print_time("done uploading data...")
 
