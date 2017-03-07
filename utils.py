@@ -31,8 +31,8 @@ def is_contour_enclosed(contour, enclosing_contour):
         return False
 
     try:
-        hull = cv2.convexHull(enclosing_contour,returnPoints = True)
-
+        #hull = cv2.convexHull(enclosing_contour,returnPoints = True)
+        hull = cv2.fitEllipse(enclosing_contour)
         extLeft = tuple(contour[contour[:, :, 0].argmin()][0])
         extRight = tuple(contour[contour[:, :, 0].argmax()][0])
         extTop = tuple(contour[contour[:, :, 1].argmin()][0])

@@ -5,6 +5,7 @@ import cv2
 import sys
 import base64
 import time
+import threading
 
 #my files
 import matching 
@@ -298,8 +299,10 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     br = (x+width, y)
     corners = [tl, tr, br, bl]
     #the abalone is rotated vertically in the image
-    print "height is: ", height, " width is ", width, "ratio is ", float(height)/float(width)
-    if height > width and not is_quarter:
+
+    #print "height is: ", height, " width is ", width, "ratio is ", float(height)/float(width)
+    #getting rid of this for now, causes more problems than its worth
+    if False:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
         startLinePoint = midpoint(tl, tr)
@@ -328,7 +331,7 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     cv2.line(base_img, startLinePoint, endLinePoint,
         (255, 0, 255), 4)
 
-    if height > width and not is_quarter:
+    if False:
         firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
         firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
         secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
@@ -992,57 +995,6 @@ def find_abalone_length(is_deployed, req):
                                 quarter_template_contour, None, ruler_image, description="loose")
                             newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(bw_ruler_shapes, 0.25, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
-    '''
-        else:
-        print "working on b&w image....."
-        #try it with gray thresholding first....
-        abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, rescaled_image, False)
-        #if there is still nothing, loosen the area restrictions and try again
-        newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes, 0.46, 1.75, ABALONE, None, False, scaled_rows, scaled_cols)
-        
-        if noResults(bestAbaloneKey, bestAbaloneValue):
-            print "trying without gray threshold..."
-            abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, rescaled_image, True)
-            #if there is still nothing, loosen the area restrictions and try again
-            newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(abalone_shapes, 0.25, 1.75, ABALONE, None, False, scaled_rows, scaled_cols)
-            
-            if noResults(bestAbaloneKey, bestAbaloneValue):
-                print "falling back to color in what looks like a b&w: best abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
-                large_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
-                    large_color_abalone_shapes, abalone_template_contour, rescaled_image,first_pass=True, is_small=is_small, use_gray_threshold=False)
-                newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(large_color_abalone_shapes, 0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
-                
-                if noResults(bestAbaloneKey, bestAbaloneValue):
-                    if is_small:
-                        small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
-                            small_color_abalone_shapes, small_abalone_template_contour, rescaled_image,first_pass=False,
-                            is_small=is_small, use_gray_threshold=True)
-
-                        newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = get_best_contour(small_color_abalone_shapes, 
-                            0.10, 1.0, ABALONE, None, False, scaled_rows, scaled_cols)
-
-                        print "best small abalone key is -->>>{}<<<-----, value: {}".format(bestAbaloneKey, bestAbaloneValue)
-
-
-        newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(bw_ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-        
-        print_time("done with getting contour")
-        if noResults(bestRulerKey, bestRulerValue):
-            print "no results, trying gray"
-            gray_ruler_shapes = get_bw_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, True)
-            newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(gray_ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-
-            if noResults(bestRulerKey, bestRulerValue):
-                ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, False, first_pass=True)
-                newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.6, 1.5, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-
-                if noResults(bestRulerKey, bestRulerValue):
-                    print "----->>>>>getting second pass results..."
-                    ruler_shapes = []
-                    ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, ruler_image, newBestAbaloneContour, False, first_pass=False)
-                    newBestRulerContour, bestRulerKey, bestRulerValue =  get_best_contour(ruler_shapes, 0.40, 1.7, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-                
-        '''
     #add this for abalone, too, to prevent empty results
     if noResults(bestRulerKey, bestRulerValue):
         print "trying quarter with loose guidelines..."
@@ -1096,7 +1048,8 @@ def find_abalone_length(is_deployed, req):
         offx = 0
         offy = 0
 
-    if not is_deployed:
+    #drawing these for now...just not showing in web app
+    if True:
         cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),3,lineType=cv2.LINE_AA)
         if newBestAbaloneContour is not None:
             cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 3,lineType=cv2.LINE_AA)
@@ -1110,12 +1063,10 @@ def find_abalone_length(is_deployed, req):
         cv2.destroyAllWindows()
 
     if is_deployed:
-        #final_tmp_filename = '/tmp/ab_final_{}.png'.format(time.time())
-        #cv2.imwrite(final_tmp_filename,rescaled_image) 
-        final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
-        do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
-        thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-        do_s3_upload(img_data, thumb_str, final_image, uuid)
+        t = threading.Thread(target=upload_worker, 
+            args=(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes))
+        t.start()
+
     else:
         final_tmp_filename = 'ab_final_tmp.png'
         cv2.imwrite(final_tmp_filename,rescaled_image) 
@@ -1133,6 +1084,19 @@ def find_abalone_length(is_deployed, req):
             }
     print rval
     return rval
+    
+def upload_worker(rescaled_image, thumb, img_data, 
+    name, email, uuid, locCode, picDate, abaloneLength, rating, notes):
+    print "uploading data now...."
+    final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
+    print "done encoding image"
+    do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
+    print "done putting things into dynamo db"
+
+    thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+    print "done encoding thumb"
+    do_s3_upload(img_data, thumb_str, final_image, uuid)
+    print "done uploading data..."
 
 def lambda_handler(event, context):
     try:
