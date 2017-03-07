@@ -786,9 +786,13 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
 
 def do_s3_upload(image_data, thumb, final_image, uuid):
     s3 = boto3.resource('s3')
-    s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
+
+    #s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
+    #print_time("done putting full size")
     s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
-    s3.Bucket('abalone').put_object(Key="final/"+uuid+".png", Body=final_image)
+    print_time("done with thumb")
+    #s3.Bucket('abalone').put_object(Key="final/"+uuid+".png", Body=final_image)
+    #print_time("don with final")
 
 def get_thumbnail(image_full):
     target_cols = 200.0
@@ -1062,7 +1066,7 @@ def find_abalone_length(is_deployed, req):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    if is_deployed:
+    if True:
         t = threading.Thread(target=upload_worker, 
             args=(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes))
         t.start()
@@ -1084,19 +1088,19 @@ def find_abalone_length(is_deployed, req):
             }
     print rval
     return rval
-    
+
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes):
-    print "uploading data now...."
-    final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
-    print "done encoding image"
+    #print_time("uploading data now....")
+    #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
+    #print_time("done encoding image")
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
-    print "done putting things into dynamo db"
+    #print_time("done putting things into dynamo db")
 
     thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-    print "done encoding thumb"
-    do_s3_upload(img_data, thumb_str, final_image, uuid)
-    print "done uploading data..."
+    #print_time("done encoding thumb")
+    do_s3_upload(None, thumb_str, None, uuid)
+    #print_time("done uploading data...")
 
 def lambda_handler(event, context):
     try:
