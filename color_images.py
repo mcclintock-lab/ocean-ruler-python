@@ -3,7 +3,7 @@ import utils
 import numpy as np
 import matching
 
-def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
+def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,is_ruler=False):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
     '''
@@ -13,7 +13,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
         notmask = cv2.bitwise_not(mask)
         image = cv2.bitwise_and(orig_image,orig_image,mask=notmask)
     '''
-    sat_offset =  10
+    sat_offset =  15
     val_offset = 20
 
     #make this adjust to look for background with color?
@@ -23,6 +23,8 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
     pts = utils.get_points(rows, cols, first_pass)
 
     #final_image = np.zeros((rows,cols,3), np.uint8)
+    if not is_ruler:
+        hue_offset = hue_offset+sat_offset
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for pt in pts:
@@ -31,14 +33,15 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False):
                 tgt_row = pt[0]+i
                 tgt_col = pt[1]+j
                 val = orig_image[tgt_row,tgt_col]
-                #print "color val: {}".format(val)
+                #print "h:{},s:{},v:{}".format(val[0],val[1],val[2])
                 huemin = get_min(val[0]-hue_offset)
                 satmin = get_min(val[1]-(hue_offset+sat_offset))
                 valmin = get_min(val[2]-(hue_offset+val_offset))
                 
                 huemax = get_max(int(val[0])+hue_offset)
-                satmax = get_max(int(val[1])+(hue_offset+sat_offset))
+                satmax = get_max(int(val[1])+(hue_offset+(sat_offset*2)))
                 valmax = get_max(int(val[2])+(hue_offset+val_offset*2))
+
                 bl = np.array([huemin, satmin, valmin])
                 bu = np.array([huemax, satmax, valmax])
 
@@ -70,7 +73,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     image = input_image
 
     is_bright = utils.is_bright_background(image)
-    color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright)
+    color_res = get_color_image(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright,is_ruler=is_ruler)
     
     #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
     #maybe use this to see if we should threshold?
@@ -78,6 +81,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
     
     if is_bright:
+        #TODO: check for high variability/check patterns here?
         if is_ruler and use_adaptive:
             threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,7,3);
         else:
@@ -105,7 +109,10 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
         if use_gray_threshold:
             erode_iterations = 1
         else:
-            erode_iterations = 1
+            if not first_pass:
+                erode_iterations = 1
+            else:
+                erode_iterations = 1
 
     edged = utils.find_edges(img=color_img, thresh_img=threshold_bw, use_gray=use_gray_threshold, showImg=False, 
         erode_iterations=erode_iterations,small_img=small_img)
@@ -135,8 +142,8 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     cdiff = 10000000
 
     if False:
-        cv2.drawContours(input_image, contours, -1, (0,255,0), 1)
-        cv2.imshow("!!!!!  ---- all contours", input_image)
+        cv2.drawContours(input_image, contours, -1, (0,255,0), 3)
+        cv2.imshow("{}x{}".format(thresh_val, blur_window), input_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -146,13 +153,23 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     theratio = 0
     ratio = 0
 
-
     for contour in contours:
         the_contour, result_val, area_perc, area_dist, centroid_diff = matching.sort_by_matching_shape(contour, template_contour, 
             False, input_image, is_ruler, first_pass)
         #ditch the outliers -- this is fine tuned later
-        if the_contour is None or (area_perc < 0.25 or area_perc > 2.0):
+
+        if the_contour is None:
             continue
+
+        if small_img and is_ruler:
+            if (area_perc < 0.25 or area_perc > 3.0):
+                continue
+        else:
+            if (area_perc < 0.25 or area_perc > 2.0):
+                continue
+
+
+        area_perc_limit_for_ruler = 0.25
 
         if is_ruler:
             x,y,w,h = cv2.boundingRect(contour)
@@ -161,19 +178,28 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
 
             if ratio < tgt_ratio or 1.0/ratio < tgt_ratio:
                 continue
+
             width_perc = float(h)/float(cols)
-            if width_perc > 0.10:
+            if small_img:
+                width_perc_max = 0.25
+                area_perc_limit_for_ruler = 0.40
+            else:
+                width_perc_max = 0.10
+
+            if width_perc > width_perc_max:
                 continue
 
             #if its the ruler (quarter), check to see if its enclosed
-            is_enclosed = utils.is_contour_enclosed(the_contour, enclosing_contour)
+            is_enclosed = utils.is_contour_enclosed(the_contour, enclosing_contour,first_pass)
             if is_enclosed:
                 continue
 
+
         comb = result_val*area_dist*centroid_diff
         #comb = result_val
+
         if comb < smallest_combined:
-            if (not is_ruler) or (is_ruler and area_perc > 0.25):
+            if (not is_ruler) or (is_ruler and area_perc > area_perc_limit_for_ruler):
                 smallest_combined = comb
                 rval = result_val
                 aperc = area_perc
@@ -181,7 +207,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
                 target_contour = the_contour
                 cdiff = centroid_diff
                 theratio = ratio
-    
+
     if False:
         if is_ruler:
             #get rid of this
@@ -197,7 +223,6 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
             utils.show_img_and_contour("big color img {}x{};val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, enclosing_contour,0)
 
     return target_contour, rval, aperc, adist, cdiff
-
 
 
 def get_min(val):

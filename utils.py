@@ -1,6 +1,123 @@
 import cv2
 import numpy as np
 
+ABALONE = "abalone"
+RULER = "ruler"
+QUARTER = "_quarter"
+
+def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contour, retry, scaled_rows, scaled_cols, input_image=None, all_bets_are_off=False):
+    if len(shapes) == 0:
+        return None, None, None
+
+    ab_by_combined = sorted(shapes, key=lambda shape: shape[5])
+    ab_by_value =  sorted(shapes, key=lambda shape: shape[0])
+    ab_by_dist = sorted(shapes, key=lambda shape: shape[2])
+    
+    i=0
+    lowest_val = ab_by_value[0][0]
+    lowest_combined = ab_by_combined[0][5]
+    lowest_dist = ab_by_dist[0][2]
+    lowest_cdiff = ab_by_dist[0][6]
+
+    minValue = 100000000
+
+    targetContour = None
+    targetKey = ""
+    x=0
+    targetH = 0
+    for values in ab_by_combined:
+        val = values[0]
+        if lowest_val == 0.0:
+            norm_val = 0.0
+        else:
+            norm_val = val/lowest_val
+        haus_dist = values[2]
+        if lowest_dist == 0.0:
+            norm_dist = 0.0
+        else:
+            norm_dist = haus_dist/lowest_dist
+        
+        area_perc = values[1]
+        contour = values[3]
+        contour_key = values[4]
+        combined = values[5]
+        cdiff = values[6]
+
+
+        combined = val*haus_dist*cdiff
+
+        #check to see if the ruler contour is inside the abalone contour. if it is, its a bogus shape
+
+
+        if False:
+            print "{} {}.combined: {}; val:{};dist:{};key:{};area:{};".format(which_one, i,combined,val,haus_dist,contour_key,area_perc)
+                
+        #drop contours that fill the image, like the cutting board edges
+        if which_one == ABALONE:
+            width_limit = 0.80
+            height_limit = 0.91
+        else:
+            width_limit = 0.25
+            height_limit = 0.25
+
+        if area_perc > lower_area and area_perc < upper_area:
+
+            x,y,w,h = cv2.boundingRect(contour)
+
+
+
+            #get rid of the ones with big outlying streaks or edges
+            hprop = float(h)/float(scaled_rows)
+            wprop = float(w)/float(scaled_cols)
+            if i < 2:
+                print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{};wprop:{};hprop:{}".format(which_one,
+                    contour_key,combined, val,haus_dist,area_perc, wprop, hprop)
+            
+            i+=1
+            if (combined < minValue):
+                if all_bets_are_off or ((wprop < width_limit) and (hprop < height_limit)):
+                    if contour_key.endswith(QUARTER):
+                        contour_is_enclosed = False
+                        if enclosing_contour is not None:
+                            use_hull =  not retry
+                            #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
+                            contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour, use_hull)
+
+                            if contour_is_enclosed:
+                                if not all_bets_are_off:
+                                    #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
+                                    continue
+                    minValue = combined
+                    targetContour = contour
+                    targetKey = contour_key
+
+
+    if targetContour != None:
+        hull = cv2.convexHull(targetContour,returnPoints = False)
+        defects = cv2.convexityDefects(targetContour,hull)
+        dists = []
+        for i in range(defects.shape[0]):
+            s,e,f,d = defects[i,0]
+            if i > 0:
+                dists.append(d)
+        
+        #try to weight the ones that are far off circular
+        defect_dist = np.mean(dists)
+        print "------>>>>mean defects are: {}".format(defect_dist)
+        minValue = minValue*defect_dist
+        if not all_bets_are_off:
+            if which_one != ABALONE and defect_dist > 750:
+                targetContour = None
+                targetKey = None
+                minValue = 1000000
+            elif which_one == ABALONE and defect_dist > 1000:
+                targetContour = None
+                targetKey = None
+                minValue = 1000000
+
+    return targetContour, targetKey, minValue
+
+
 def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_iterations=1,small_img=False):
     # perform edge detection, then perform a dilation + erosion to
     # close gaps in between object edges
@@ -15,24 +132,26 @@ def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_i
             #ruler
             edged_img = cv2.Canny(thresh_img, 20, 150)  
         else:
-            edged_img = cv2.Canny(thresh_img, 20, 60)       
+            edged_img = cv2.Canny(thresh_img, 20, 100)       
 
     edged_img = cv2.dilate(edged_img, None, iterations=di)
     edged_img = cv2.erode(edged_img, None, iterations=erode_iterations)
     
-    if showImg:
-        show_img("result image", thresh_img)
-        show_img("edged img ", edged_img)
+    if False:
+        show_img("canny edge", edged_img)
 
     return edged_img
 
-def is_contour_enclosed(contour, enclosing_contour):
+def is_contour_enclosed(contour, enclosing_contour, use_hull):
     if enclosing_contour is None:
         return False
 
     try:
-        #hull = cv2.convexHull(enclosing_contour,returnPoints = True)
-        hull = cv2.fitEllipse(enclosing_contour)
+        if use_hull:
+            hull = cv2.convexHull(enclosing_contour,returnPoints = True)
+        else:
+            hull = cv2.fitEllipse(enclosing_contour)
+
         extLeft = tuple(contour[contour[:, :, 0].argmin()][0])
         extRight = tuple(contour[contour[:, :, 0].argmax()][0])
         extTop = tuple(contour[contour[:, :, 1].argmin()][0])
