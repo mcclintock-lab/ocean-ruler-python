@@ -55,8 +55,8 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         
         #drop contours that fill the image, like the cutting board edges
         if which_one == ABALONE:
-            width_limit = 0.75
-            height_limit = 0.70
+            width_limit = 0.85
+            height_limit = 0.85
         else:
             width_limit = 0.25
             height_limit = 0.25

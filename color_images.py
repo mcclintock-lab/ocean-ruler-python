@@ -13,7 +13,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
         notmask = cv2.bitwise_not(mask)
         image = cv2.bitwise_and(orig_image,orig_image,mask=notmask)
     '''
-    sat_offset =  15
+    sat_offset =  10
     val_offset = 20
 
     #make this adjust to look for background with color?
@@ -25,7 +25,10 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     #final_image = np.zeros((rows,cols,3), np.uint8)
     if not is_ruler:
         hue_offset = hue_offset+sat_offset
-        
+
+    else:
+        hue_offset = hue_offset+sat_offset
+
     final_huemin = 400
     final_huemax = -1
 
@@ -34,14 +37,21 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
 
     final_valmin = 400
     final_valmax = -1
-
+    '''
+    if is_ruler:
+        quarter_test_start_col = 310
+        quarter_test_start_row = 390
+        for x in range(0,5):
+            for y in range(0,5):
+                orig_image[tgt_row,tgt_col]
+    '''
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for pt in pts:
         for i in range(0,3):
             for j in range(0,3):
                 tgt_row = pt[0]+i
                 tgt_col = pt[1]+j
-                val = orig_image[tgt_row,tgt_col]
+                val = image[tgt_row,tgt_col]
                 #print "h:{},s:{},v:{}".format(val[0],val[1],val[2])
                 huemin = get_min(val[0]-hue_offset)
                 satmin = get_min(val[1]-(hue_offset+sat_offset))
@@ -63,13 +73,16 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     minrange = np.array([final_huemin, final_satmin, final_valmin])
     maxrange = np.array([final_huemax, final_satmax, final_valmax])
 
+
     #use original image so we get the non-masked values
-    mask = cv2.inRange(orig_image, minrange, maxrange)
+    mask = cv2.inRange(image, minrange, maxrange)
     notmask = cv2.bitwise_not(mask)
     image = cv2.bitwise_and(image,image,mask=notmask)
     bgr = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
 
     if False:
+        print "{}".format(minrange)
+        print "{}".format(maxrange)
         rows = len(image)
         cols = len(image[0])
         print "rows: {}, cols:{}".format(rows,cols)
@@ -78,7 +91,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
             endpt = (pt[0]+2, pt[1]+2)
             print "drawing endpt {}".format(endpt)
             cv2.rectangle(image, (pt[1],pt[0]), (endpt[1],endpt[0]),(255,0,0),10)
-        cv2.imshow("result", image)
+        cv2.imshow("result {}".format(hue_offset), image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     return bgr
