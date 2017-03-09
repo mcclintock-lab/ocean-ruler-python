@@ -50,8 +50,8 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
 
 
         if False:
-            print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{};wprop:{};hprop:{}".format(which_one,
-                contour_key,combined, val,haus_dist,area_perc, wprop, hprop)
+            print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{}".format(which_one,
+                contour_key,combined, val,haus_dist,area_perc)
         
         #drop contours that fill the image, like the cutting board edges
         if which_one == ABALONE:
@@ -73,7 +73,7 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
             if (combined < minValue):
                 if all_bets_are_off or ((wprop < width_limit) and (hprop < height_limit)):
                     i+=1
-                    if i<4:
+                    if False:
                         print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{};wprop:{};hprop:{},width limit:{}".format(which_one,
                             contour_key,combined, val,haus_dist,area_perc, wprop, hprop,width_limit)
                 
@@ -83,14 +83,17 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
                             use_hull =  not retry
                             #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
                             contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour, use_hull)
-
+                            if which_one != ABALONE:
+                                print "is contour enclosed? {}".format(contour_is_enclosed)
                             if contour_is_enclosed:
                                 if not all_bets_are_off:
+                                    print "throwing this one away..."
                                     #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
                                     continue
                     minValue = combined
                     targetContour = contour
                     targetKey = contour_key
+
 
 
     if targetContour != None and which_one != ABALONE:
@@ -104,10 +107,11 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         
         #try to weight the ones that are far off circular
         defect_dist = np.mean(dists)
-
         minValue = minValue*defect_dist
         if not all_bets_are_off:
-            if which_one != ABALONE and defect_dist > 750:
+
+            if which_one != ABALONE and defect_dist > 2000:
+                print "ditching this one, defects are too high"
                 targetContour = None
                 targetKey = None
                 minValue = 1000000
@@ -234,6 +238,32 @@ def get_centroid(contour):
         cX,cY = 10000.0,10000.0
 
     return cX,cY
+
+def is_dark(image):
+    h_vals = []
+    s_vals = []
+    v_vals = []
+    for i in range(130,132):
+        for j in range(131,133):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+    rows = len(image)
+    cols = len(image[0])
+    
+    for i in range(rows-85, rows-83):
+        for j in range(cols-85, cols-83):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+
+    mean_s_val = np.mean(s_vals)
+    mean_v_val = np.mean(v_vals)
+    mean_h_val = np.mean(h_vals) 
+    
+    return (mean_s_val < 30 and mean_v_val <75)   
 
 def is_bright_background(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)

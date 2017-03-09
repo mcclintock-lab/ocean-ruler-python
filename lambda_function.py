@@ -675,7 +675,7 @@ def get_bw_ruler(thresholds, blurs, ruler_shapes, ruler_template, enclosing_cont
     return ruler_shapes
 
 def noResults(key, val):
-    if key is None or len(key) == 0 or val >= 50000:
+    if key is None or len(key) == 0 or val >= 1000000:
         return True
     else:
         return False
@@ -892,8 +892,8 @@ def find_abalone_length(is_deployed, req):
         newBestAbaloneContour, False, first_pass=True, use_adaptive=True, description="strict",is_small=False)
     
     print_time("getting color strict")
-    newBestRulerContour, bestRulerKey, bestRulerValue = utils.get_best_contour(ruler_shapes+bw_ruler_shapes, 0.70, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
-
+    newBestRulerContour, bestRulerKey, bestRulerValue = utils.get_best_contour(ruler_shapes+bw_ruler_shapes, 0.60, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
+    
     if noResults(bestRulerKey, bestRulerValue):
         print "working on color quarter without adaptive"
         ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, 
