@@ -50,12 +50,13 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
 
 
         if False:
-            print "{} {}.combined: {}; val:{};dist:{};key:{};area:{};".format(which_one, i,combined,val,haus_dist,contour_key,area_perc)
-                
+            print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{};wprop:{};hprop:{}".format(which_one,
+                contour_key,combined, val,haus_dist,area_perc, wprop, hprop)
+        
         #drop contours that fill the image, like the cutting board edges
         if which_one == ABALONE:
-            width_limit = 0.80
-            height_limit = 0.91
+            width_limit = 0.75
+            height_limit = 0.70
         else:
             width_limit = 0.25
             height_limit = 0.25
@@ -64,18 +65,18 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
 
             x,y,w,h = cv2.boundingRect(contour)
 
-
-
             #get rid of the ones with big outlying streaks or edges
             hprop = float(h)/float(scaled_rows)
             wprop = float(w)/float(scaled_cols)
-            if i < 2:
-                print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{};wprop:{};hprop:{}".format(which_one,
-                    contour_key,combined, val,haus_dist,area_perc, wprop, hprop)
+
             
-            i+=1
             if (combined < minValue):
                 if all_bets_are_off or ((wprop < width_limit) and (hprop < height_limit)):
+                    i+=1
+                    if i<4:
+                        print "{}-{} :: combined:{};  val:{}; haus_dist:{};area:{};wprop:{};hprop:{},width limit:{}".format(which_one,
+                            contour_key,combined, val,haus_dist,area_perc, wprop, hprop,width_limit)
+                
                     if contour_key.endswith(QUARTER):
                         contour_is_enclosed = False
                         if enclosing_contour is not None:
@@ -92,7 +93,7 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
                     targetKey = contour_key
 
 
-    if targetContour != None:
+    if targetContour != None and which_one != ABALONE:
         hull = cv2.convexHull(targetContour,returnPoints = False)
         defects = cv2.convexityDefects(targetContour,hull)
         dists = []
@@ -103,14 +104,14 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         
         #try to weight the ones that are far off circular
         defect_dist = np.mean(dists)
-        print "------>>>>mean defects are: {}".format(defect_dist)
+
         minValue = minValue*defect_dist
         if not all_bets_are_off:
             if which_one != ABALONE and defect_dist > 750:
                 targetContour = None
                 targetKey = None
                 minValue = 1000000
-            elif which_one == ABALONE and defect_dist > 1000:
+            elif which_one == ABALONE and defect_dist > 5000:
                 targetContour = None
                 targetKey = None
                 minValue = 1000000
@@ -336,6 +337,7 @@ def get_points(rows, cols, first_pass):
     else:
         col_first = int(cols/8.25)
         col_last = int(cols*0.9)
+
     col_mid = int(cols/2)
 
     upper_left = (row_first, col_first)
@@ -344,6 +346,7 @@ def get_points(rows, cols, first_pass):
     bottom_right = (row_last, col_last)
     bottom_left = (row_last, col_first)
     upper_right = (row_first, col_last)
+
     if first_pass:
         pts = [upper_left, upper_right, bottom_left, bottom_right, mid_left, mid_right]
     else:

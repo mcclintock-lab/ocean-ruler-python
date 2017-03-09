@@ -856,7 +856,7 @@ def find_abalone_length(is_deployed, req):
             rescaled_image, True, description="strict")
     print_time("done with bw")
     newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = utils.get_best_contour(large_color_abalone_shapes+bw_abalone_shapes, 
-        0.45, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
+        0.45, 1.5, ABALONE, None, False, scaled_rows, scaled_cols)
     
     if noResults(bestAbaloneKey, bestAbaloneValue):
         if is_color_bkground:
@@ -866,7 +866,6 @@ def find_abalone_length(is_deployed, req):
             #if there is still nothing, loosen the area restrictions and try again
             newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = utils.get_best_contour(bw_abalone_shapes, 0.45, 1.75, ABALONE, None, False, scaled_rows, scaled_cols)
         
-
         if noResults(bestAbaloneKey, bestAbaloneValue) and is_small:
             #try gray small
             small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 
@@ -875,7 +874,7 @@ def find_abalone_length(is_deployed, req):
             print_time("done with small color")
             newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = utils.get_best_contour(small_color_abalone_shapes, 
                 0.4, 1.55, ABALONE, None, False, scaled_rows, scaled_cols)
-
+            small_color_abalone_shapes = []
             if noResults(bestAbaloneKey, bestAbaloneValue) and is_small:
                 #try gray small
                 small_color_abalone_shapes = get_color_abalone(thresholds, blurs, 

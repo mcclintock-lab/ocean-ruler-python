@@ -25,6 +25,15 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     #final_image = np.zeros((rows,cols,3), np.uint8)
     if not is_ruler:
         hue_offset = hue_offset+sat_offset
+        
+    final_huemin = 400
+    final_huemax = -1
+
+    final_satmin = 400
+    final_satmax = -1
+
+    final_valmin = 400
+    final_valmax = -1
 
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for pt in pts:
@@ -42,16 +51,24 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
                 satmax = get_max(int(val[1])+(hue_offset+(sat_offset*2)))
                 valmax = get_max(int(val[2])+(hue_offset+val_offset*2))
 
-                bl = np.array([huemin, satmin, valmin])
-                bu = np.array([huemax, satmax, valmax])
+                final_huemin = min(final_huemin, huemin)
+                final_huemax = max(final_huemax, huemax)
 
-                #use original image so we get the non-masked values
-                mask = cv2.inRange(orig_image, bl, bu)
-                notmask = cv2.bitwise_not(mask)
+                final_satmin = min(final_satmin, satmin)
+                final_satmax = max(final_satmax, satmax)
 
-                image = cv2.bitwise_and(image,image,mask=notmask)
+                final_valmin = min(final_valmin, valmin)
+                final_valmax = max(final_valmax, valmax)
 
+    minrange = np.array([final_huemin, final_satmin, final_valmin])
+    maxrange = np.array([final_huemax, final_satmax, final_valmax])
+
+    #use original image so we get the non-masked values
+    mask = cv2.inRange(orig_image, minrange, maxrange)
+    notmask = cv2.bitwise_not(mask)
+    image = cv2.bitwise_and(image,image,mask=notmask)
     bgr = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
+
     if False:
         rows = len(image)
         cols = len(image[0])
@@ -62,6 +79,91 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
             print "drawing endpt {}".format(endpt)
             cv2.rectangle(image, (pt[1],pt[0]), (endpt[1],endpt[0]),(255,0,0),10)
         cv2.imshow("result", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    return bgr
+
+def get_new_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,is_ruler=False):
+
+    image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
+    '''
+    if len(image) > 500:
+        mask = cv2.inRange(image, np.array([0,0,255]), np.array([300,0,255]))
+        
+        notmask = cv2.bitwise_not(mask)
+        image = cv2.bitwise_and(orig_image,orig_image,mask=notmask)
+    '''
+
+    hue_offset = int(hue_offset/5)
+    
+    sat_offset =  5
+    val_offset = 10
+
+    #make this adjust to look for background with color?
+    rows = len(orig_image)
+    cols = len(orig_image[0])
+
+    pts = utils.get_points(rows, cols, first_pass)
+
+    #final_image = np.zeros((rows,cols,3), np.uint8)
+    '''
+    if not is_ruler:
+        hue_offset = hue_offset+sat_offset
+    '''
+    final_huemin = 400
+    final_huemax = -1
+
+    final_satmin = 400
+    final_satmax = -1
+
+    final_valmin = 400
+    final_valmax = -1
+
+    #fix this - figure out how to make it a mask of ones and pull out the right bits...
+    for pt in pts:
+        for i in range(0,10):
+            for j in range(0,10):
+                tgt_row = pt[0]+i
+                tgt_col = pt[1]+j
+                val = orig_image[tgt_row,tgt_col]
+                #print "h:{},s:{},v:{}".format(val[0],val[1],val[2])
+                huemin = get_min(val[0]-hue_offset)
+                satmin = get_min(val[1]-(sat_offset+hue_offset))
+                valmin = get_min(val[2]-(val_offset+hue_offset))
+                
+                huemax = get_max(int(val[0])+hue_offset)
+                satmax = get_max(int(val[1])+(sat_offset+hue_offset))
+                valmax = get_max(int(val[2])+(val_offset+hue_offset*2))
+
+                final_huemin = min(final_huemin, huemin)
+                final_huemax = max(final_huemax, huemax)
+
+                final_satmin = min(final_satmin, satmin)
+                final_satmax = max(final_satmax, satmax)
+
+                final_valmin = min(final_valmin, valmin)
+                final_valmax = max(final_valmax, valmax)
+
+    minrange = np.array([final_huemin, final_satmin, final_valmin])
+    maxrange = np.array([final_huemax, final_satmax, final_valmax])
+
+    #use original image so we get the non-masked values
+    mask = cv2.inRange(orig_image, minrange, maxrange)
+    notmask = cv2.bitwise_not(mask)
+    image = cv2.bitwise_and(image,image,mask=notmask)
+    bgr = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
+
+
+    if False:
+        rows = len(image)
+        cols = len(image[0])
+        print "rows: {}, cols:{}".format(rows,cols)
+        for pt in pts:
+            print "drawing pt {}".format(pt)
+            endpt = (pt[0]+10, pt[1]+10)
+            print "drawing endpt {}".format(endpt)
+            cv2.rectangle(image, (pt[1],pt[0]), (endpt[1],endpt[0]),(255,0,0),10)
+        cv2.imshow("result", bgr)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     return bgr
@@ -87,6 +189,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
         else:
             retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     else:
+        #threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,13,3);
         retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     if False:
