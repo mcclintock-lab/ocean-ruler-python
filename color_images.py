@@ -52,7 +52,11 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
         if utils.is_bright_background(image):
             #print "is bright!"
             sat_minus = hue_offset+sat_offset
-            val_minus = hue_offset
+            if is_ruler:
+                val_minus = hue_offset+val_offset
+            else:
+                val_minus = hue_offset+val_offset
+
             sat_plus = hue_offset+sat_offset
 
             if is_ruler:
