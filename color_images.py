@@ -37,30 +37,35 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
 
     final_valmin = 400
     final_valmax = -1
-    '''
-    if is_ruler:
-        quarter_test_start_col = 310
-        quarter_test_start_row = 390
-        for x in range(0,5):
-            for y in range(0,5):
-                orig_image[tgt_row,tgt_col]
-    '''
+
     if utils.is_dark(image):
+        #print "its dark!"
         sat_minus = hue_offset+sat_offset
-        val_minus = hue_offset+val_offset
+        if is_ruler:
+            val_minus = hue_offset+val_offset/2
+        else:
+            val_minus = hue_offset+val_offset/2
+
         sat_plus = hue_offset+sat_offset
-        val_plus = hue_offset+val_offset
+        val_plus = hue_offset
     else:
         if utils.is_bright_background(image):
+            #print "is bright!"
             sat_minus = hue_offset+sat_offset
-            val_minus = hue_offset+val_offset*2
+            val_minus = hue_offset
             sat_plus = hue_offset+sat_offset
-            val_plus = hue_offset+val_offset
+
+            if is_ruler:
+                val_plus = hue_offset+val_offset
+            else:
+                val_plus = hue_offset
         else:  
+            #print "not bright!"
             sat_minus = hue_offset+sat_offset
             val_minus = hue_offset+val_offset
             sat_plus = hue_offset+sat_offset*2
             val_plus = hue_offset+val_offset*2
+
     #fix this - figure out how to make it a mask of ones and pull out the right bits...
     for pt in pts:
         for i in range(0,3):

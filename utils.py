@@ -262,8 +262,8 @@ def is_dark(image):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-    
-    return (mean_s_val < 30 and mean_v_val <75)   
+    #print "h{},s{},v{}".format(mean_h_val, mean_s_val, mean_v_val)
+    return (mean_s_val < 30 and mean_v_val <100)   
 
 def is_bright_background(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)

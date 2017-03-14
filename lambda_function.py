@@ -718,10 +718,11 @@ def do_s3_upload(image_data, thumb, final_image, uuid):
 
     #s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
     #print_time("done putting full size")
-    s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
-    print_time("done with thumb")
-    #s3.Bucket('abalone').put_object(Key="final/"+uuid+".png", Body=final_image)
-    #print_time("don with final")
+
+    #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
+    #print_time("done with thumb")
+    s3.Bucket('abalone').put_object(Key="final/"+uuid+".png", Body=final_image)
+    print_time("don with final")
 
 def get_thumbnail(image_full):
     target_cols = 200.0
@@ -850,7 +851,7 @@ def find_abalone_length(is_deployed, req):
         large_color_abalone_shapes, abalone_template_contour, rescaled_image, 
         first_pass=True, is_small=is_small, use_gray_threshold=False, description="strict_large")
     print_time("done with color")
-    if not is_color_bkground:
+    if False:
         print "not a color background"
         bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
             rescaled_image, True, description="strict")
@@ -859,7 +860,7 @@ def find_abalone_length(is_deployed, req):
         0.45, 1.5, ABALONE, None, False, scaled_rows, scaled_cols)
     
     if noResults(bestAbaloneKey, bestAbaloneValue):
-        if is_color_bkground:
+        if True:
             print "doing bw for color abalone...."
             bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
                 rescaled_image, True, description="strict")
@@ -990,7 +991,7 @@ def find_abalone_length(is_deployed, req):
         offy = 0
 
     #drawing these for now...just not showing in web app
-    if not is_deployed:
+    if True:
         cv2.drawContours(rescaled_image, [origRulerContour], 0, (50,50,50),3,lineType=cv2.LINE_AA)
         if newBestAbaloneContour is not None:
             cv2.drawContours(rescaled_image, [newBestAbaloneContour], 0, (50,255,150), 3,lineType=cv2.LINE_AA)
@@ -1035,9 +1036,9 @@ def upload_worker(rescaled_image, thumb, img_data,
 
     #thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
-    #do_s3_upload(img_data, thumb_str, final_image, uuid)
+    do_s3_upload(img_data, thumb_str, final_image, uuid)
     #do_s3_upload(None, thumb_str, None, uuid)
-    #print_time("done uploading data...")
+    print_time("done uploading data...")
 
 def lambda_handler(event, context):
     try:
