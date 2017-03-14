@@ -1029,7 +1029,7 @@ def find_abalone_length(is_deployed, req):
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes):
     #print_time("uploading data now....")
-    #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
+    final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
     #print_time("done encoding image")
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
     #print_time("done putting things into dynamo db")
