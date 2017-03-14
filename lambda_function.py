@@ -201,15 +201,6 @@ def get_bw_image(input_image, thresh_val, blur_window, use_gray):
 
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
  
-    '''
-    mid_row_start = (rows/2)-thresh_val
-    mid_col_start = (cols/2)-thresh_val
-    
-    mid_row_end = mid_row_start+thresh_val
-    mid_col_end = mid_col_start+thresh_val
-    mid_patch = gray[mid_row_start:mid_row_end, mid_col_start:mid_col_end]
-    mn = np.mean(mid_patch) 
-    '''
 
     is_bright = utils.is_color(input_image)
     if not is_bright:
@@ -713,7 +704,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     else:
         print("{} length updated to {}".format(uuid, lenfloat))
 
-def do_s3_upload(image_data, thumb, final_image, uuid):
+def do_s3_upload(final_thumb, uuid):
     s3 = boto3.resource('s3')
 
     #s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
@@ -721,7 +712,7 @@ def do_s3_upload(image_data, thumb, final_image, uuid):
 
     #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
     #print_time("done with thumb")
-    s3.Bucket('abalone').put_object(Key="final/"+uuid+".png", Body=final_image)
+    s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)
     print_time("don with final")
 
 def get_thumbnail(image_full):
@@ -1004,7 +995,7 @@ def find_abalone_length(is_deployed, req):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    if is_deployed:
+    if True:
         t = threading.Thread(target=upload_worker, 
             args=(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes))
         t.start()
@@ -1029,14 +1020,16 @@ def find_abalone_length(is_deployed, req):
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes):
     #print_time("uploading data now....")
-    final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
+    #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
     #print_time("done encoding image")
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
     #print_time("done putting things into dynamo db")
 
     #thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
-    do_s3_upload(img_data, thumb_str, final_image, uuid)
+    final_thumb = get_thumbnail(rescaled_image)
+    thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
+    do_s3_upload(thumb_str, uuid)
     #do_s3_upload(None, thumb_str, None, uuid)
     print_time("done uploading data...")
 
