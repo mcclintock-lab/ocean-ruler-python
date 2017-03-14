@@ -996,9 +996,8 @@ def find_abalone_length(is_deployed, req):
         cv2.destroyAllWindows()
 
     if is_deployed:
-        t = threading.Thread(target=upload_worker, 
-            args=(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes))
-        t.start()
+        upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
+
     else:
         final_tmp_filename = 'ab_final_tmp.png'
         cv2.imwrite(final_tmp_filename,rescaled_image) 
