@@ -1013,8 +1013,11 @@ def find_abalone_length(is_deployed, req):
                 "quarter_y":str(left_ruler_point[1]),
                 "uuid":str(uuid)
             }
-    print rval
-    return rval
+    jsonVal = json.dumps(rval)
+    print "the json val::::"
+    print jsonVal
+    print "-----"
+    return jsonVal
 
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes):
@@ -1038,7 +1041,6 @@ def lambda_handler(event, context):
     except StandardError, e:
         ab_length = "Unknown"
         
-    print ab_length
     return ab_length
 
 def is_mac():
