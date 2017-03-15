@@ -693,7 +693,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 'email': email,
                 'uuid': uuid,
                 'locCode': locCode,
-                'picDate': picDate,
+                'picDate': decimal.Decimal(picDate),
                 'length_in_inches':decimal.Decimal('{}'.format(lenfloat)),
                 'rating':decimal.Decimal('{}'.format(rating)),
                 'usernotes': notes
@@ -783,7 +783,7 @@ def find_abalone_length(is_deployed, req):
         email = 'foo@bar.c'
         uuid = 'a412c020-3254-430a-a108-243113f9fde5'
         locCode = "S88 Bodega Head"
-        picDate = "Fri Feb 10 2017"
+        picDate = int(time.time()*1000);
 
 
     #read the image
@@ -1027,7 +1027,7 @@ def upload_worker(rescaled_image, thumb, img_data,
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
     #print_time("done putting things into dynamo db")
 
-    #thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+    original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
     final_thumb = get_thumbnail(rescaled_image)
     thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
