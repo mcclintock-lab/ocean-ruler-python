@@ -685,7 +685,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         lenfloat = round(float(len_in_inches),2)
     except StandardError, e:
         lenfloat = -1.0
-
+    now = int(time.time()*1000)
     try:
         table.put_item(
             Item={
@@ -696,7 +696,8 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 'picDate': decimal.Decimal(picDate),
                 'length_in_inches':decimal.Decimal('{}'.format(lenfloat)),
                 'rating':decimal.Decimal('{}'.format(rating)),
-                'usernotes': notes
+                'usernotes': notes,
+                'userSubmittedAt': decimal.Decimal(now)
             }
         )
     except ClientError as e:
