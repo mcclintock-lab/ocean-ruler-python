@@ -705,16 +705,16 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     else:
         print("{} length updated to {}".format(uuid, lenfloat))
 
-def do_s3_upload(final_thumb, uuid):
+def do_s3_upload(image_data, final_thumb, uuid):
     s3 = boto3.resource('s3')
 
-    #s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
-    #print_time("done putting full size")
+    s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
+    print_time("done putting full size")
 
     #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
     #print_time("done with thumb")
     s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)
-    print_time("don with final")
+    print_time("don with thumb")
 
 def get_thumbnail(image_full):
     target_cols = 200.0
@@ -1032,7 +1032,7 @@ def upload_worker(rescaled_image, thumb, img_data,
     #print_time("done encoding thumb")
     final_thumb = get_thumbnail(rescaled_image)
     thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
-    do_s3_upload(thumb_str, uuid)
+    do_s3_upload(img_data, thumb_str, uuid)
     #do_s3_upload(None, thumb_str, None, uuid)
     print_time("done uploading data...")
 
