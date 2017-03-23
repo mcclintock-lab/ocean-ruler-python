@@ -290,7 +290,7 @@ def get_min(val):
 
 def get_max(val):
     maxval = np.amax(val)
-    if maxval > 255:
-        return 255
+    if maxval > 360:
+        return 360
     else:
         return maxval

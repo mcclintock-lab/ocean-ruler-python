@@ -96,7 +96,7 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
 
 
 
-    if targetContour != None and which_one != ABALONE:
+    if targetContour is not None and which_one != ABALONE:
         hull = cv2.convexHull(targetContour,returnPoints = False)
         defects = cv2.convexityDefects(targetContour,hull)
         dists = []
@@ -148,7 +148,7 @@ def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_i
     return edged_img
 
 def is_contour_enclosed(contour, enclosing_contour, use_hull):
-    if enclosing_contour is None:
+    if enclosing_contour is None or len(enclosing_contour) == 0:
         return False
 
     try:

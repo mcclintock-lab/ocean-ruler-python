@@ -301,10 +301,11 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     br = (x+width, y)
     corners = [tl, tr, br, bl]
     #the abalone is rotated vertically in the image
-
-    #print "height is: ", height, " width is ", width, "ratio is ", float(height)/float(width)
+    ratio = float(height)/float(width)
+    flipDrawing = ratio > 1.2
+    print "height is: ", height, " width is ", width, "ratio is ", ratio
     #getting rid of this for now, causes more problems than its worth
-    if False:
+    if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
         startLinePoint = midpoint(tl, tr)
@@ -333,7 +334,7 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     cv2.line(base_img, startLinePoint, endLinePoint,
         (255, 0, 255), 4)
 
-    if False:
+    if flipDrawing:
         firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
         firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
         secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
