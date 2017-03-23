@@ -1007,12 +1007,14 @@ def find_abalone_length(is_deployed, req):
     rows = len(rescaled_image)
     cols = len(rescaled_image[0])
     rval =  {
-                "left_x":str(left_point[0]), "right_x":str(right_point[0]), "y":str(left_point[1]),
+                "start_x":str(left_point[0]), "start_y":str(left_point[1]), 
+                "end_x":str(right_point[0]), "end_y":str(right_point[1]), 
                 "length":str(abaloneLength),
                 "width":str(cols),"height":str(rows),
-                "quarter_left_x":str(left_ruler_point[0]),
-                "quarter_right_x":str(right_ruler_point[0]),
-                "quarter_y":str(left_ruler_point[1]),
+                "quarter_start_x":str(left_ruler_point[0]),
+                "quarter_start_y":str(left_ruler_point[1]),
+                "quarter_end_x":str(right_ruler_point[0]),
+                "quarter_end_y":str(right_ruler_point[1]),
                 "uuid":str(uuid)
             }
     jsonVal = json.dumps(rval)
