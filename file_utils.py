@@ -6,12 +6,16 @@ QUOTECHAR = '|'
 
 def get_real_size(imageName):
     #IMG_8.93_60.jpg
-    if imageName.startswith("feb_2017"):
+    if imageName.startswith("feb_2017") or imageName.startswith("may_2017"):
         filename = imageName.split("/")
 
         parts = filename[1].split("_")
+        if imageName.startswith("may_2017"):
+            size_str = parts[1].replace(".JPG", "")
+        else:
+            size_str = parts[1]
         try:
-            size = float(parts[1])
+            size = float(size_str)
             return size
         except StandardError, e:
             return read_real_sizes(imageName)

@@ -679,7 +679,8 @@ def print_time(msg):
     #logger.debug(msg)
 
 
-def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes):
+def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
+        as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ab_length')
     try:
@@ -698,7 +699,15 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 'length_in_inches':decimal.Decimal('{}'.format(lenfloat)),
                 'rating':decimal.Decimal('{}'.format(rating)),
                 'usernotes': notes,
-                'userSubmittedAt': decimal.Decimal(now)
+                'userSubmittedAt': decimal.Decimal(now),
+                "ab_start_x": decimal.Decimal(as_x),
+                "ab_start_y":decimal.Decimal(as_y),
+                "ab_end_x":decimal.Decimal(ae_x),
+                "ab_end_y":decimal.Decimal(ae_y),
+                "q_start_x":decimal.Decimal(qs_x),
+                "q_start_y":decimal.Decimal(qs_y),
+                "q_end_x":decimal.Decimal(qe_x),
+                "q_end_y":decimal.Decimal(qe_y)
             }
         )
     except ClientError as e:
@@ -991,14 +1000,16 @@ def find_abalone_length(is_deployed, req):
         cv2.drawContours(rescaled_image, [newBestRulerContour], 0, (0,255,0), 3,lineType=cv2.LINE_AA)
         
     bounded_image = cv2.copyMakeBorder(rescaled_image,10,10,10,10,cv2.BORDER_CONSTANT,value=(0,0,0))
-    if showResults and not is_deployed:
+    if not is_deployed and showResults:
         cv2.namedWindow(imageName, cv2.WINDOW_NORMAL)
         cv2.imshow(imageName, bounded_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    if is_deployed:
-        upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
+    if True:
+        upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+            left_point[0], left_point[1],right_point[0], right_point[1], 
+            left_ruler_point[0], left_ruler_point[1],right_ruler_point[0],right_ruler_point[1])
 
     else:
         final_tmp_filename = 'ab_final_tmp.png'
@@ -1024,11 +1035,13 @@ def find_abalone_length(is_deployed, req):
     return jsonVal
 
 def upload_worker(rescaled_image, thumb, img_data, 
-    name, email, uuid, locCode, picDate, abaloneLength, rating, notes):
+    name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+    as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y):
     #print_time("uploading data now....")
     #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
     #print_time("done encoding image")
-    do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes)
+    do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+                 as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y)
     #print_time("done putting things into dynamo db")
 
     original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()

@@ -265,8 +265,7 @@ def is_dark(image):
     #print "h{},s{},v{}".format(mean_h_val, mean_s_val, mean_v_val)
     return (mean_s_val < 30 and mean_v_val <100)   
 
-def is_bright_background(input_image):
-    image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+def is_light_background(image):
     h_vals = []
     s_vals = []
     v_vals = []
@@ -286,12 +285,43 @@ def is_bright_background(input_image):
             v_vals.append(image[i][j][2])
 
 
-    mean_s_val = np.mean(s_vals)
-    mean_v_val = np.mean(v_vals)
-    mean_h_val = np.mean(h_vals) 
-    #print "{}, {}, {}".format(mean_h_val, mean_s_val, mean_v_val)
+
+    mean_s_val = np.median(s_vals)
+    mean_v_val = np.median(v_vals)
+    mean_h_val = np.median(h_vals) 
+    #print "H:{}, S:{}, V:{}".format(mean_h_val, mean_s_val, mean_v_val)
+    return (mean_s_val < 25 and mean_v_val > 75)
+
+def is_bright_background(image):
+    h_vals = []
+    s_vals = []
+    v_vals = []
+    for i in range(130,132):
+        for j in range(131,133):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+    rows = len(image)
+    cols = len(image[0])
+    
+    for i in range(rows-85, rows-83):
+        for j in range(cols-85, cols-83):
+            h_vals.append(image[i][j][0])
+            s_vals.append(image[i][j][1])
+            v_vals.append(image[i][j][2])
+
+
+
+    mean_s_val = np.median(s_vals)
+    mean_v_val = np.median(v_vals)
+    mean_h_val = np.median(h_vals) 
+    #print "H:{}, S:{}, V:{}".format(mean_h_val, mean_s_val, mean_v_val)
     return (mean_h_val < 30 and mean_s_val > 50)
     #return mean_s_val > 75
+
+def reject_outliers(data, m=2):
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
