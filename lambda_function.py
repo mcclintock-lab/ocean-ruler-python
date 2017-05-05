@@ -704,10 +704,19 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "ab_start_y":decimal.Decimal(as_y),
                 "ab_end_x":decimal.Decimal(ae_x),
                 "ab_end_y":decimal.Decimal(ae_y),
+                "ab_new_start_x": decimal.Decimal(as_x),
+                "ab_new_start_y":decimal.Decimal(as_y),
+                "ab_new_end_x":decimal.Decimal(ae_x),
+                "ab_new_end_y":decimal.Decimal(ae_y),
                 "q_start_x":decimal.Decimal(qs_x),
                 "q_start_y":decimal.Decimal(qs_y),
                 "q_end_x":decimal.Decimal(qe_x),
-                "q_end_y":decimal.Decimal(qe_y)
+                "q_end_y":decimal.Decimal(qe_y),
+                "q_new_start_x":decimal.Decimal(qs_x),
+                "q_new_start_y":decimal.Decimal(qs_y),
+                "q_new_end_x":decimal.Decimal(qe_x),
+                "q_new_end_y":decimal.Decimal(qe_y),
+                "newsize":decimal.Decimal('{}'.format(lenfloat))
             }
         )
     except ClientError as e:
@@ -1006,7 +1015,7 @@ def find_abalone_length(is_deployed, req):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    if True:
+    if is_deployed:
         upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
             left_point[0], left_point[1],right_point[0], right_point[1], 
             left_ruler_point[0], left_ruler_point[1],right_ruler_point[0],right_ruler_point[1])
