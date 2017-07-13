@@ -4,9 +4,66 @@ import numpy as np
 DELIM = ","
 QUOTECHAR = '|'
 
+def shouldIgnore(imageName):
+    if imageName.startswith("617_data/FrankPhotos"):
+        #Glass_Beach_Memorial_Day_ - 2_203.jpg
+        print "imageName: {}".format(imageName)
+        filename = imageName.split("/")
+        print "filename: {}".format(filename)
+        parts = filename[2].split("-")
+        print "parts: {}".format(parts)
+        sizeparts = parts[1]
+        size_str = sizeparts.replace(".jpg","")
+        nparts = size_str.split("_")
+        if len(nparts) == 1:
+
+            return True
+        else:
+            return False
+
+    elif imageName.startswith("617_data/JonPhotos"):
+        print "imageName: {}".format(imageName)
+        #IMG_20170528_085310.jpg
+        filename = imageName.split("/")
+        print "filename: {}".format(filename)
+        parts = filename[2].split("_")
+        print "---->>>>length of parts: {}".format(len(parts))
+        if len(parts) == 3:
+            print "skip this!!!"
+            return True
+        else:
+            print "using this!!!!!"
+            return False
+    else:
+        return False
+    return False
+
 def get_real_size(imageName):
     #IMG_8.93_60.jpg
-    if imageName.startswith("feb_2017") or imageName.startswith("may_2017"):
+    if imageName.startswith("617_data/FrankPhotos"):
+        #Glass_Beach_Memorial_Day_ - 2_203.jpg
+        filename = imageName.split("/")
+        print "filename: {}".format(filename)
+        parts = filename[2].split("-")
+        print "parts: {}".format(parts)
+        sizeparts = parts[1]
+        print "sparts: {}".format(sizeparts)
+        size_str = sizeparts.replace(".jpg","")
+        print "sizestr: {}".format(size_str)
+        nparts = size_str.split("_")
+        print "nparts: {}".format(nparts)
+        size = float(nparts[1])
+        print "size: {}".format(size)
+        return size*0.0393701
+    elif imageName.startswith("617_data/JonPhotos"):
+        #IMG_20170528_085310.jpg
+        filename = imageName.split("/")
+        parts = filename[2].split("_")
+
+        size_str = parts[3].replace(".jpg","")
+        size = float(size_str)*0.0393701
+        return size
+    elif imageName.startswith("feb_2017") or imageName.startswith("may_2017"):
         filename = imageName.split("/")
 
         parts = filename[1].split("_")

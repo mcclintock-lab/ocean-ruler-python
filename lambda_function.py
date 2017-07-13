@@ -791,7 +791,14 @@ def find_abalone_length(is_deployed, req):
 
         
     else:
+
+
         (imageName, showResults, rulerWidth, out_file) = read_args()
+        shouldIgnore = file_utils.shouldIgnore(imageName)
+        print "should ignore? {}".format(shouldIgnore)
+        if shouldIgnore:
+            print "IGNORING THIS ONE!!!!"
+            return
         image_full = cv2.imread(imageName)
         thumb = get_thumbnail(image_full)
         uuid = "delete_me"
