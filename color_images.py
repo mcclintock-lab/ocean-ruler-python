@@ -33,6 +33,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
     final_valmax = -1
     #including ruler in light background misses overexposed ruler
     if utils.is_light_background(image) and not is_ruler:
+        print "IS LIGHT!!!"
         if not is_ruler:
             hue_offset = hue_offset
 
@@ -46,6 +47,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
         sat_plus = hue_offset+sat_offset*2
         val_plus = hue_offset+val_offset*2
     else:
+        print "ITS NOT LIGHT!!"
         sat_offset = 2
         val_offset = 20
         range_max = 5
@@ -56,6 +58,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
             hue_offset = hue_offset
 
         if utils.is_dark(image):
+            print "ITS REAL DARK!"
             sat_minus = hue_offset+sat_offset
             if is_ruler:
                 val_minus = hue_offset+val_offset/2
@@ -65,7 +68,9 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
             sat_plus = hue_offset+sat_offset
             val_plus = hue_offset
         else:
+            print "NOT DARK!"
             if utils.is_bright_background(image):
+                print "its bright??? "
                 sat_minus = hue_offset+sat_offset
                 if is_ruler:
                     val_minus = hue_offset+val_offset
@@ -79,6 +84,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
                 else:
                     val_plus = hue_offset
             else:  
+                print "....its not bright"
                 sat_minus = hue_offset+sat_offset
                 val_minus = hue_offset+val_offset
                 sat_plus = hue_offset+sat_offset*2
@@ -169,6 +175,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     final_valmax = -1
 
     if utils.is_dark(image):
+        print "ITS DARK!!!!!!!!!!!!!!!!!!!!!!"
         sat_minus = hue_offset+sat_offset
         if is_ruler:
             val_minus = hue_offset+val_offset/2
@@ -178,7 +185,9 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
         sat_plus = hue_offset+sat_offset
         val_plus = hue_offset
     else:
+        print 'NOT DARK!!!!!'
         if utils.is_bright_background(image):
+            print "ITS BRIGHT!!"
             sat_minus = hue_offset+sat_offset
             if is_ruler:
                 val_minus = hue_offset+val_offset
@@ -192,6 +201,7 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
             else:
                 val_plus = hue_offset
         else:  
+            print "NOT BRIGHT!!!!!!"
             sat_minus = hue_offset+sat_offset
             val_minus = hue_offset+val_offset
             sat_plus = hue_offset+sat_offset*2
@@ -326,7 +336,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
     cdiff = 10000000
 
     if False:
-        cv2.drawContours(input_image, contours, -1, (0,255,0), 3)
+        cv2.drawContours(input_image, cnts, -1, (0,255,0), 3)
         cv2.imshow("{}x{}".format(thresh_val, blur_window), input_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()

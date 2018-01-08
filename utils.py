@@ -139,7 +139,7 @@ def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_i
         else:
             edged_img = cv2.Canny(thresh_img, 20, 100)       
 
-    edged_img = cv2.dilate(edged_img, None, iterations=di)
+    edged_img = cv2.dilate(edged_img, np.ones((3,3), np.uint8), iterations=di)
     edged_img = cv2.erode(edged_img, None, iterations=erode_iterations)
     
     if False:
@@ -316,8 +316,8 @@ def is_bright_background(image):
     mean_s_val = np.median(s_vals)
     mean_v_val = np.median(v_vals)
     mean_h_val = np.median(h_vals) 
-    #print "H:{}, S:{}, V:{}".format(mean_h_val, mean_s_val, mean_v_val)
-    return (mean_h_val < 30 and mean_s_val > 50)
+    print "H:{}, S:{}, V:{}".format(mean_h_val, mean_s_val, mean_v_val)
+    return (mean_h_val < 30 and mean_s_val > 50 and mean_v_val < 60)
     #return mean_s_val > 75
 
 def reject_outliers(data, m=2):

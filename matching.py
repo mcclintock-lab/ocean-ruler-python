@@ -3,8 +3,9 @@ import utils
 
 
 def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image, is_quarter, first_pass):
-    if target_contour is None:
+    if target_contour is None or template_shape is None:
         return None, None, None, None, None
+        
     templateHull = cv2.convexHull(template_shape)
     templateArea = cv2.contourArea(template_shape)
 
@@ -16,14 +17,19 @@ def sort_by_matching_shape(target_contour, template_shape, use_hull,input_image,
     val = cv2.matchShapes(target_contour, template_shape, 2, 0.0)
     
     #hull_val = cv2.matchShapes(targetHull,template_shape,2,0.0)   
-    if is_quarter:
-
-        area = (targetArea/templateArea)
-        haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
+    if templateArea == 0:
+        area = 0
+        haus_dist = 1000000
     else:
-        area = (targetArea /templateArea)
-        haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
-    
+        if is_quarter:
+
+            area = (targetArea/templateArea)
+            haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
+        else:
+
+            area = (targetArea /templateArea)
+            haus_dist = hausdorffDistanceExtractor.computeDistance(target_contour, template_shape)
+        
     #get centroid of template_shape
     template_X, template_Y = utils.get_centroid(template_shape)
     
