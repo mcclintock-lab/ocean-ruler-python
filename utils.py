@@ -5,6 +5,19 @@ ABALONE = "abalone"
 RULER = "ruler"
 QUARTER = "_quarter"
 
+def get_thumbnail(image_full):
+    target_cols = 200.0
+
+    orig_cols = len(image_full[0]) 
+    orig_rows = len(image_full)
+ 
+    target_rows = (float(orig_rows)/(float(orig_cols))*200.0)
+    fx = float(target_cols/orig_cols)
+    fy = float(target_rows/orig_rows)
+
+    thumb = cv2.resize( image_full, (0,0), fx = fx, fy = fy)
+    return thumb
+
 def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contour, retry, scaled_rows, scaled_cols, input_image=None, all_bets_are_off=False):
     if len(shapes) == 0:
         return None, None, None
@@ -142,31 +155,47 @@ def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_i
 
     return edged_img
 
-def is_contour_enclosed(contour, enclosing_contour, use_hull):
+def is_contour_enclosed(contour, enclosing_contour, use_hull, check_centroid):
     if enclosing_contour is None or len(enclosing_contour) == 0:
+        print("empty enclosing...")
         return False
 
     try:
         if use_hull:
             hull = cv2.convexHull(enclosing_contour,returnPoints = True)
         else:
-            hull = cv2.fitEllipse(enclosing_contour)
+            hull = enclosing_contour
 
-        extLeft = tuple(contour[contour[:, :, 0].argmin()][0])
-        extRight = tuple(contour[contour[:, :, 0].argmax()][0])
-        extTop = tuple(contour[contour[:, :, 1].argmin()][0])
-        extBot = tuple(contour[contour[:, :, 1].argmax()][0])
-        #print("left:{};right:{};top:{};bottom:{}".format(extLeft, extRight, extTop, extBot))
-        
-        lIn = cv2.pointPolygonTest(hull,extLeft,False) >= 0
-        rIn = cv2.pointPolygonTest(hull,extRight,False) >= 0
-        tIn = cv2.pointPolygonTest(hull,extTop,False) >= 0
-        bIn = cv2.pointPolygonTest(hull,extBot,False) >= 0
+        if check_centroid:
+            center = get_centroid(contour)
+            enclosing_ellipse = cv2.fitEllipse(enclosing_contour)
+            pts = cv2.boxPoints(enclosing_ellipse)
+            topleft = pts[0]
+            topright = pts[1]
+            bottomright = pts[2]
+            bottomleft = pts[3]
 
-        #print("lIn:{};rIn:{};tIn:{};bIn:{}".format(lIn, rIn, tIn, bIn))
-        contour_is_enclosed = lIn or rIn or tIn or bIn
+            xEnc = center[0] >= topleft[0] and center[0] <= topright[0]
+            yEnc = center[1] >= topleft[1] and center[1] <= bottomleft[1]
+            contour_is_enclosed = (xEnc and yEnc)
+        else:
+            extLeft = tuple(contour[contour[:, :, 0].argmin()][0])
+            extRight = tuple(contour[contour[:, :, 0].argmax()][0])
+            extTop = tuple(contour[contour[:, :, 1].argmin()][0])
+            extBot = tuple(contour[contour[:, :, 1].argmax()][0])
+            #print("left:{};right:{};top:{};bottom:{}".format(extLeft, extRight, extTop, extBot))
+            
+            lIn = cv2.pointPolygonTest(hull,extLeft,False) >= 0
+            rIn = cv2.pointPolygonTest(hull,extRight,False) >= 0
+            tIn = cv2.pointPolygonTest(hull,extTop,False) >= 0
+            bIn = cv2.pointPolygonTest(hull,extBot,False) >= 0
+
+            #print("lIn:{};rIn:{};tIn:{};bIn:{}".format(lIn, rIn, tIn, bIn))
+            contour_is_enclosed = (lIn or rIn or tIn or bIn)
+
         return contour_is_enclosed
-    except StandardError:
+    except Exception as e:
+        print("getting enclosed barfed: {}".format(e))
         return False
 
 def is_really_round(contour):
@@ -174,7 +203,7 @@ def is_really_round(contour):
     
     w_v_h = float(w)/float(h)
 
-    lim = 0.95
+    lim = 0.65
     is_round = (w_v_h >= lim and w_v_h <= (1.0/lim))
     return is_round
 
@@ -195,7 +224,7 @@ def get_largest_edges(cnts):
             try:
                 hull = cv2.convexHull(contour)
                 carea = cv2.contourArea(hull)   
-                pair = [carea, contour]
+                pair = [carea, contour, cv2.contourArea(contour)]
                 #thull = cv2.convexHull(contour)
                 #harea = cv2.contourArea(thull) 
                 dex = 0  
@@ -263,23 +292,24 @@ def show_img_and_contour(imageName, input_image, contour, template_contour,top_o
     try:
         if contour is not None:
             #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
-            cv2.fillPoly(input_image, [contour], (0,255,255))
+            cv2.drawContours(input_image, [contour], 0, (0,255,255),4)
             cv2.drawContours(input_image, [template_contour], 0, (255,0,0), 3)
             show_img(imageName, input_image)
-    except StandardError:
-        print("couldn't draw image...")
+    except Exception as err:
+        print("couldn't draw image...{}".format(err))
 
 def show_img(title, img):
     cv2.imshow(title, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+
 def get_centroid(contour):
     try:
         M = cv2.moments(contour)
         cX = int(M["m10"] / M["m00"])
         cY = int(M["m01"] / M["m00"])
-    except StandardError:
+    except Exception:
         cX,cY = 10000.0,10000.0
 
     return cX,cY
@@ -361,12 +391,18 @@ def is_bright_background(image):
     mean_s_val = np.median(s_vals)
     mean_v_val = np.median(v_vals)
     mean_h_val = np.median(h_vals) 
-    print("H:{}, S:{}, V:{}".format(mean_h_val, mean_s_val, mean_v_val))
+    
     return (mean_h_val < 30 and mean_s_val > 50 and mean_v_val < 60)
     #return mean_s_val > 75
 
 def reject_outliers(data, m=2):
     return data[abs(data - np.mean(data)) < m * np.std(data)]
+
+def is_white_or_gray(input_image):
+    #used for setting erode/dilate thresholds
+    mean_color = get_mean_background_color(input_image)
+    #low saturation and high value -- white or really light gray
+    return mean_color[1] < 75 and mean_color[2] > 200
 
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)

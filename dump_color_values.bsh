@@ -4,5 +4,5 @@
 for f in color_bkground_data/*.JPG
 do
 	echo "running $f"
-	python lambda_function.py "$f"
+	python lambda_function_2018.py "$f"
 done

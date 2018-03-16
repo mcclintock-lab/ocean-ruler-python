@@ -1,17 +1,61 @@
 import csv
 import os
 import numpy as np
+import argparse
 DELIM = ","
 QUOTECHAR = '|'
+
+def read_args():
+    ap = argparse.ArgumentParser()
+    
+    ap.add_argument("--image", required=False,
+        help="path to the input image")
+    ap.add_argument("--show", required=False,
+        help="show the results. if not set, the results will write to a csv file")
+    ap.add_argument("--output_file", required=False,
+        help="file to read/write results from")
+
+    try:
+        args = vars(ap.parse_args())
+        if args['image'] is None:
+            ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
+            args = vars(ap.parse_known_args())
+    except SystemExit:
+        ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
+        args = vars(ap.parse_args())  
+    
+    showResults = args["show"]
+    showResults = showResults == "True"
+    
+
+    out_file = args['output_file']
+    if not out_file:
+        out_file ="new_data.csv"
+
+
+    imageName = args["image"]
+    
+    if imageName is None or len(imageName) == 0:
+        showResults = False
+        out_file ="new_data.csv"
+        #out_file = "data.csv"
+        allImageNames = args['allimages'][0]
+        print("working on {}".format(allImageNames))
+        imageParts = allImageNames.split()
+
+        if(len(imageParts) > 1):
+            imageName = "{} {}".format(imageParts[0], imageParts[1])
+        else:
+            imageName = imageParts[0]
+
+
+    return imageName, showResults, out_file
 
 def shouldIgnore(imageName):
     if imageName.startswith("617_data/FrankPhotos"):
         #Glass_Beach_Memorial_Day_ - 2_203.jpg
-        print "imageName: {}".format(imageName)
         filename = imageName.split("/")
-        print "filename: {}".format(filename)
         parts = filename[2].split("-")
-        print "parts: {}".format(parts)
         sizeparts = parts[1]
         size_str = sizeparts.replace(".jpg","")
         nparts = size_str.split("_")
@@ -22,17 +66,12 @@ def shouldIgnore(imageName):
             return False
 
     elif imageName.startswith("617_data/JonPhotos"):
-        print "imageName: {}".format(imageName)
         #IMG_20170528_085310.jpg
         filename = imageName.split("/")
-        print "filename: {}".format(filename)
         parts = filename[2].split("_")
-        print "---->>>>length of parts: {}".format(len(parts))
         if len(parts) == 3:
-            print "skip this!!!"
             return True
         else:
-            print "using this!!!!!"
             return False
     else:
         return False
@@ -43,17 +82,17 @@ def get_real_size(imageName):
     if imageName.startswith("617_data/FrankPhotos"):
         #Glass_Beach_Memorial_Day_ - 2_203.jpg
         filename = imageName.split("/")
-        print "filename: {}".format(filename)
+      
         parts = filename[2].split("-")
-        print "parts: {}".format(parts)
+       
         sizeparts = parts[1]
-        print "sparts: {}".format(sizeparts)
+        
         size_str = sizeparts.replace(".jpg","")
-        print "sizestr: {}".format(size_str)
+   
         nparts = size_str.split("_")
-        print "nparts: {}".format(nparts)
+    
         size = float(nparts[1])
-        print "size: {}".format(size)
+ 
         return size*0.0393701
     elif imageName.startswith("617_data/JonPhotos"):
         #IMG_20170528_085310.jpg
@@ -74,7 +113,7 @@ def get_real_size(imageName):
         try:
             size = float(size_str)
             return size
-        except StandardError, e:
+        except Exception:
             return read_real_sizes(imageName)
     else:
         filename = imageName.split("/")
@@ -82,7 +121,6 @@ def get_real_size(imageName):
     
 
 def read_real_sizes(imageName):
-    print "imageName: {}".format(imageName)
 
     real_sizes = {}
     real_sizes_file = "data/real_sizes.csv"
@@ -103,10 +141,67 @@ def read_real_sizes(imageName):
                     size = float(currSize)
                     return size
 
-        except StandardError, e:
-            print "can't read real files: {}".format(e)
+        except Exception:
+            print("can't read real files: {}".format(e))
 
     return size
+
+def read_write_simple_csv(out_file, imageName, abaloneLength):
+    all_rows = {}
+    all_diffs = {}
+    last_total_diff = 0.0
+    total_diffs = 0.0
+    if os.path.exists(out_file):
+        with open(out_file, 'rU') as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=DELIM, quotechar=QUOTECHAR)
+            try:
+                for i, row in enumerate(csvreader):
+                    if i > 0:
+                        name = row[0]
+                        size = row[1]
+                        real_size = row[2]
+                        diff = row[3]
+                        avg = row[4]
+                        if name != "Total":
+                            #print "for {}, best ab key: {}, best ruler key: {}".format(name, best_ab_key, best_ruler_key)
+                            all_rows[name] = [size, real_size, diff, avg]
+                            all_diffs[name] = float(diff)
+                        else:
+                            last_total_diff = float(diff)
+            except Exception as e:
+                print("problem here: {}".format(e))
+
+
+        try:
+            real_size = get_real_size(imageName)
+            print("real size: {}".format(real_size))
+            if real_size > 0.0:
+                diff = abs(abaloneLength - real_size)
+                all_rows[imageName] = [abaloneLength, real_size, diff]
+                
+                all_diffs[imageName] = abs(diff)
+
+                #total_diffs = np.sum(all_diffs.values())
+                total_diffs = sum((abs(d) for d in all_diffs.values()))
+                total_avg = total_diffs/len(all_diffs.values())
+                with open(out_file, 'w') as csvfile:
+                    writer = csv.writer(csvfile, delimiter=DELIM, quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
+                    writer.writerow(["Name", "Estimated", "Real", "Val Diff", "Average"])
+                    for name, sizes in all_rows.items():
+                        diff = all_diffs.get(name)
+                        est_size = sizes[0]
+                        real_size = sizes[1]
+                        avg = 0
+                        row = [name, est_size, real_size, diff,avg]
+                        writer.writerow(row)
+
+                    writer.writerow(["Total", 0,0,total_diffs, total_avg])
+            else:
+                print("Couldn't find real size for {}".format(imageName))
+                
+            print("last total: {}; this total: {}".format(last_total_diff, total_diffs))
+        except Exception as err:
+            print("error trying to write the real size and diff: {}".format(err))
 
 def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, rulerValue, background_val_diff):
 
@@ -135,7 +230,7 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
                         else:
                             last_total_diff = float(diff)
 
-            except StandardError, e:
+            except Exception:
                 print("problem here: {}".format(e))
 
     try:
@@ -161,8 +256,8 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
 
                 writer.writerow(["Total", 0,0,total_diffs,"-","-","-"])
         else:
-            print "Couldn't find real size for {}".format(imageName)
+            print("Couldn't find real size for {}".format(imageName))
             
-        print "last total: {}; this total: {}".format(last_total_diff, total_diffs)
-    except StandardError, e:
-        print "error trying to write the real size and diff: {}".format(e)
+        print("last total: {}; this total: {}".format(last_total_diff, total_diffs))
+    except Exception as err:
+        print("error trying to write the real size and diff: {}".format(err))

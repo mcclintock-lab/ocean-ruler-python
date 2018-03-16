@@ -33,7 +33,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
     final_valmax = -1
     #including ruler in light background misses overexposed ruler
     if utils.is_light_background(image) and not is_ruler:
-        print "IS LIGHT!!!"
+
         if not is_ruler:
             hue_offset = hue_offset
 
@@ -47,7 +47,6 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
         sat_plus = hue_offset+sat_offset*2
         val_plus = hue_offset+val_offset*2
     else:
-        print "ITS NOT LIGHT!!"
         sat_offset = 2
         val_offset = 20
         range_max = 5
@@ -58,7 +57,6 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
             hue_offset = hue_offset
 
         if utils.is_dark(image):
-            print "ITS REAL DARK!"
             sat_minus = hue_offset+sat_offset
             if is_ruler:
                 val_minus = hue_offset+val_offset/2
@@ -68,9 +66,8 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
             sat_plus = hue_offset+sat_offset
             val_plus = hue_offset
         else:
-            print "NOT DARK!"
             if utils.is_bright_background(image):
-                print "its bright??? "
+              
                 sat_minus = hue_offset+sat_offset
                 if is_ruler:
                     val_minus = hue_offset+val_offset
@@ -84,7 +81,6 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
                 else:
                     val_plus = hue_offset
             else:  
-                print "....its not bright"
                 sat_minus = hue_offset+sat_offset
                 val_minus = hue_offset+val_offset
                 sat_plus = hue_offset+sat_offset*2
@@ -106,18 +102,18 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
                 satmax = get_max(int(val[1])+sat_plus)
                 valmax = get_max(int(val[2])+val_plus)
 
-                final_huemin = min(final_huemin, huemin)
-                final_huemax = max(final_huemax, huemax)
+                final_huemin = int(min(final_huemin, huemin))
+                final_huemax = int(max(final_huemax, huemax))
 
-                final_satmin = min(final_satmin, satmin)
-                final_satmax = max(final_satmax, satmax)
+                final_satmin = int(min(final_satmin, satmin))
+                final_satmax = int(max(final_satmax, satmax))
 
-                final_valmin = min(final_valmin, valmin)
-                final_valmax = max(final_valmax, valmax)
+                final_valmin = int(min(final_valmin, valmin))
+                final_valmax = int(max(final_valmax, valmax))
 
     minrange = np.array([final_huemin, final_satmin, final_valmin])
     maxrange = np.array([final_huemax, final_satmax, final_valmax])
-
+    print("minrange: {}, maxrange: {}".format(minrange, maxrange))
     #use original image so we get the non-masked values
     mask = cv2.inRange(image, minrange, maxrange)
     notmask = cv2.bitwise_not(mask)
@@ -125,15 +121,10 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
     bgr = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
 
     if False:
-        print "{}".format(minrange)
-        print "{}".format(maxrange)
         rows = len(image)
         cols = len(image[0])
-        print "rows: {}, cols:{}".format(rows,cols)
         for pt in pts:
-            print "drawing pt {}".format(pt)
             endpt = (pt[0]+2, pt[1]+2)
-            print "drawing endpt {}".format(endpt)
             cv2.rectangle(image, (pt[1],pt[0]), (endpt[1],endpt[0]),(255,0,0),10)
         cv2.imshow("result {}".format(hue_offset), image)
         cv2.waitKey(0)
@@ -175,7 +166,6 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     final_valmax = -1
 
     if utils.is_dark(image):
-        print "ITS DARK!!!!!!!!!!!!!!!!!!!!!!"
         sat_minus = hue_offset+sat_offset
         if is_ruler:
             val_minus = hue_offset+val_offset/2
@@ -185,9 +175,8 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
         sat_plus = hue_offset+sat_offset
         val_plus = hue_offset
     else:
-        print 'NOT DARK!!!!!'
         if utils.is_bright_background(image):
-            print "ITS BRIGHT!!"
+       
             sat_minus = hue_offset+sat_offset
             if is_ruler:
                 val_minus = hue_offset+val_offset
@@ -201,7 +190,6 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
             else:
                 val_plus = hue_offset
         else:  
-            print "NOT BRIGHT!!!!!!"
             sat_minus = hue_offset+sat_offset
             val_minus = hue_offset+val_offset
             sat_plus = hue_offset+sat_offset*2
@@ -242,15 +230,10 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     bgr = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
 
     if False:
-        print "{}".format(minrange)
-        print "{}".format(maxrange)
         rows = len(image)
         cols = len(image[0])
-        print "rows: {}, cols:{}".format(rows,cols)
         for pt in pts:
-            print "drawing pt {}".format(pt)
             endpt = (pt[0]+2, pt[1]+2)
-            print "drawing endpt {}".format(endpt)
             cv2.rectangle(image, (pt[1],pt[0]), (endpt[1],endpt[0]),(255,0,0),10)
         cv2.imshow("result {}".format(hue_offset), image)
         cv2.waitKey(0)
@@ -275,7 +258,6 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     if is_bright:
         #TODO: check for high variability/check patterns here?
         if is_ruler and use_adaptive:
-            print "using adaptive!!!!!!!!!!"
             threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,7,3);
         else:
             retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)

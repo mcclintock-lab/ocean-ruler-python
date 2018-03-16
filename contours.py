@@ -48,3 +48,4 @@ def get_quarter_contours(rescaled_image):
     quarter_e, quarter_shapes, hierarchy2 = cv2.findContours(quarter_edged_img,  cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     quarter_shape = quarter_shapes[0] 
     return quarter_shape
+

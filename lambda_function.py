@@ -256,7 +256,7 @@ def read_args():
         if args['image'] is None:
             ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
             args = vars(ap.parse_known_args())
-    except SystemExit, e:
+    except SystemExit:
         ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
         args = vars(ap.parse_args())  
     
@@ -269,7 +269,6 @@ def read_args():
 
 
     imageName = args["image"]
-    print "--->>>>> image name: {}".format(imageName)
     if imageName is None or len(imageName) == 0:
         showResults = False
         out_file ="data.csv"
@@ -332,7 +331,6 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
     #the abalone is rotated vertically in the image
     ratio = float(height)/float(width)
     flipDrawing = ratio > 1.2
-    print "height is: ", height, " width is ", width, "ratio is ", ratio
     #getting rid of this for now, causes more problems than its worth
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
@@ -390,7 +388,6 @@ def draw_contour(base_img, con, pixelsPerMetric, pre, top_offset, rulerWidth,is_
 
 
     dimB = dB / pixelsPerMetric
-    print "db: {}, pixels per: {}; dim b: {}".format(dB, pixelsPerMetric, dimB)
     if draw_text:
         if pre == "Ruler":
                 # draw the object sizes on the image
@@ -683,7 +680,7 @@ def noResults(key, val):
 def print_time(msg):
     now = time.time()
     elapsed = now - _start_time
-    print "{} time elapsed: {}".format(msg, elapsed)
+    print("{} time elapsed: {}".format(msg, elapsed))
     #logger.debug(msg)
 
 
@@ -693,7 +690,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     table = dynamodb.Table('ab_length')
     try:
         lenfloat = round(float(len_in_inches),2)
-    except StandardError, e:
+    except StandardError:
         lenfloat = -1.0
     now = int(time.time()*1000)
     try:
@@ -803,9 +800,8 @@ def find_abalone_length(is_deployed, req):
 
         (imageName, showResults, rulerWidth, out_file) = read_args()
         shouldIgnore = file_utils.shouldIgnore(imageName)
-        print "should ignore? {}".format(shouldIgnore)
+
         if shouldIgnore:
-            print "IGNORING THIS ONE!!!!"
             return
         image_full = cv2.imread(imageName)
         thumb = get_thumbnail(image_full)
@@ -858,7 +854,6 @@ def find_abalone_length(is_deployed, req):
 
     is_color_bkground = utils.is_color(rescaled_image)
     background_val_diff = utils.is_background_similar_color(rescaled_image)
-    print "IS COLOR??? ", is_color_bkground
 
     #img_match.do_image_matching(rescaled_image)
 
@@ -869,7 +864,6 @@ def find_abalone_length(is_deployed, req):
     bestAbaloneKey = None
     bestAbaloneValue = 0
     
-    print "abalone, color first"
     diff_h, diff_s, diff_v = utils.get_mean_abalone_color(rescaled_image)
     low_contrast = diff_v < 60 
 
@@ -879,7 +873,6 @@ def find_abalone_length(is_deployed, req):
     
     print_time("done with color")
     if False:
-        print "not a color background"
         bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
             rescaled_image, True, description="strict")
     print_time("done with bw")
@@ -888,7 +881,6 @@ def find_abalone_length(is_deployed, req):
     
     if noResults(bestAbaloneKey, bestAbaloneValue):
         if True:
-            print "doing bw for color abalone...."
             bw_abalone_shapes = get_bw_abalone(thresholds, blurs, abalone_shapes, abalone_template_contour, 
                 rescaled_image, True, description="strict")
             #if there is still nothing, loosen the area restrictions and try again
@@ -925,7 +917,6 @@ def find_abalone_length(is_deployed, req):
     newBestRulerContour, bestRulerKey, bestRulerValue = utils.get_best_contour(ruler_shapes+bw_ruler_shapes, 0.60, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
     
     if noResults(bestRulerKey, bestRulerValue):
-        print "working on color quarter without adaptive"
         ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, 
             ruler_image, newBestAbaloneContour, False, first_pass=True, use_adaptive=False,
             description="adaptive",is_small=False)
@@ -933,13 +924,12 @@ def find_abalone_length(is_deployed, req):
 
         if noResults(bestRulerKey, bestRulerValue):
             if not low_contrast:
-                print "working on b&w quarter..."
                 bw_ruler_shapes = get_bw_ruler(thresholds, blurs, 
                     bw_ruler_shapes, quarter_template_contour, newBestAbaloneContour, ruler_image, True, description="strict", use_hull=True)
                 newBestRulerContour, bestRulerKey, bestRulerValue =  utils.get_best_contour(ruler_shapes+bw_ruler_shapes, 0.4, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
             
             if noResults(bestRulerKey, bestRulerValue):
-                print "no good, trying gray?"
+            
                 gray_ruler_shapes = get_color_ruler(thresholds, blurs, gray_ruler_shapes, 
                     quarter_template_contour, ruler_image, newBestAbaloneContour, True,
                     first_pass=True,use_adaptive=False, description="gray",is_small=False)
@@ -947,7 +937,6 @@ def find_abalone_length(is_deployed, req):
 
                 if noResults(bestRulerKey, bestRulerValue):
                     #trying getting results with a lower boundary
-                    print "trying color with looser rules"
                     ruler_shapes = []
                     ruler_shapes = get_color_ruler(thresholds, blurs, ruler_shapes, quarter_template_contour, 
                         ruler_image, newBestAbaloneContour, False, first_pass=False,use_adaptive=False,
@@ -955,32 +944,27 @@ def find_abalone_length(is_deployed, req):
                     newBestRulerContour, bestRulerKey, bestRulerValue =  utils.get_best_contour(ruler_shapes, 0.40, 3.0, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
                 
                     if noResults(bestRulerKey, bestRulerValue):
-                        print "failed - trying b&w with looser rules"
                         bw_ruler_shapes = get_bw_ruler(thresholds, blurs, bw_ruler_shapes, 
                             quarter_template_contour, newBestAbaloneContour, ruler_image, description="loose", use_hull=False)
                         newBestRulerContour, bestRulerKey, bestRulerValue =  utils.get_best_contour(bw_ruler_shapes, 0.25, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
                         if noResults(bestRulerKey, bestRulerValue):
-                            print "failed - trying b&w with no enclosing contour"
                             bw_ruler_shapes = get_bw_ruler(thresholds, blurs, bw_ruler_shapes, 
                                 quarter_template_contour, None, ruler_image, description="loose", use_hull=False)
                             newBestRulerContour, bestRulerKey, bestRulerValue =  utils.get_best_contour(bw_ruler_shapes, 0.25, 1.9, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, rescaled_image.copy())
 
     #add this for abalone, too, to prevent empty results
     if noResults(bestRulerKey, bestRulerValue):
-        print "->>>>>>>>>>>>>>>>>> trying quarter with loose guidelines..."
         get_quarter_circles(rescaled_image)
         all_rulers = bw_ruler_shapes+ruler_shapes+gray_ruler_shapes
         newBestRulerContour,bestRulerKey, bestRulerValue = utils.get_best_contour((bw_ruler_shapes+ruler_shapes+gray_ruler_shapes), 0.2, 3.0, RULER, newBestAbaloneContour, False, scaled_rows, scaled_cols, None, True)
 
     if noResults(bestAbaloneKey, bestAbaloneValue):
-        print "falling back on abalone with very loose guidelines..."
 
         newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = utils.get_best_contour(abalone_shapes+large_color_abalone_shapes+small_color_abalone_shapes+bw_abalone_shapes, 
             0.10, 1.25, ABALONE, None, False, scaled_rows, scaled_cols)
     
         if noResults(bestAbaloneKey, bestAbaloneValue):
-            print "ok, trying one more time with width and height limits turned off"
             newBestAbaloneContour, bestAbaloneKey, bestAbaloneValue = utils.get_best_contour(abalone_shapes+large_color_abalone_shapes+small_color_abalone_shapes, 
                 0.10, 1.25, ABALONE, None, False, scaled_rows, scaled_cols, None, True)
 
@@ -1010,8 +994,8 @@ def find_abalone_length(is_deployed, req):
     if is_mac():
         file_utils.read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, bestRulerValue, background_val_diff)
     
-    print "final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue)
-    print "final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue)
+    print("final best abalone key is -->>>{}<<<-----, value of {}".format(bestAbaloneKey, bestAbaloneValue))
+    print("final best ruler key is -->>>{}<<<-----, value of {}".format(bestRulerKey, bestRulerValue))
 
     if bestRulerKey.endswith("_masked_quarter"):
         offx = qoffset_x
@@ -1057,17 +1041,13 @@ def find_abalone_length(is_deployed, req):
                 "uuid":str(uuid)
             }
     jsonVal = json.dumps(rval)
-    print "the json val::::"
-    print jsonVal
-    print "-----"
+
     return jsonVal
 
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
     as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y):
-    #print_time("uploading data now....")
-    #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
-    #print_time("done encoding image")
+
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                  as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y)
     #print_time("done putting things into dynamo db")
@@ -1083,7 +1063,7 @@ def upload_worker(rescaled_image, thumb, img_data,
 def lambda_handler(event, context):
     try:
         ab_length = find_abalone_length(True, event)
-    except StandardError, e:
+    except StandardError:
         ab_length = "Unknown"
         
     return ab_length
