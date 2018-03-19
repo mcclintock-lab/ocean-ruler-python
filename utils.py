@@ -391,7 +391,7 @@ def is_bright_background(image):
     mean_s_val = np.median(s_vals)
     mean_v_val = np.median(v_vals)
     mean_h_val = np.median(h_vals) 
-    
+
     return (mean_h_val < 30 and mean_s_val > 50 and mean_v_val < 60)
     #return mean_s_val > 75
 
@@ -402,7 +402,7 @@ def is_white_or_gray(input_image):
     #used for setting erode/dilate thresholds
     mean_color = get_mean_background_color(input_image)
     #low saturation and high value -- white or really light gray
-    return mean_color[1] < 75 and mean_color[2] > 200
+    return mean_color[1] < 75 and mean_color[2] > 190
 
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
