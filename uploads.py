@@ -1,5 +1,19 @@
 import cv2
 import boto3
+import time
+import utils
+import json
+import decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
+
 
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y):
@@ -41,8 +55,8 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "newsize":decimal.Decimal('{}'.format(lenfloat))
             }
         )
-    except ClientError as e:
-        print(e.response['Error']['Message'])
+    except Exception as e:
+        print("error uploading: {}".format(e))
     else:
         print("{} length updated to {}".format(uuid, lenfloat))
 
@@ -50,12 +64,10 @@ def do_s3_upload(image_data, final_thumb, uuid):
     s3 = boto3.resource('s3')
 
     s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
-    print_time("done putting full size")
 
     #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
     #print_time("done with thumb")
     s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)
-    print_time("don with thumb")
 
 
 
@@ -71,8 +83,7 @@ def upload_worker(rescaled_image, thumb, img_data,
 
     original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
-    final_thumb = get_thumbnail(rescaled_image)
+    final_thumb = utils.get_thumbnail(rescaled_image)
     thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
     do_s3_upload(img_data, thumb_str, uuid)
     #do_s3_upload(None, thumb_str, None, uuid)
-    print_time("done uploading data...")
