@@ -2,7 +2,7 @@
 import cv2
 import utils
 import file_utils
-import matplotlib.pyplot as plot
+
 import color_images as ci
 import numpy as np
 import sys
