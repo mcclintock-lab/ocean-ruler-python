@@ -139,7 +139,7 @@ def find_abalone_length(is_deployed, req):
 
     
     #if is_deployed:
-    if True:
+    if is_deployed:
         print("uploading now....")
         uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
             left_point[0], left_point[1],right_point[0], right_point[1], 
@@ -177,7 +177,8 @@ def execute(imageName, image_full, showResults, is_deployed):
     
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
     #not using these at the moment...
-    abalone_template_contour, small_abalone_template_contour, quarter_template_contour = templates.get_template_contours(rescaled_image)
+    abalone_template_contour, small_abalone_template_contour, quarter_template_contour = templates.get_template_contours(rescaled_image,
+            "images/big_abalone_only_2x.png", "images/abalone_only_2x.png","images/quarter_template_1280.png")
 
     quarter_width = 0.955
     abalone_contour, orig_contours = contour_utils.get_abalone_contour(rescaled_image.copy(), small_abalone_template_contour)

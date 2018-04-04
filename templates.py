@@ -10,7 +10,7 @@ def rescale(orig_cols, orig_rows, template_img):
     scaled_image = cv2.resize(template_img, (0,0), fx = fx, fy = fy)
     return scaled_image
     
-def get_template_contours(rescaled_image):
+def get_template_contours(rescaled_image, big_file, small_file, ruler_file):
     row_offset = 30
     col_offset = 30
 
@@ -18,15 +18,15 @@ def get_template_contours(rescaled_image):
     orig_rows = len(rescaled_image)
 
     #by default, using the big abalone template
-    abalone_template = cv2.imread("images/big_abalone_only_2x.png")
+    abalone_template = cv2.imread(big_file)
     rescaled_ab_template = rescale(orig_cols, orig_rows, abalone_template)
     abalone_template = rescaled_ab_template[30:len(rescaled_ab_template),30:len(rescaled_ab_template[0])-30]
 
-    small_abalone_template = cv2.imread("images/abalone_only_2x.png")
+    small_abalone_template = cv2.imread(small_file)
     rescaled_small_ab_template = rescale(orig_cols, orig_rows, small_abalone_template)
     small_abalone_template = rescaled_small_ab_template[30:len(rescaled_small_ab_template),30:len(rescaled_small_ab_template[0])-30]
-
-    quarter_only = cv2.imread("images/quarter_template_1280.png")
+    print("ruler file: {}".format(ruler_file))
+    quarter_only = cv2.imread(ruler_file)
     quarter_only = quarter_only[30:len(quarter_only),30:len(quarter_only[0])-30]
 
     template_edged = cv2.Canny(abalone_template, 15, 100)

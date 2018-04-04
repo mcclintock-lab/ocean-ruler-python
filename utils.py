@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import color_images as ci
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -207,10 +208,37 @@ def is_really_round(contour):
     is_round = (w_v_h >= lim and w_v_h <= (1.0/lim))
     return is_round
 
+def is_really_square(contour):
+    x,y,w,h = cv2.boundingRect(contour)
+    
+    w_v_h = float(w)/float(h)
+
+    lim = 0.80
+    is_square = (w_v_h >= lim and w_v_h <= (1.0/lim))
+    return is_square
+
 def get_large_edges(cnts):
     if len(cnts) == 0:
         return None, None
     return cnts
+
+
+def get_gray_image(input_image, white_or_gray, use_opposite):
+    if (not white_or_gray and not use_opposite) or (use_opposite and white_or_gray):
+        thresh_val = 30
+        blur_window = 5
+        first_pass = True
+        is_ruler = True
+        use_adaptive = False
+        color_image, threshold_bw, color_img, mid_row = ci.get_image_with_color_mask(input_image, thresh_val, 
+            blur_window, False, first_pass, is_ruler, use_adaptive)
+        gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
+
+    else:
+        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,7,21)
+        gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+    return gray
+
 def get_largest_edges(cnts):
     if len(cnts) == 0:
         return None, None
@@ -247,6 +275,43 @@ def get_largest_edges(cnts):
         #results.append(pair[1])
     return target_contours[:5]
 
+
+def get_largest_contours(cnts, num_items):
+    if len(cnts) == 0:
+        return None, None
+    try:
+        max_size = 0
+        targetDex = 0
+        target_contours = []
+
+        #include ties
+        for i, contour in enumerate(cnts):
+            try:
+                hull = cv2.convexHull(contour)
+                carea = cv2.contourArea(hull)   
+                pair = [carea, contour, cv2.contourArea(contour)]
+                #thull = cv2.convexHull(contour)
+                #harea = cv2.contourArea(thull) 
+                dex = 0  
+                for inplace in target_contours:
+                    if float(inplace[0]) > float(carea):
+                        dex+=1 
+                    else:
+                        break
+                target_contours.insert(dex, contour)
+            except Exception as e:
+                continue
+
+    except Exception:
+        print("error getting largest edge")
+        return None, None
+
+    print("len targets: {}".format(len(target_contours)))
+    print("num items: {}".format(num_items))
+    if len(target_contours) < num_items:
+        num_items = len(target_contours)
+
+    return target_contours[:num_items]
 
 def get_largest_edge(cnts):
     if len(cnts) == 0:

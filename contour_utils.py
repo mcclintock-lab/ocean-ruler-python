@@ -26,26 +26,12 @@ def get_filtered_quarter_contours(scale_contours, target_contour, target_perc, i
 
     return matches
 
-def get_gray_image(input_image, white_or_gray, use_opposite):
-    if (not white_or_gray and not use_opposite) or (use_opposite and white_or_gray):
-        thresh_val = 30
-        blur_window = 5
-        first_pass = True
-        is_ruler = True
-        use_adaptive = False
-        color_image, threshold_bw, color_img, mid_row = ci.get_image_with_color_mask(input_image, thresh_val, 
-            blur_window, False, first_pass, is_ruler, use_adaptive)
-        gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
 
-    else:
-        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,7,21)
-        gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
-    return gray
 
 def get_target_abalone_contour(input_image, abalone_template_contour, lower_percent_bounds, white_or_gray, use_opposite):
     
     target_contour = None
-    gray = get_gray_image(input_image, white_or_gray, use_opposite)
+    gray = utils.get_gray_image(input_image, white_or_gray, use_opposite)
     if use_opposite:
         white_or_gray = not white_or_gray
     blur = cv2.GaussianBlur(gray, (5,5),0)
@@ -112,6 +98,8 @@ def get_target_abalone_contour(input_image, abalone_template_contour, lower_perc
             
     #orig contours are returned for display/testing
     return target_contour, cnts
+
+
 
 def get_abalone_contour(input_image, abalone_template_contour):
     white_or_gray = utils.is_white_or_gray(input_image)
@@ -229,6 +217,8 @@ def get_circle_info(circle):
     radius = circle[2]
     return cx, cy, radius
 
+
+
 def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contour, look_for_shapes):
 
     ncols = len(input_image[0]) 
@@ -250,13 +240,11 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
 
 
     if len(circle_matches) == 0:
-        print("doing opposite --color")
         #2. use the opposite of white or color
         circles, scale_contours = get_target_quarter_contours(input_image, True, False)
         matches = get_filtered_quarter_contours(scale_contours, abalone_contour, target_perc, img_area, True)
         circle_matches = get_matches(circles, matches)
         if len(circle_matches) == 0:
-            print("doing original but without roundness")
             #3. try the original but with check roundness turned off, so no rebuild target contours
             circles, scale_contours = get_target_quarter_contours(input_image, False, True)
             matches = get_filtered_quarter_contours(scale_contours, abalone_contour, target_perc/2, img_area, False)
