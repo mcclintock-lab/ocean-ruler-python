@@ -2,6 +2,8 @@ import csv
 import os
 import numpy as np
 import argparse
+import constants
+
 DELIM = ","
 QUOTECHAR = '|'
 
@@ -14,7 +16,10 @@ def read_args():
         help="show the results. if not set, the results will write to a csv file")
     ap.add_argument("--output_file", required=False,
         help="file to read/write results from")
-
+    ap.add_argument("--fishery_type", required=False, help="fishery type, e.g. abalone, lobster, etc.")
+    ap.add_argument("--ref_object", required=False, help="reference object type: quarter or square")
+    ap.add_argument("--ref_object_size", required=False, help="reference object size, 0.955 for quarter (default), squares of 2 or 3")
+    ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to inches")
     try:
         args = vars(ap.parse_args())
         if args['image'] is None:
@@ -48,8 +53,24 @@ def read_args():
         else:
             imageName = imageParts[0]
 
+    fishery_type = args['fishery_type']
+    if fishery_type is None or len(fishery_type) == 0:
+        fishery_type = constants.ABALONE
 
-    return imageName, showResults, out_file
+    ref_object = args['ref_object']
+    ref_object_size = args['ref_object_size']
+    ref_object_units = args['ref_object_units']
+    if ref_object is None or len(ref_object) == 0:
+        if fishery_type == constants.LOBSTER:
+            ref_object = constants.SQUARE
+            ref_object_size = constants.DEF_SQUARE_SIZE_IN
+            ref_object_units = constants.INCHES
+        else:
+            ref_object = constants.QUARTER
+            ref_object_size = constants.QUARTER_SIZE_IN
+            ref_object_units = constants.INCHES
+
+    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units
 
 def shouldIgnore(imageName):
     if imageName.startswith("617_data/FrankPhotos"):

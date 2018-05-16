@@ -16,7 +16,7 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
-        as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y):
+        as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ab_length')
     try:
@@ -52,7 +52,13 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "q_new_start_y":decimal.Decimal(qs_y),
                 "q_new_end_x":decimal.Decimal(qe_x),
                 "q_new_end_y":decimal.Decimal(qe_y),
-                "newsize":decimal.Decimal('{}'.format(lenfloat))
+                "newsize":decimal.Decimal('{}'.format(lenfloat)),
+                "ref_object":ref_object,
+                "ref_object_size":decimal.Decimal('{}'.format(ref_object_size)),
+                "ref_object_units":ref_object_units,
+                "orig_width":decimal.Decimal('{}'.format(original_width)),
+                "orig_height":decimal.Decimal('{}'.format(original_height)),
+                "fishery_type":fishery_type
             }
         )
     except Exception as e:
@@ -73,13 +79,12 @@ def do_s3_upload(image_data, final_thumb, uuid):
 
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
-    as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y):
+    as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height):
     #print_time("uploading data now....")
     #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
     #print_time("done encoding image")
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
-                 as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y)
-    #print_time("done putting things into dynamo db")
+                 as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height)
 
     original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")

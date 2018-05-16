@@ -10,12 +10,29 @@ def rescale(orig_cols, orig_rows, template_img):
     scaled_image = cv2.resize(template_img, (0,0), fx = fx, fy = fy)
     return scaled_image
     
-def get_template_contours(rescaled_image, big_file, small_file, ruler_file):
+def get_template_contour(orig_cols, orig_rows, target_file):
     row_offset = 30
     col_offset = 30
 
-    orig_cols = len(rescaled_image[0]) 
-    orig_rows = len(rescaled_image)
+    #by default, using the big abalone template
+    template = cv2.imread(target_file)
+    rescaled_template = rescale(orig_cols, orig_rows, template)
+    template = rescaled_template[30:len(rescaled_template),30:len(rescaled_template[0])-30]
+
+    template_edged = cv2.Canny(template, 15, 100)
+    edged_img = cv2.dilate(template_edged, None, iterations=1)
+
+    im2, target_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    target_shape = target_shapes[1]
+
+    return target_shape
+
+
+def get_template_contours(orig_cols, orig_rows, target_file):
+    row_offset = 30
+    col_offset = 30
+
+
 
     #by default, using the big abalone template
     abalone_template = cv2.imread(big_file)

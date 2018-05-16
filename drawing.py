@@ -79,11 +79,12 @@ def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
     br = (quarterCenterX+quarterRadius, quarterCenterY+quarterRadius)
     return tl, tr, bl, br
 
-def draw_both_contours(base_img, contour, draw_text, flipDrawing, quarterCenterX, quarterCenterY, quarterRadius):
-    rulerWidth = 0.955
+
+def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetric):
+    
     tl, tr, bl, br = get_corner_points("Abalone", contour)
-    qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
-    print("quarter corners: {}, {}, {}, {}: radius: {}".format(qtl, qtr, qbl, qbr, quarterRadius))
+    #qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
+    #print("quarter corners: {}, {}, {}, {}: radius: {}".format(qtl, qtr, qbl, qbr, quarterRadius))
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
@@ -93,13 +94,12 @@ def draw_both_contours(base_img, contour, draw_text, flipDrawing, quarterCenterX
         endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
         dB = abs(startLinePoint[1] - endLinePoint[1])
 
+        '''
         quarterStartLinePoint = midpoint(qtl, qtr)
         quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
         quarterEndLinePoint = midpoint(qbl, qbr)
         quarterEndLinePoint = (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1]))
-
-
-
+        '''
     else:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
@@ -110,42 +110,34 @@ def draw_both_contours(base_img, contour, draw_text, flipDrawing, quarterCenterX
         # compute the Euclidean distance between the midpoints
         dB = abs(startLinePoint[0] - endLinePoint[0])
     
-
+        '''
         quarterStartLinePoint = midpoint(qtl, qbl)
         quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
         quarterEndLinePoint = midpoint(qtr, qbr)
         quarterEndLinePoint = (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1]))
+        '''
 
     # draw the midpoints on the image
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 0), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 0), -1)
 
+    '''
     cv2.circle(base_img, (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1])), 2, (0, 255, 0), -1)
     cv2.circle(base_img, (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1])), 2, (0, 255, 0), -1)
-
+    '''
 
     # draw lines between the midpoints
-
-
     drawLines(base_img, flipDrawing, startLinePoint, endLinePoint)
-    drawLines(base_img, flipDrawing, quarterStartLinePoint, quarterEndLinePoint)
+    #drawLines(base_img, flipDrawing, quarterStartLinePoint, quarterEndLinePoint)
 
 
     # if the pixels per metric has not been initialized, then
     # compute it as the ratio of pixels to supplied metric
     # (in this case, inches)
 
-    pixelsPerMetric = get_width_from_ruler(quarterRadius*2, rulerWidth)
     dimB = dB / pixelsPerMetric
 
-    print("db: {}, pixels per: {}; dim b: {}".format(dB, pixelsPerMetric, dimB))
     if draw_text:
-
-        # draw the quarter
-        cv2.putText(base_img, "{}: {}in".format("U.S. Quarter",0.955),
-            (quarterEndLinePoint[0]+10, quarterEndLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
-            1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
-        
 
         # draw the object sizes on the image
         cv2.putText(base_img, "Abalone",
@@ -156,9 +148,80 @@ def draw_both_contours(base_img, contour, draw_text, flipDrawing, quarterCenterX
             (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
             1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-    return pixelsPerMetric, dimB, startLinePoint, endLinePoint, quarterStartLinePoint, quarterEndLinePoint
+    return dimB, startLinePoint, endLinePoint
 
-def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth):
+
+
+def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCenterX, quarterCenterY, refWidth, refObjectSize):
+    
+    #tl, tr, bl, br = get_corner_points("Abalone", contour)
+    qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, refWidth/2)
+    #print("quarter corners: {}, {}, {}, {}: radius: {}".format(qtl, qtr, qbl, qbr, quarterRadius))
+    if flipDrawing:
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        '''
+        startLinePoint = midpoint(tl, tr)
+        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
+        endLinePoint = midpoint(bl, br)
+        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+        dB = abs(startLinePoint[1] - endLinePoint[1])
+        '''
+        quarterStartLinePoint = midpoint(qtl, qtr)
+        quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
+        quarterEndLinePoint = midpoint(qbl, qbr)
+        quarterEndLinePoint = (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1]))
+        dB = abs(quarterStartLinePoint[1] - quarterEndLinePoint[1])
+
+    else:
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        '''
+        startLinePoint = midpoint(tl, bl)
+        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
+        endLinePoint = midpoint(tr, br)
+        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+        # compute the Euclidean distance between the midpoints
+        dB = abs(startLinePoint[0] - endLinePoint[0])
+        '''
+
+        quarterStartLinePoint = midpoint(qtl, qbl)
+        quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
+        quarterEndLinePoint = midpoint(qtr, qbr)
+        quarterEndLinePoint = (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1]))
+        dB = abs(quarterStartLinePoint[0] - quarterEndLinePoint[0])
+
+    # draw the midpoints on the image
+    '''
+    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 0), -1)
+    '''
+
+    cv2.circle(base_img, (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1])), 2, (0, 255, 0), -1)
+    cv2.circle(base_img, (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1])), 2, (0, 255, 0), -1)
+
+
+    # draw lines between the midpoints
+    #drawLines(base_img, flipDrawing, startLinePoint, endLinePoint)
+    drawLines(base_img, flipDrawing, quarterStartLinePoint, quarterEndLinePoint)
+
+
+    # if the pixels per metric has not been initialized, then
+    # compute it as the ratio of pixels to supplied metric
+    # (in this case, inches)
+
+    pixelsPerMetric = get_width_from_ruler(refWidth, refObjectSize)
+    dimB = dB / pixelsPerMetric
+
+    if draw_text:
+        # draw the quarter
+        cv2.putText(base_img, "{}: {}in".format("U.S. Quarter",0.955),
+            (quarterEndLinePoint[0]+10, quarterEndLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
+            1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
+
+    return pixelsPerMetric, dimB, quarterStartLinePoint, quarterEndLinePoint
+
+def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize):
     tl, tr, bl, br = get_bounding_corner_points(contour)
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
@@ -312,7 +375,7 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
                 (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
                 1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-    return pixelsPerMetric, dimB, startLinePoint, endLinePoint
+    return dimB, startLinePoint, endLinePoint
 
 def draw_contour(base_img, contour, pixelsPerMetric, pre, draw_text, flipDrawing, rulerWidth):
 
