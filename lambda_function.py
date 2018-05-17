@@ -104,6 +104,7 @@ def find_length(is_deployed, req):
 
 
         #img info
+        print_time("about to get image")
         img_str = req[u'base64Image']
         img_data = base64.b64decode(img_str)
         tmp_filename = '/tmp/ab_length_{}.png'.format(time.time()) 
@@ -113,11 +114,13 @@ def find_length(is_deployed, req):
 
         imageName = tmp_filename
         image_full = cv2.imread(imageName)
-        thumb = utils.get_thumbnail(image_full)
 
+        thumb = utils.get_thumbnail(image_full)
+        print_time("image got!")
         showResults = False
         out_file = None
         try:
+            print_time("getting new ones...")
             fishery_type = req[u'fisheryType']
             if fishery_type is None or len(fishery_type) == 0:
                 fishery_type = constants.ABALONE
@@ -133,7 +136,7 @@ def find_length(is_deployed, req):
             ref_object_units = req[u'refObjectUnits']
             if ref_object_units is None or len(ref_object_units) == 0:
                 ref_object_units = constants.INCHES
-        except StandardError, e:
+        except Exception, e:
             print_time("error getting args: {}".format(e))
             fishery_type="abalone"
             ref_object="quarter"
@@ -198,7 +201,7 @@ def find_length(is_deployed, req):
         print_time("total time")
     except StandardError, e:
         print_time("big bombout....: {}".format(e))
-        
+
     jsonVal = json.dumps(rval)
     #print(jsonVal)
     return jsonVal
