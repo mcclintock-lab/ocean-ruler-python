@@ -41,9 +41,10 @@ def get_scaled_image(image_full):
         target_cols = 1280
     
     target_rows = (float(orig_rows)/(float(orig_cols))*target_cols)
-    fx = float(target_cols/orig_cols)
-    fy = float(target_rows/orig_rows)
+    fx = float(target_cols)/float(orig_cols)
+    fy = float(target_rows)/float(orig_rows)
 
+    print("{}, {}".format(fx, fy))
     scaled_image = cv2.resize( image_full, (0,0), fx = fx, fy = fy)
     
     rows = int(len(scaled_image))
@@ -213,7 +214,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         target_contour, orig_contours = contour_utils.get_abalone_contour(rescaled_image.copy(), small_abalone_template_contour)
     elif fishery_type == constants.LOBSTER:
         small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/full_lobster_right.png")
-        target_contour, orig_contours, top_offset, left_offset = lobster_contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
+        target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
 
     else:
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/abalone_only_2x.png")
@@ -229,8 +230,8 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_quarter_dimensions(rescaled_image.copy(), target_contour, ref_object_template_contour, False)    
     else:
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/square_templates_2inch.png")
-        ref_object_contour, all_square_contours = lobster_contour_utils.get_square_contour(rescaled_image.copy(), target_contour, ref_object_template_contour, False)
-    
+        ref_object_contour, all_square_contours = contour_utils.get_square_contour(rescaled_image.copy(), target_contour, ref_object_template_contour)
+
     showText = showResults and not is_deployed
     flipDrawing = orig_rows/orig_cols > 1.2
 
@@ -239,11 +240,11 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         pixelsPerMetric, targetLength, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
             target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, refRadius*2, ref_object_size)
     else:
-        pixelsPerMetric, targetLength,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(rescaled_image, 
-            ref_object_contour, None, True, flipDrawing, ref_object_size)
+        pixelsPerMetric, targetLength,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
+            ref_object_contour, None, True, flipDrawing, int(ref_object_size))
 
     if fishery_type == constants.LOBSTER:
-        targetLength, left_point, right_point = drawing.draw_lobster_contour(rescaled_image, 
+        targetLength, left_point, right_point = drawing.draw_lobster_contour(new_drawing, 
             target_contour, pixelsPerMetric, True, flipDrawing, ref_object_size, top_offset, left_offset)
     else:
         targetLength, left_point, right_point = drawing.draw_target_contour(new_drawing, 
@@ -251,7 +252,8 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
 
     if showResults:
         #cv2.circle(new_drawing,(quarterCenterX, quarterCenterY),quarterRadius,(0,255,0),4)
-        #cv2.drawContours(new_drawing, np.array(orig_contours[1]), -1, (0,255,0),5)
+        cv2.drawContours(new_drawing, [ref_object_contour], -1, (0,255,0),5)
+        cv2.drawContours(new_drawing, all_square_contours, -1, (255,0,0),3)
         utils.show_img("Final Measurements", new_drawing)
 
     return rescaled_image, pixelsPerMetric, targetLength, left_point, right_point, left_ref_object_point, right_ref_object_point

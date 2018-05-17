@@ -38,8 +38,8 @@ def get_scaled_image(image_full):
         target_cols = 1280
     
     target_rows = (float(orig_rows)/(float(orig_cols))*target_cols)
-    fx = float(target_cols/orig_cols)
-    fy = float(target_rows/orig_rows)
+    fx = float(target_cols)/float(orig_cols)
+    fy = float(target_rows)/float(orig_rows)
 
     scaled_image = cv2.resize( image_full, (0,0), fx = fx, fy = fy)
     
@@ -111,7 +111,7 @@ def find_abalone_length(is_deployed, req):
         showResults = False
         out_file = None
     else:
-        (imageName, showResults, out_file) = file_utils.read_args()
+        (imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units) = file_utils.read_args()
         shouldIgnore = file_utils.shouldIgnore(imageName)
 
         if shouldIgnore:
@@ -189,7 +189,6 @@ def execute(imageName, image_full, showResults, is_deployed):
 
     lobster_contour, orig_contours, top_offset, left_offset = lobster_contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
 
-
     square_contour, all_square_contours = lobster_contour_utils.get_square_contour(rescaled_image.copy(), lobster_contour, square_template_contour, False)
 
     flipDrawing = orig_rows/orig_cols > 1.2
@@ -197,7 +196,8 @@ def execute(imageName, image_full, showResults, is_deployed):
     pixelsPerMetric, rulerLength,left_ruler_point, right_ruler_point = drawing.draw_square_contour(rescaled_image, 
         square_contour, None, True, flipDrawing, 2.0)
 
-    pixelsPerMetric, abaloneLength, left_point, right_point = drawing.draw_lobster_contour(rescaled_image, 
+
+    abaloneLength, left_point, right_point = drawing.draw_lobster_contour(rescaled_image, 
         lobster_contour, pixelsPerMetric, True, flipDrawing, 2.0, top_offset, left_offset)
 
     showText = showResults and not is_deployed

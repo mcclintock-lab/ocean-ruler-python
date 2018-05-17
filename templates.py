@@ -14,6 +14,7 @@ def get_template_contour(orig_cols, orig_rows, target_file):
     row_offset = 30
     col_offset = 30
 
+
     #by default, using the big abalone template
     template = cv2.imread(target_file)
     rescaled_template = rescale(orig_cols, orig_rows, template)
@@ -28,12 +29,13 @@ def get_template_contour(orig_cols, orig_rows, target_file):
     return target_shape
 
 
-def get_template_contours(orig_cols, orig_rows, target_file):
+def get_template_contours(rescaled_image, big_file, small_file, ruler_file):
     row_offset = 30
     col_offset = 30
 
 
-
+    orig_cols = len(rescaled_image[0]) 
+    orig_rows = len(rescaled_image)
     #by default, using the big abalone template
     abalone_template = cv2.imread(big_file)
     rescaled_ab_template = rescale(orig_cols, orig_rows, abalone_template)

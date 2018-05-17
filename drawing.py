@@ -242,7 +242,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         dB = abs(startLinePoint[0] - endLinePoint[0])
 
 
-    pixelsPerMetric = get_width_from_ruler(dB, rulerWidth)
+    pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
     print("square width: {}".format(dB))
     print("pixels per inch: {}".format(pixelsPerMetric))
     dimB = dB / pixelsPerMetric
@@ -273,7 +273,6 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         (255, 0, 255), 1)
     '''
 
-    pixelsPerMetric = get_width_from_ruler(dB, rulerWidth)
     if draw_text:
         cv2.putText(base_img, "{}".format("2 in. Square",dimB),
             (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
@@ -281,22 +280,47 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     return pixelsPerMetric, dimB, startLinePoint, endLinePoint
 
 def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth, left_offset, top_offset):
-
+    #center (x,y), (width, height), angle of rotation 
     rotRect = cv2.minAreaRect(contour)
-    box = cv2.boxPoints(rotRect)
-    box = np.int0(box)
-    cv2.drawContours(base_img,[box],0,(0,0,255),2, offset=(left_offset, top_offset))
-    
-
     width = rotRect[1][0]
     height = rotRect[1][1]
+    rotAngle = abs(rotRect[2])
     verts = cv2.boxPoints(rotRect)
-    print("rotated rect: {}".format(verts))
- 
-    tl = verts[0]
-    tr = verts[1]
-    br = verts[2]
-    bl = verts[3]
+    print("rot angle: {}".format(rotAngle))
+    if rotAngle > 45:
+        tl = verts[2]
+        tr = verts[3]
+        br = verts[0]
+
+        bl = verts[1]
+    else:
+        tl = verts[1]
+        tr = verts[2]
+        br = verts[3]
+        bl = verts[0]
+
+    centerPoint = rotRect[0]
+
+    if rotRect < 45:
+        #width is longer side
+        #shows as x
+        print("long side is width")
+    else:
+        #height is longer side
+        #shows as y
+        print("x is short side")
+    box = cv2.boxPoints(rotRect)
+    print("rotRect: {}".format(rotRect))
+    print("box: {}".format(box))
+
+    #convert from floats to int
+    box = np.int0(box)
+    cv2.drawContours(base_img,[box],0,(25,25,25),1, offset=(left_offset, top_offset))
+    
+    print("width: ", width)
+    print("height: ", height)
+
+    print("----------->>>>> tl:{}, tr:{}, br:{}, bl:{}".format(tl, tr, br, bl))
     #calculate hypotenuse
     a = abs(tl[0] - tr[0])
     b = abs(tl[1] - tr[1])
@@ -307,8 +331,9 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     tr = (tr[0]+left_offset, tr[1]+top_offset)
     bl = (bl[0]+left_offset, bl[1]+top_offset)
     br = (br[0]+left_offset, br[1]+top_offset)
-    
-    if flipDrawing:
+    print("----------->>>>> tl:{}, tr:{}, br:{}, bl:{}".format(tl, tr, br, bl))
+    flipLine = rotAngle > 45 and width > height
+    if flipLine:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
         startLinePoint = midpoint(tl, tr)
@@ -330,16 +355,36 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
   
 
     # draw the midpoints on the image
-    cv2.circle(base_img, (int(tl[0]), int(tl[1])), 16, (255, 0, 0), -1)#pt 1
-    cv2.circle(base_img, (int(tr[0]), int(tr[1])), 16, (0, 0, 255), -1)#pt 2
-    cv2.circle(base_img, (int(br[0]), int(br[1])), 16, (0, 255, 0), -1)
-    cv2.circle(base_img, (int(bl[0]), int(bl[1])), 16, (0, 0, 0), -1)
+    '''
+    top_left_point = (int(tl[0]), int(tl[1]))
+    cv2.circle(base_img, top_left_point, 16, (255,0,0), -1) #blue
+    cv2.putText(base_img, "topleft",
+        top_left_point, cv2.FONT_HERSHEY_TRIPLEX,
+        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+    top_right_point = (int(tr[0]), int(tr[1]))
+    cv2.circle(base_img, top_right_point, 16, (50, 50, 50), -1)#gray
+    cv2.putText(base_img, "topright",
+        top_right_point, cv2.FONT_HERSHEY_TRIPLEX,
+        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+
+    bottom_right_point = (int(br[0]), int(br[1]))
+    cv2.circle(base_img, bottom_right_point, 16, (255, 255, 255), -1) #white
+    cv2.putText(base_img, "bottomright",
+        bottom_right_point, cv2.FONT_HERSHEY_TRIPLEX,
+        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+
+    bottom_left_point = (int(bl[0]), int(bl[1]))
+    cv2.circle(base_img, bottom_left_point, 16, (0, 0, 0), -1) #black
+    cv2.putText(base_img, "bottomleft",
+        bottom_left_point, cv2.FONT_HERSHEY_TRIPLEX,
+        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+    '''
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 4, (255, 0, 255), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 4, (255, 0, 255), -1)
 
     # draw lines between the midpoints
     cv2.line(base_img, startLinePoint, endLinePoint,
-        (255, 0, 255), 1)
+        (255, 0, 255), 4)
 
     '''
     if flipDrawing:
