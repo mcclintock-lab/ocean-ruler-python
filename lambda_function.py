@@ -92,6 +92,7 @@ def find_length(is_deployed, req):
     bestAbaloneContour = None
 
     if is_deployed:
+        print_time("its deployed....")
         #user info
         name = req[u'username']
         email = req[u'email']
@@ -100,21 +101,7 @@ def find_length(is_deployed, req):
         picDate = req[u'picDate']
         rating = '-1'
         notes = 'none'
-        fishery_type = req[u'fisheryType']
-        if fishery_type is None or len(fishery_type) == 0:
-            fishery_type = constants.ABALONE
 
-        ref_object = req[u'refObject']
-        if ref_object is None or len(ref_object) == 0:
-            ref_object = constants.QUARTER
-
-        ref_object_size = req[u'refObjectSize']
-        if ref_object_size is None or len(ref_object_size) == 0:
-            ref_object_size = constants.QUARTER_SIZE_IN
-
-        ref_object_units = req[u'refObjectUnits']
-        if ref_object_units is None or len(ref_object_units) == 0:
-            ref_object_units = constants.INCHES
 
         #img info
         img_str = req[u'base64Image']
@@ -130,6 +117,29 @@ def find_length(is_deployed, req):
 
         showResults = False
         out_file = None
+        try:
+            fishery_type = req[u'fisheryType']
+            if fishery_type is None or len(fishery_type) == 0:
+                fishery_type = constants.ABALONE
+
+            ref_object = req[u'refObject']
+            if ref_object is None or len(ref_object) == 0:
+                ref_object = constants.QUARTER
+
+            ref_object_size = req[u'refObjectSize']
+            if ref_object_size is None or len(ref_object_size) == 0:
+                ref_object_size = constants.QUARTER_SIZE_IN
+
+            ref_object_units = req[u'refObjectUnits']
+            if ref_object_units is None or len(ref_object_units) == 0:
+                ref_object_units = constants.INCHES
+        except StandardError, e:
+            print_time("error getting args: {}".format(e))
+            fishery_type="abalone"
+            ref_object="quarter"
+            ref_object_size=0.955
+            ref_object_units="inches"
+        print("fishery type: {}, ref object:{}, size: {}, units:{} ".format(fishery_type, ref_object, ref_object_size, ref_object_units))
     else:
         (imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units) = file_utils.read_args()
         shouldIgnore = file_utils.shouldIgnore(imageName)
@@ -151,41 +161,44 @@ def find_length(is_deployed, req):
         picDate = int(time.time()*1000);
 
     print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units))
+    try:
+        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, showResults, is_deployed, 
+                        fishery_type, ref_object, ref_object_size, ref_object_units)
+            
+        if is_mac():
+            file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
 
-    rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, showResults, is_deployed, 
-                    fishery_type, ref_object, ref_object_size, ref_object_units)
+        rows = len(rescaled_image)
+        cols = len(rescaled_image[0])
+        orig_rows = len(image_full)
+        orig_cols = len(image_full[0])
         
-    if is_mac():
-        file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
+        #if is_deployed:
+        if is_deployed:
+            print("uploading now....")
+            uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+                left_point[0], left_point[1],right_point[0], right_point[1], 
+                left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
+                orig_cols, orig_rows)
 
-    rows = len(rescaled_image)
-    cols = len(rescaled_image[0])
-    orig_rows = len(image_full)
-    orig_cols = len(image_full[0])
-    
-    #if is_deployed:
-    if is_deployed:
-        print("uploading now....")
-        uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
-            left_point[0], left_point[1],right_point[0], right_point[1], 
-            left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
-            orig_cols, orig_rows)
-
-    rval =  {
-                "start_x":str(left_point[0]), "start_y":str(left_point[1]), 
-                "end_x":str(right_point[0]), "end_y":str(right_point[1]), 
-                "length":str(abaloneLength),
-                "width":str(cols),"height":str(rows),
-                "quarter_start_x":str(left_ruler_point[0]),
-                "quarter_start_y":str(left_ruler_point[1]),
-                "quarter_end_x":str(right_ruler_point[0]),
-                "quarter_end_y":str(right_ruler_point[1]),
-                "uuid":str(uuid),
-                "ref_object":str(ref_object), "ref_object_size":str(ref_object_size),
-                "ref_object_units":str(ref_object_units), "orig_width":orig_cols, "orig_height":orig_rows,
-                "fishery_type":str(fishery_type)
-            }
-    print_time("total time")
+        rval =  {
+                    "start_x":str(left_point[0]), "start_y":str(left_point[1]), 
+                    "end_x":str(right_point[0]), "end_y":str(right_point[1]), 
+                    "length":str(abaloneLength),
+                    "width":str(cols),"height":str(rows),
+                    "quarter_start_x":str(left_ruler_point[0]),
+                    "quarter_start_y":str(left_ruler_point[1]),
+                    "quarter_end_x":str(right_ruler_point[0]),
+                    "quarter_end_y":str(right_ruler_point[1]),
+                    "uuid":str(uuid),
+                    "ref_object":str(ref_object), "ref_object_size":str(ref_object_size),
+                    "ref_object_units":str(ref_object_units), "orig_width":orig_cols, "orig_height":orig_rows,
+                    "fishery_type":str(fishery_type)
+                }
+        print_time("total time")
+    except StandardError, e:
+        print_time("big bombout....: {}".format(e))
+        
     jsonVal = json.dumps(rval)
     #print(jsonVal)
     return jsonVal
