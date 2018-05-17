@@ -321,18 +321,23 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     print("height: ", height)
 
     print("----------->>>>> tl:{}, tr:{}, br:{}, bl:{}".format(tl, tr, br, bl))
-    #calculate hypotenuse
+    flipLine = (rotAngle > 45 and width > height) or (rotAngle < 45 and width < height)
+    '''
     a = abs(tl[0] - tr[0])
     b = abs(tl[1] - tr[1])
     dB = math.sqrt(math.pow(a,2)+math.pow(b,2))
-
+    '''
+    if width >= height:
+        dB = width
+    else:
+        dB = height
     #tl, tr, bl, br = get_bounding_corner_points(contour)
     tl = (tl[0]+left_offset, tl[1]+top_offset)
     tr = (tr[0]+left_offset, tr[1]+top_offset)
     bl = (bl[0]+left_offset, bl[1]+top_offset)
     br = (br[0]+left_offset, br[1]+top_offset)
     print("----------->>>>> tl:{}, tr:{}, br:{}, bl:{}".format(tl, tr, br, bl))
-    flipLine = rotAngle > 45 and width > height
+    
     if flipLine:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
@@ -404,10 +409,7 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     cv2.line(base_img, secondHatchStart, secondHatchEnd,
         (255, 0, 255), 1)
     '''
-    print("a size is {}".format(a))
-    print("b side is {}".format(b))
-    print("hypotenuse is:::::: {}".format(dB))
-    print("pixels per metrix is: {}".format(pixelsPerMetric))
+
     dimB = dB / pixelsPerMetric
     
     if draw_text:
