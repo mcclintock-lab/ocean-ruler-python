@@ -111,12 +111,16 @@ def find_length(is_deployed, req):
 
         img_str = req[u'base64Image']
         print_time("length of image: {}".format(len(img_str)))
-        
+
         img_data = base64.b64decode(img_str)
+        print_time("im data is ok? {}".format(img_data is not None))
+
         tmp_filename = '/tmp/ab_length_{}.png'.format(time.time()) 
 
+        print("about to write tmp img")
         with open(tmp_filename, 'wb') as f:
             f.write(img_data)
+        print("wrote ok...")
 
         imageName = tmp_filename
         image_full = cv2.imread(imageName)
