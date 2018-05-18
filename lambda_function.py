@@ -103,9 +103,15 @@ def find_length(is_deployed, req):
         notes = 'none'
 
 
+        print_time("cv2 is loaded? ...checking")
+        val = cv2.COLOR_BGR2HSV
+        print("val is {}".format(val))
         #img info
         print_time("about to get image")
+
         img_str = req[u'base64Image']
+        print_time("length of image: {}".format(len(img_str)))
+        
         img_data = base64.b64decode(img_str)
         tmp_filename = '/tmp/ab_length_{}.png'.format(time.time()) 
 
