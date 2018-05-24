@@ -28,9 +28,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     print("ref object: {}".format(ref_object))
     print("units: {}".format(ref_object_units))
     print("size: {}".format(ref_object_size))
-    try:
-        response = table.put_item(
-            Item={
+    item = {
                 'username': name,
                 'email': email,
                 'uuid': uuid,
@@ -63,7 +61,13 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "orig_width":decimal.Decimal('{}'.format(original_width)),
                 "orig_height":decimal.Decimal('{}'.format(original_height)),
                 "fishery_type":fishery_type
-            },ReturnValues='ALL_NEW'
+            }
+            
+    print("items: {}".format(item))
+
+    try:
+        response = table.put_item(
+            Item=item,ReturnValues='ALL_NEW'
         )
         print("--->>> response::: {}".format(response))
 
