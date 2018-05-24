@@ -33,7 +33,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     print("rating: {}".format(rating))
     print("user submitted: {}".format(now))
 
-    print("w: {}, h: {}".format(orig_width, orig_height))
+    print("w: {}, h: {}".format(original_width, original_height))
 
     item = {
                 'username': name,
