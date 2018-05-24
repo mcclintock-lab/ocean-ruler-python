@@ -1,4 +1,5 @@
 import cv2
+import time
 import utils
 import numpy as np
 import color_images as ci
@@ -609,6 +610,8 @@ def get_filtered_square_contours(scale_contours, target_contour, target_perc, im
 
     return matches
 
+
+
 def get_square_contour(input_image, lobster_contour, square_template_contour):
 
     ncols = len(input_image[0]) 
@@ -623,16 +626,17 @@ def get_square_contour(input_image, lobster_contour, square_template_contour):
     radius = 0
     circle_matches = []
     #1. use white or color
-    print("first pass.....")
+    utils.print_time("first pass on square")
     white_or_gray = utils.is_white_or_gray(input_image)
     square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray, 0.005, True, True)
     
 
     if square_contour is None or len(square_contour) == 0:
-        print("nothing on first pass, doing second")
+        utils.print_time("nothing on first pass, doing second")
         square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0005,True, False)
 
         if square_contour is None or len(square_contour) == 0:
+            utils.print_time("second failed, doing last one...")
             square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0005,False, False)            
               
     return square_contour, scale_contours
