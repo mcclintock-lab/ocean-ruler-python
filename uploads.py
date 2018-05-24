@@ -74,7 +74,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
 
     try:
         response = table.put_item(
-            Item=item,ReturnValues='ALL_NEW'
+            Item=item,ReturnValues='ALL_OLD'
         )
         print("--->>> response::: {}".format(response))
 
