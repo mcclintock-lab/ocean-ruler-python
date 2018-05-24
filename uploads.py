@@ -18,7 +18,7 @@ class DecimalEncoder(json.JSONEncoder):
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('ocean_ruler')
+    table = dynamodb.Table('ab_length')
     try:
         lenfloat = round(float(len_in_inches),2)
     except StandardError:
@@ -35,7 +35,10 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
 
     print("w: {}, h: {}".format(original_width, original_height))
 
-    item = {
+
+    try:
+        response = table.put_item(
+            Item={
                 'username': name,
                 'email': email,
                 'uuid': uuid,
@@ -69,12 +72,6 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "orig_height":decimal.Decimal('{}'.format(original_height)),
                 "fishery_type":fishery_type
             }
-
-    print("items: {}".format(item))
-
-    try:
-        response = table.put_item(
-            Item=item,ReturnValues='ALL_OLD'
         )
         print("--->>> response::: {}".format(response))
 
