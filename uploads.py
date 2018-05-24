@@ -24,6 +24,10 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     except StandardError:
         lenfloat = -1.0
     now = int(time.time()*1000)
+    print("fishery type: {}".format(fishery_type))
+    print("ref object: {}".format(ref_object))
+    print("units: {}".format(ref_object_units))
+    print("size: {}".format(ref_object_size))
     try:
         table.put_item(
             Item={
@@ -54,7 +58,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "q_new_end_y":decimal.Decimal(qe_y),
                 "newsize":decimal.Decimal('{}'.format(lenfloat)),
                 "ref_object":ref_object,
-                "ref_object_size":decimal.Decimal('{}'.format(ref_object_size)),
+                "ref_object_size":ref_object_size,
                 "ref_object_units":ref_object_units,
                 "orig_width":decimal.Decimal('{}'.format(original_width)),
                 "orig_height":decimal.Decimal('{}'.format(original_height)),
