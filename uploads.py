@@ -32,10 +32,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     print("length in in: {}".format(lenfloat))
     print("rating: {}".format(rating))
     print("user submitted: {}".format(now))
-    print("{},{},{},{}".format(ab_start_x, ab_start_y, ab_end_x, ab_end_y))
-    print("{},{},{},{}".format(ab_new_start_x, ab_new_start_y, ab_new_end_x, ab_new_end_y))
-    print("{},{},{},{}".format(q_start_x, q_start_y, q_end_x, q_end_y))
-    print("{},{},{},{}".format(q_new_start_x, q_new_start_y, q_new_end_x, q_new_end_y))
+
     print("w: {}, h: {}".format(orig_width, orig_height))
 
     item = {
