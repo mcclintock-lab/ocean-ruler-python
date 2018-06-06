@@ -6,12 +6,14 @@ import color_images as ci
 ABALONE = "abalone"
 RULER = "ruler"
 QUARTER = "_quarter"
-_start_time = time.time()
 
-def print_time(msg):
+
+def print_time(msg, start_time):
     now = time.time()
-    elapsed = now - _start_time
+    elapsed = now - start_time
     print("{} time elapsed: {}".format(msg, elapsed))
+
+
 
 def get_thumbnail(image_full):
     target_cols = 200.0

@@ -5,6 +5,10 @@ SQUARE = "square"
 INCHES = "inches"
 MM = "mm"
 
+MIN_SIZE = 1.0
+MAX_SIZE = 15.0
+
+
 DEF_SQUARE_SIZE_IN = 2.0
 DEF_SQUARE_SIZE_MM = 50.8
 

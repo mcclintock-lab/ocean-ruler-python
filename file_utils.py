@@ -20,6 +20,8 @@ def read_args():
     ap.add_argument("--ref_object", required=False, help="reference object type: quarter or square")
     ap.add_argument("--ref_object_size", required=False, help="reference object size, 0.955 for quarter (default), squares of 2 or 3")
     ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to inches")
+    ap.add_argument("--min_size", required=False, help="optional minimum size of target species")
+    ap.add_argument("--max_size", required=True, help="optional maximum size of target species")
     try:
         args = vars(ap.parse_args())
         if args['image'] is None:
@@ -60,6 +62,8 @@ def read_args():
     ref_object = args['ref_object']
     ref_object_size = args['ref_object_size']
     ref_object_units = args['ref_object_units']
+
+
     if ref_object is None or len(ref_object) == 0:
         if fishery_type == constants.LOBSTER:
             ref_object = constants.SQUARE
@@ -69,8 +73,20 @@ def read_args():
             ref_object = constants.QUARTER
             ref_object_size = constants.QUARTER_SIZE_IN
             ref_object_units = constants.INCHES
+    
+    min_size = args['min_size']
+    max_size = args['max_size']
+    if min_size is None or len(min_size) == 0:
+        min_size = constants.MIN_SIZE
+    else:
+        min_size = float(min_size)
 
-    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units
+    if max_size is None or len(max_size) == 0:
+        max_size = constants.MAX_SIZE
+    else:
+        max_size = float(max_size)
+
+    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units, min_size, max_size
 
 def shouldIgnore(imageName):
     if imageName.startswith("617_data/FrankPhotos"):

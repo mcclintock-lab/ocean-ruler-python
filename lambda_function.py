@@ -24,7 +24,7 @@ ABALONE = "abalone"
 RULER = "ruler"
 QUARTER = "_quarter"
 SQUARE = "square"
-
+_start_time = time.time()
 
 def get_scaled_image(image_full):
     target_cols = 1280.0
@@ -85,14 +85,14 @@ def trim_quarter(quarter_contour):
 
 
 def find_length(is_deployed, req):
-    utils.print_time( "start")
+    utils.print_time( "start", _start_time)
 
 
     bestRulerContour = None
     bestAbaloneContour = None
 
     if is_deployed:
-        utils.print_time("its deployed....")
+        utils.print_time("its deployed....", _start_time)
         #user info
         name = req[u'username']
         email = req[u'email']
@@ -103,23 +103,22 @@ def find_length(is_deployed, req):
         notes = 'none'
 
 
-        utils.print_time("cv2 is loaded? ...checking")
+        utils.print_time("cv2 is loaded? ...checking", _start_time)
         val = cv2.COLOR_BGR2HSV
         print("val is {}".format(val))
         #img info
-        utils.print_time("about to get image")
+        utils.print_time("about to get image", _start_time)
 
         img_str = req[u'base64Image']
 
         try:
             img_data = base64.b64decode(img_str)
-            utils.print_time("im data is ok? {}".format(img_data is not None))
+            utils.print_time("im data is ok? {}".format(img_data is not None), _start_time)
         except Exception, e:
             print("boom!! could read img_str ::: {}".format(e))
 
         tmp_filename = '/tmp/ab_length_{}.png'.format(time.time()) 
 
-        print("about to write tmp img")
         with open(tmp_filename, 'wb') as f:
             f.write(img_data)
         print("wrote ok...")
@@ -128,11 +127,11 @@ def find_length(is_deployed, req):
         image_full = cv2.imread(imageName)
 
         thumb = utils.get_thumbnail(image_full)
-        utils.print_time("image got!")
+        utils.print_time("image got!", _start_time)
         showResults = False
         out_file = None
         try:
-            utils.print_time("getting new ones...")
+            utils.print_time("getting new ones...", _start_time)
             fishery_type = req[u'fisheryType']
             if fishery_type is None or len(fishery_type) == 0:
                 fishery_type = constants.ABALONE
@@ -148,15 +147,33 @@ def find_length(is_deployed, req):
             ref_object_units = req[u'refObjectUnits']
             if ref_object_units is None or len(ref_object_units) == 0:
                 ref_object_units = constants.INCHES
+
+            minSize = req[u'minSize']
+            if minSize is None:
+                minSize = constants.MIN_SIZE
+            else:
+                try:
+                    minSize = float(minSize)
+                except Exception, e:
+                    minSize = constants.MIN_SIZE
+
+            maxSize = req[u'maxSize']
+            if maxSize is None:
+                maxSize = constants.MAX_SIZE
+            else:
+                try:
+                    maxSize = float(maxSize)
+                except Exception, e:
+                    maxSize = constants.MAX_SIZE
         except Exception, e:
-            utils.print_time("error getting args: {}".format(e))
+            utils.print_time("error getting args: {}".format(e), _start_time)
             fishery_type="abalone"
             ref_object="quarter"
             ref_object_size=0.955
             ref_object_units="inches"
         print("fishery type: {}, ref object:{}, size: {}, units:{} ".format(fishery_type, ref_object, ref_object_size, ref_object_units))
     else:
-        (imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units) = file_utils.read_args()
+        (imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize) = file_utils.read_args()
         shouldIgnore = file_utils.shouldIgnore(imageName)
 
         if shouldIgnore:
@@ -175,10 +192,10 @@ def find_length(is_deployed, req):
         locCode = "S88 Bodega Head"
         picDate = int(time.time()*1000);
 
-    print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units))
+    print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize))
     try:
-        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, showResults, is_deployed, 
-                        fishery_type, ref_object, ref_object_size, ref_object_units)
+        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point, minSize, maxSize = execute(imageName, image_full, showResults, is_deployed, 
+                        fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize)
             
         if is_mac():
             file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
@@ -190,7 +207,7 @@ def find_length(is_deployed, req):
         
         #if is_deployed:
         if is_deployed:
-            utils.print_time("calculations done, uploading now")
+            utils.print_time("calculations done, uploading now", _start_time)
             uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
                 left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
@@ -210,15 +227,15 @@ def find_length(is_deployed, req):
                     "ref_object_units":str(ref_object_units), "orig_width":orig_cols, "orig_height":orig_rows,
                     "fishery_type":str(fishery_type)
                 }
-        utils.print_time("total time")
+        utils.print_time("total time", _start_time)
     except StandardError, e:
-        utils.print_time("big bombout....: {}".format(e))
+        utils.print_time("big bombout....: {}".format(e), _start_time)
 
     jsonVal = json.dumps(rval)
     #print(jsonVal)
     return jsonVal
 
-def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units):
+def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize):
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
@@ -236,6 +253,8 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
     orig_rows = len(rescaled_image)
 
     #get the arget contour for the appropriate fishery
+    ref_object_contour = None
+    all_square_contours = None
 
     if fishery_type == constants.ABALONE:
         print("abalone")
@@ -251,9 +270,9 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
     else:
         print("everythign else")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/abalone_only_2x.png")
-        target_contour, orig_contours = contour_utils.get_abalone_contour(orig_cols, orig_rows, small_abalone_template_contour)
+        target_contour, orig_contours = contour_utils.get_abalone_contour(rescaled_image.copy(), small_abalone_template_contour)
 
-    utils.print_time("done getting {} contours".format(fishery_type))
+    utils.print_time("done getting {} contours".format(fishery_type), _start_time)
 
     if ref_object == constants.QUARTER:
         if ref_object_units is None or ref_object_units == constants.INCHES:
@@ -267,7 +286,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/square_templates_2inch.png")
         ref_object_contour, all_square_contours = contour_utils.get_square_contour(rescaled_image.copy(), target_contour, ref_object_template_contour)
 
-    utils.print_time("ref object contours done")
+    utils.print_time("ref object contours done", _start_time)
 
     showText = showResults and not is_deployed
     flipDrawing = orig_rows/orig_cols > 1.2
@@ -280,28 +299,31 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         pixelsPerMetric, targetLength,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
             ref_object_contour, None, True, flipDrawing, int(ref_object_size))
 
-    utils.print_time("drew ref object contour")
+    utils.print_time("drew ref object contour", _start_time)
 
     if fishery_type == constants.LOBSTER:
         targetLength, left_point, right_point = drawing.draw_lobster_contour(new_drawing, 
             target_contour, pixelsPerMetric, True, flipDrawing, ref_object_size, top_offset, left_offset)
     else:
         targetLength, left_point, right_point = drawing.draw_target_contour(new_drawing, 
-            target_contour, showText, flipDrawing, pixelsPerMetric)    
+            target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)    
 
-    utils.print_time("done drawing target contours")
+    utils.print_time("done drawing target contours", _start_time)
 
     if not is_deployed and showResults:
         #cv2.circle(new_drawing,(quarterCenterX, quarterCenterY),quarterRadius,(0,255,0),4)
-        cv2.drawContours(new_drawing, [ref_object_contour], -1, (0,255,0),5)
-        cv2.drawContours(new_drawing, all_square_contours, -1, (255,0,0),3)
+        if ref_object_contour is not None:
+            cv2.drawContours(new_drawing, [ref_object_contour], -1, (0,255,0),5)
+        if all_square_contours is not None:
+            cv2.drawContours(new_drawing, all_square_contours, -1, (255,0,0),3)
         utils.show_img("Final Measurements", new_drawing)
 
-    return rescaled_image, pixelsPerMetric, targetLength, left_point, right_point, left_ref_object_point, right_ref_object_point
+    return rescaled_image, pixelsPerMetric, targetLength, left_point, right_point, left_ref_object_point, right_ref_object_point, minSize, maxSize
     
 
 def lambda_handler(event, context):
     try:
+        _start_time = time.time()
         ab_length = find_length(True, event)
     except StandardError:
         ab_length = "Unknown"

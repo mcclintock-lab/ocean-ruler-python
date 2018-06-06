@@ -621,22 +621,23 @@ def get_square_contour(input_image, lobster_contour, square_template_contour):
 
     target_perc = 30*30/img_area
 
+    ctime = time.time()
     cx = 0
     cy = 0
     radius = 0
     circle_matches = []
     #1. use white or color
-    utils.print_time("first pass on square")
+    utils.print_time("first pass on square with contour time ", ctime)
     white_or_gray = utils.is_white_or_gray(input_image)
     square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray, 0.005, True, True)
     
 
     if square_contour is None or len(square_contour) == 0:
-        utils.print_time("nothing on first pass, doing second")
+        utils.print_time("nothing on first pass, doing second", ctime)
         square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0005,True, False)
 
         if square_contour is None or len(square_contour) == 0:
-            utils.print_time("second failed, doing last one...")
+            utils.print_time("second failed, doing last one...", ctime)
             square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0005,False, False)            
               
     return square_contour, scale_contours

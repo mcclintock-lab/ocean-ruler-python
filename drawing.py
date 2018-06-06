@@ -80,7 +80,7 @@ def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
     return tl, tr, bl, br
 
 
-def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetric):
+def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
     
     tl, tr, bl, br = get_corner_points("Abalone", contour)
     #qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
@@ -138,9 +138,12 @@ def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetr
     dimB = dB / pixelsPerMetric
 
     if draw_text:
-
+        if fisheryType is None or len(fisheryType) == 0:
+            fisheryType = "Abalone"
+        else:
+            fisheryType = fisheryType.capitalize()
         # draw the object sizes on the image
-        cv2.putText(base_img, "Abalone",
+        cv2.putText(base_img, fisheryType,
             (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
             1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
