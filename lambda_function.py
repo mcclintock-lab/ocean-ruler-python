@@ -256,11 +256,13 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
     ref_object_contour = None
     all_square_contours = None
 
+    is_square_ref = (ref_object == constants.SQUARE)
+
     if fishery_type == constants.ABALONE:
         print("abalone")
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/abalone_only_2x.png")
-        target_contour, orig_contours = contour_utils.get_abalone_contour(rescaled_image.copy(), small_abalone_template_contour)
+        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, is_square_ref)
 
     elif fishery_type == constants.LOBSTER:
         print("lobster")
@@ -268,9 +270,15 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
 
     else:
-        print("everythign else")
+        print("everything else")
+        tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/abalone_only_2x.png")
-        target_contour, orig_contours = contour_utils.get_abalone_contour(rescaled_image.copy(), small_abalone_template_contour)
+        utils.print_time("done getting template: ", _start_time);
+
+        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, is_square_ref)
+        if False:
+            cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
+            utils.show_img("ref object", tmpimg)
 
     utils.print_time("done getting {} contours".format(fishery_type), _start_time)
 
@@ -283,8 +291,15 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/quarter_template_1280.png")
         refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_quarter_dimensions(rescaled_image.copy(), target_contour, ref_object_template_contour, False)    
     else:
+        tmpimg =rescaled_image.copy()
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/square_templates_2inch.png")
-        ref_object_contour, all_square_contours = contour_utils.get_square_contour(rescaled_image.copy(), target_contour, ref_object_template_contour)
+        ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
+        
+        if False:
+            cv2.drawContours(tmpimg, all_square_contours, -1, (255,200,200),5)
+            #cv2.drawContours(tmpimg, [ref_object_contour],-1,(0,0,255),10)
+            #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
+            utils.show_img("ref object", tmpimg)
 
     utils.print_time("ref object contours done", _start_time)
 
@@ -297,7 +312,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
             target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, refRadius*2, ref_object_size)
     else:
         pixelsPerMetric, targetLength,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
-            ref_object_contour, None, True, flipDrawing, int(ref_object_size))
+            ref_object_contour, None, True, flipDrawing, float(ref_object_size))
 
     utils.print_time("drew ref object contour", _start_time)
 
@@ -312,10 +327,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
 
     if not is_deployed and showResults:
         #cv2.circle(new_drawing,(quarterCenterX, quarterCenterY),quarterRadius,(0,255,0),4)
-        if ref_object_contour is not None:
-            cv2.drawContours(new_drawing, [ref_object_contour], -1, (0,255,0),5)
-        if all_square_contours is not None:
-            cv2.drawContours(new_drawing, all_square_contours, -1, (255,0,0),3)
+
         utils.show_img("Final Measurements", new_drawing)
 
     return rescaled_image, pixelsPerMetric, targetLength, left_point, right_point, left_ref_object_point, right_ref_object_point, minSize, maxSize
