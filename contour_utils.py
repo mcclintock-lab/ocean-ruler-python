@@ -4,7 +4,7 @@ import utils
 import numpy as np
 import color_images as ci
 
-def get_filtered_quarter_contours(scale_contours, target_contour, target_perc, img_area, check_roundness):
+def get_filtered_quarter_contours(scale_contours, target_contour, img_area, check_roundness):
     matches = []
     for scontour in scale_contours:
         try:
@@ -14,7 +14,7 @@ def get_filtered_quarter_contours(scale_contours, target_contour, target_perc, i
 
             perc = hullArea/img_area
 
-            if perc <= 0.05 and perc >= target_perc:
+            if perc <= 0.05:
                 if not utils.is_contour_enclosed(scontour, target_contour, True, not check_roundness):
                     if check_roundness:
                         if utils.is_really_round(scontour):
@@ -166,7 +166,7 @@ def get_quarter_image(input_image, use_opposite):
             blur_window, False, first_pass, is_ruler, use_adaptive)
         gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
     else:
-        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,7,21)
+        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
         gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
 
     if white_or_gray:
@@ -256,26 +256,26 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
     #1. use white or color
     print("first passs.....")
     circles, scale_contours = get_target_quarter_contours(input_image, False, False)
-    matches = get_filtered_quarter_contours(scale_contours, abalone_contour, target_perc, img_area, True)
+    matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, True)
     circle_matches = get_matches(circles, matches)
 
 
     if len(circle_matches) == 0:
         #2. use the opposite of white or color
         circles, scale_contours = get_target_quarter_contours(input_image, True, False)
-        matches = get_filtered_quarter_contours(scale_contours, abalone_contour, target_perc, img_area, True)
+        matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, True)
         circle_matches = get_matches(circles, matches)
         if len(circle_matches) == 0:
             #3. try the original but with check roundness turned off, so no rebuild target contours
             circles, scale_contours = get_target_quarter_contours(input_image, False, True)
-            matches = get_filtered_quarter_contours(scale_contours, abalone_contour, target_perc/2, img_area, False)
+            matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, False)
             circle_matches = get_matches(circles, matches)
             if len(circle_matches) == 0:
                 print("finally, doing original with half size")
 
                 #4. finally, try it with original but with a small area
                 circles, scale_contours = get_target_quarter_contours(input_image, True, True)
-                matches = get_filtered_quarter_contours(scale_contours, abalone_contour, target_perc/2, img_area, True)
+                matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, True)
                 circle_matches = get_matches(circles, matches)
               
     minVal=1000000
@@ -423,7 +423,7 @@ def get_target_lobster_contour(input_image, lobster_template_contour, lower_perc
 
     edged_img = cv2.Canny(blur, lower_bound, upper_bound,3) 
 
-    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,17))
+    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,13))
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
     kernel = np.ones((3,3), np.uint8)
     if not white_or_gray:
@@ -443,6 +443,7 @@ def get_target_lobster_contour(input_image, lobster_template_contour, lower_perc
 
     #gray_denoised = cv2.cvtColor(edged_img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
+    #utils.show_img("threshold ", thresh)
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
     all_contours = cnts[1]
@@ -497,7 +498,7 @@ def get_square_image(input_image, use_opposite):
             blur_window, False, first_pass, is_ruler, use_adaptive)
         gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
     else:
-        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,7,21)
+        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
         gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
 
     if white_or_gray:
@@ -514,9 +515,28 @@ def get_square_image(input_image, use_opposite):
     scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
     return scale_img, gray
 
-def get_target_square_contours(input_image, square_template_contour, white_or_gray, lower_percent_bounds, check_for_square, use_actual_size):
+def do_corner_detection(input_image, gray):
+    
+    
+    #gray = np.float32(input_image)
+    dst = cv2.cornerHarris(gray,2,3,0.04)
+
+    #result is dilated for marking the corners, not important
+    dst = cv2.dilate(dst,None)
+
+    # Threshold for an optimal value, it may vary depending on the image.
+    input_image[dst>0.01*dst.max()]=[0,0,255]
+
+
+    cv2.imshow('dst',input_image)
+    if cv2.waitKey(0) & 0xff == 27:
+        cv2.destroyAllWindows()
+
+def get_target_square_contours(input_image, square_template_contour, white_or_gray, lower_percent_bounds, check_for_square, use_actual_size, start_time):
     target_contour = None
     white_or_gray = True
+
+
 
     if not white_or_gray:
         thresh_val = 30
@@ -528,9 +548,13 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
             blur_window, False, first_pass, is_ruler, use_adaptive)
         gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
     else:
-        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,7,21)
+        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
         gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
-
+    
+    if False:
+        do_corner_detection(input_image.copy(), gray)
+        
+    utils.print_time("denoising image finished", start_time)
     if white_or_gray:
         lower_bound = 0
         upper_bound = 100
@@ -543,7 +567,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         thresh_upper = 250
 
     scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
-
+    utils.print_time("canny done", start_time)
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,17))
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
     kernel = np.ones((3,3), np.uint8)
@@ -554,8 +578,9 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         iters=3
         
     edged_img = cv2.dilate(scale_img, kernel, iterations=iters)
+    utils.print_time("dilate finished", start_time)
     edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
-
+    utils.print_time("erode finished", start_time)
     #check this - seems like dark on white needs a cleanup, color needs an thickening
     if not white_or_gray:
         edged_img = cv2.dilate(edged_img, kernel, iterations=1)
@@ -565,8 +590,9 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
 
     #gray_denoised = cv2.cvtColor(edged_img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
-    
+    utils.print_time("threshold done", start_time)
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    utils.print_time("contours finished", start_time)
     contours = cnts[1]
 
     ncols = len(input_image[0]) 
@@ -575,6 +601,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     minVal = 100000000
     dex = 0
     tcontours = []
+
 
     for i, contour in enumerate(contours):
         try:
@@ -626,6 +653,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     if target_contour is None and not check_for_square:
         return contours[0], tcontours
 
+    utils.print_time("finished finding target square", start_time)
     #orig contours are returned for display/testing
     #cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
     #utils.show_img("square contours", input_image)
@@ -671,15 +699,15 @@ def get_square_contour(input_image, lobster_contour, square_template_contour, st
     #1. use white or color
     utils.print_time("first pass on square with contour time ", start_time)
     white_or_gray = utils.is_white_or_gray(input_image)
-    square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray, 0.005, True, True)
+    square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray, 0.005, True, True, start_time)
     
 
     if square_contour is None or len(square_contour) == 0:
         utils.print_time("nothing on first pass, doing second", start_time)
-        square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,True, False)
+        square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,True, False, start_time)
 
         if square_contour is None or len(square_contour) == 0:
             utils.print_time("second failed, doing last one...", start_time)
-            square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,False, False)            
+            square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,False, False, start_time)            
               
     return square_contour, scale_contours
