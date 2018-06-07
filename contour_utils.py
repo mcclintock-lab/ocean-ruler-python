@@ -569,7 +569,6 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     contours = cnts[1]
 
-
     ncols = len(input_image[0]) 
     nrows = len(input_image)
     img_area = nrows*ncols
@@ -589,7 +588,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
             rotRect = cv2.minAreaRect(contour)
             width = rotRect[1][0]
             height = rotRect[1][1]
-            if height == 0:
+            if height == 0 or width is None or height is None:
                 continue
 
             ratio = float(width)/float(height)
