@@ -629,7 +629,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     dex = 0
     tcontours = []
 
-    if True:
+    if False:
         do_square_detection(contours)
     for i, contour in enumerate(contours):
         try:
