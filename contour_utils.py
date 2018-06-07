@@ -532,6 +532,30 @@ def do_corner_detection(input_image, gray):
     if cv2.waitKey(0) & 0xff == 27:
         cv2.destroyAllWindows()
 
+def do_square_detection(input_image,contours):
+    square_contours = []
+    rect_contours = []
+    for i, contour in enumerate(contours):
+
+        peri = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+        if len(approx) == 4:
+            # compute the bounding box of the contour and use the
+            # bounding box to compute the aspect ratio
+            (x, y, w, h) = cv2.boundingRect(approx)
+            ar = w / float(h)
+ 
+            # a square will have an aspect ratio that is approximately
+            # equal to one, otherwise, the shape is a rectangle
+            if ar >= 0.95 and ar <= 1.05:
+                square_contours.append(contour)
+            else:
+                rect_contours.append(contour)
+
+    #cv2.drawContours(input_image, )
+
+
+
 def get_target_square_contours(input_image, square_template_contour, white_or_gray, lower_percent_bounds, check_for_square, use_actual_size, start_time):
     target_contour = None
     white_or_gray = True
@@ -553,7 +577,10 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     
     if False:
         do_corner_detection(input_image.copy(), gray)
-        
+
+    if False:
+        do_square_detection(input_image.copy())
+
     utils.print_time("denoising image finished", start_time)
     if white_or_gray:
         lower_bound = 0
@@ -602,7 +629,8 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     dex = 0
     tcontours = []
 
-
+    if True:
+        do_square_detection(contours)
     for i, contour in enumerate(contours):
         try:
             hull = cv2.convexHull(contour)
