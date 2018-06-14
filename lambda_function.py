@@ -90,7 +90,7 @@ def find_length(is_deployed, req):
 
     bestRulerContour = None
     bestAbaloneContour = None
-
+    print("opencv version::::: {} ".format(cv2.__version__))
     if is_deployed:
         utils.print_time("its deployed....", _start_time)
         #user info
@@ -192,6 +192,7 @@ def find_length(is_deployed, req):
         locCode = "S88 Bodega Head"
         picDate = int(time.time()*1000);
 
+
     print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize))
     try:
         rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point, minSize, maxSize = execute(imageName, image_full, showResults, is_deployed, 
@@ -239,6 +240,8 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
+    print("rows: {}, cols: {}".format(orig_rows, orig_cols))
+
     #if its vertical, flip it 90
     if orig_cols < orig_rows:
         img = cv2.transpose(image_full)  

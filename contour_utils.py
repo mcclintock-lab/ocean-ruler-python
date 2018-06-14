@@ -295,10 +295,11 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
             if val < minVal:
                 dex = i
                 minVal = val
-
+            tcx, tcy, tradius = get_circle_info(circle_matches[i][0])
+            print("tmp cx,cy,radius: {},{},{}".format(tcx,tcy,tradius))
         #cx, cy, radius = get_quarter_contour_info(circle_matches[dex][1])
         cx, cy, radius = get_circle_info(circle_matches[dex][0])
-        print("------->>>cx, cy, radius: {}, {}, {}".format(cx, cy, radius))
+        print("final cx, cy, radius: {}, {}, {}".format(cx, cy, radius))
 
     elif(len(circle_matches) == 1):
         '''
