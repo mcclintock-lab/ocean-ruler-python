@@ -247,6 +247,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         orig_cols = len(image_full[0])
         orig_rows = len(image_full)
     
+    print("----->>>> ref object size: {}".format(ref_object_size))
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
 
     orig_cols = len(rescaled_image[0]) 

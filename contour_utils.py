@@ -298,6 +298,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
 
         #cx, cy, radius = get_quarter_contour_info(circle_matches[dex][1])
         cx, cy, radius = get_circle_info(circle_matches[dex][0])
+        print("------->>>cx, cy, radius: {}, {}, {}".format(cx, cy, radius))
 
     elif(len(circle_matches) == 1):
         '''
@@ -306,7 +307,9 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
         cy = target_quarter_contour[1]
         radius = target_quarter_contour[2]
         '''
+        print("one match only...")
         cx, cy, radius = get_circle_info(circle_matches[0][0])
+        print("->{},{},{}".format(cx,cy,radius))
     elif(len(circle_matches) == 0):
         print("picking rando...")
         return int(ncols/2), int(nrows*0.9), 35, matches
@@ -322,7 +325,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
         target_quarter_contour = matches[dex]
         
         cx, cy,radius = get_quarter_contour_info(target_quarter_contour)
-
+        print("no matches, picking rando: {},{},{}".format(cx,cy,radius))
     return cx, cy, radius, matches
 
 def trim_abalone_contour(target_contour):
