@@ -208,7 +208,7 @@ def find_length(is_deployed, req):
         
         #if is_deployed:
         if is_deployed:
-            utils.print_time("WARNING.........calculations done, WARNING: upload is turned OFF", _start_time)
+            utils.print_time("WARNING.........calculations done, WARNING: upload image is turned OFF", _start_time)
             
             uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
