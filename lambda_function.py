@@ -240,8 +240,14 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
-    print("rows: {}, cols: {}".format(orig_rows, orig_cols))
+    
+    #for calculation and storage, do everything in inches for consistency, then convert on displays
+    print("orig ref object size: ", ref_object_size);
 
+    if ref_object_units == constants.MM:
+        ref_object_size = float(ref_object_size)/constants.INCHES_TO_MM;
+
+    print("ref object after conversion: ", ref_object_size);
     #if its vertical, flip it 90
     if orig_cols < orig_rows:
         img = cv2.transpose(image_full)  
@@ -250,7 +256,6 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         orig_cols = len(image_full[0])
         orig_rows = len(image_full)
     
-    print("----->>>> ref object size: {}".format(ref_object_size))
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
 
     orig_cols = len(rescaled_image[0]) 
