@@ -100,9 +100,11 @@ def upload_worker(rescaled_image, thumb, img_data,
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                  as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height)
 
+    '''
     original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
     #print_time("done encoding thumb")
     final_thumb = utils.get_thumbnail(rescaled_image)
     thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
     do_s3_upload(img_data, thumb_str, uuid)
+    '''
     #do_s3_upload(None, thumb_str, None, uuid)
