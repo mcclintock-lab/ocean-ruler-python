@@ -673,9 +673,8 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
                     if val < minVal:
                         dex = i
                         minVal = val
-                    tcontours.append(contour)
-
-                    target_contour = contour
+                        tcontours.append(contour)
+                        target_contour = contour
 
 
             
@@ -687,8 +686,10 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
 
     utils.print_time("finished finding target square", start_time)
     #orig contours are returned for display/testing
-    #cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
-    #utils.show_img("square contours", input_image)
+    if False:
+        cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
+        utils.show_img("square contours", input_image)
+    
     return target_contour, tcontours
 
 def get_filtered_square_contours(scale_contours, target_contour, target_perc, img_area, check_squareness):
