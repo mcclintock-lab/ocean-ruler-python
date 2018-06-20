@@ -16,9 +16,10 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
-        as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height):
+        as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
+        ref_object_units, original_width, original_height, dynamo_table_name):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('ab_length')
+    table = dynamodb.Table(dynamo_table_name)
     try:
         lenfloat = round(float(len_in_inches),2)
     except StandardError:
@@ -80,31 +81,33 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     else:
         print("{} length updated to {}".format(uuid, lenfloat))
 
-def do_s3_upload(image_data, final_thumb, uuid):
+def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
     s3 = boto3.resource('s3')
-
-    s3.Bucket('abalone').put_object(Key="full_size/"+uuid+".png", Body=image_data)
+    s3.Bucket(bucket_name).put_object(Key="full_size/"+uuid+".png", Body=image_data)
 
     #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
     #print_time("done with thumb")
-    s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)
+    s3.Bucket(bucket_name).put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)
 
 
 
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
-    as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height):
+    as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
+    ref_object_units, original_width, original_height, dynamo_table_name, bucket_name):
     #print_time("uploading data now....")
     #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
     #print_time("done encoding image")
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
-                 as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, ref_object_units, original_width, original_height)
+                 as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, 
+                 ref_object_size, ref_object_units, original_width, original_height, dynamo_table_name)
 
-    '''
-    original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
-    #print_time("done encoding thumb")
-    final_thumb = utils.get_thumbnail(rescaled_image)
-    thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
-    do_s3_upload(img_data, thumb_str, uuid)
-    '''
+    if True:
+        original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
+        #print_time("done encoding thumb")
+        final_thumb = utils.get_thumbnail(rescaled_image)
+        thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
+        do_s3_upload(img_data, thumb_str, uuid, bucket_name)
+
+    
     #do_s3_upload(None, thumb_str, None, uuid)

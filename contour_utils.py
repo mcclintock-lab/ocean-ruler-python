@@ -675,8 +675,6 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
                         minVal = val
                         tcontours.append(contour)
                         target_contour = contour
-
-
             
         except Exception as e:
             print("error: {}".format(e))

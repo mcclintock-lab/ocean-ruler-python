@@ -207,14 +207,14 @@ def find_length(is_deployed, req):
         orig_cols = len(image_full[0])
         
         #if is_deployed:
-        if is_deployed:
-            utils.print_time("WARNING.........calculations done, WARNING: upload image is turned OFF", _start_time)
-            
+        if True:
+            utils.print_time("starting upload", _start_time)
+            dynamo_name = 'ocean-ruler-test';
+            s3_bucket_name = 'ocean-ruler-test';
             uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
                 left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
-                orig_cols, orig_rows)
-            
+                orig_cols, orig_rows, dynamo_name, s3_bucket_name)
 
         rval =  {
                     "start_x":str(left_point[0]), "start_y":str(left_point[1]), 
@@ -230,7 +230,8 @@ def find_length(is_deployed, req):
                     "ref_object_units":str(ref_object_units), "orig_width":orig_cols, "orig_height":orig_rows,
                     "fishery_type":str(fishery_type)
                 }
-        utils.print_time("total time", _start_time)
+
+        utils.print_time("total time after upload", _start_time)
     except StandardError, e:
         utils.print_time("big bombout....: {}".format(e), _start_time)
 
