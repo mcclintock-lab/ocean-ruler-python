@@ -349,11 +349,12 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
 def lambda_handler(event, context):
     try:
         _start_time = time.time()
-        uuid = event['uuid']
+        print("beginning lambda handler now!!!!!!")
+        uuid = event[u'uuid']
         if uuid == "batchUpload":
             try:
 
-                infile = event['base64Image']
+                infile = event[u'base64Image']
                 print("infile: {}".format(infile))
                 with Zipfile(infile, 'r') as inzip:
                     filenames = inzip.namelist()
