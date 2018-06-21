@@ -353,7 +353,7 @@ def lambda_handler(event, context):
         if uuid == "batchUpload":
             try:
 
-                infile = event['file']
+                infile = event['base64Image']
                 print("infile: {}".format(infile))
                 with Zipfile(infile, 'r') as inzip:
                     filenames = inzip.namelist()
