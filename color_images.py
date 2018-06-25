@@ -247,6 +247,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     image = input_image
 
     is_bright = utils.is_bright_background(image)
+    print("doing color image mask now...")
     color_res = get_color_image_new(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright,is_ruler=is_ruler)
     
     #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
@@ -267,7 +268,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
 
     if False:
         utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
-
+    print("dumping out color mask...")
     return image, threshold_bw, color_res, rows
 
 def do_color_image_match(input_image, template_contour, thresh_val, blur_window, showImg=False, 
@@ -398,6 +399,7 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
                 '''
             utils.show_img_and_contour("big color img {}x{};val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, enclosing_contour,0)
 
+    print ("done with do_color_image_match")
     return target_contour, rval, aperc, adist, cdiff
 
 

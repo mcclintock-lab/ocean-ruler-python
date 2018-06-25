@@ -349,32 +349,8 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
 def lambda_handler(event, context):
     try:
         _start_time = time.time()
-        print("beginning lambda handler now!!!!!!")
-        uuid = event[u'uuid']
-        if uuid == "batchUpload":
-            try:
 
-                infile = event[u'base64Image']
-                print("infile: {}".format(infile))
-                with Zipfile(infile, 'r') as inzip:
-                    filenames = inzip.namelist()
-                    print("names in zipfile: ", filenanes);
-                    for fname in filenames:
-                        tmp_filename = '/tmp/batch_ab_length_{}.png'.format(time.time()) 
-                        print("tmpfilename: {}".format(tmp_filename))
-
-                        img = zipfile.extract(fname)
-                        print('extracted {}'.format(fname))
-                        with open(tmp_filename, 'wb') as f:
-                            f.write(img)
-
-                        img_data = cv2.read(img)
-                        print("got img data ok...")
-
-            except StandardError, e:
-                print("blew up while trying to load .zip: {}".format(e))
-        else:
-            ab_length = find_length(True, event)
+        ab_length = find_length(True, event)
     except StandardError:
         ab_length = "Unknown"
         
