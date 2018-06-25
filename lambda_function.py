@@ -58,21 +58,6 @@ def get_scaled_image(image_full):
     #return image_full, orig_rows-30, orig_cols-100
     return scaled_image, rows, cols
 
-def get_color_image():
-    #all the work
-    thresh_val = 30
-    blur_window = 5
-    contour_color=(0,0,255)
-    is_ruler=False
-    use_gray_threshold=False
-    enclosing_contour=None
-    first_pass=False
-    is_small=False
-    use_adaptive=False
-    input_image = rescaled_image.copy()
-    color_image, threshold_bw, color_img, mid_row = ci.get_image_with_color_mask(input_image, thresh_val, 
-        blur_window, False, first_pass, is_ruler, use_adaptive)
-
 
 def trim_quarter(quarter_contour):
     centroidX, centroidY, qell, quarter_ellipse = utils.get_quarter_contour_and_center(quarter_contour)
@@ -198,7 +183,8 @@ def find_length(is_deployed, req):
     try:
         rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point, minSize, maxSize = execute(imageName, image_full, showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize)
-            
+        
+
         if is_mac():
             file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
 
@@ -281,7 +267,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         print("lobster")
         small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/full_lobster_right.png")
         target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
-
+        print("done getting lobster...")
     else:
         print("everything else")
         tmpimg =rescaled_image.copy()
@@ -304,6 +290,7 @@ def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_o
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/quarter_template_1280.png")
         refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_quarter_dimensions(rescaled_image.copy(), target_contour, ref_object_template_contour, False)    
     else:
+        print("getting squares ")
         tmpimg =rescaled_image.copy()
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/square_templates_2inch.png")
         ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)

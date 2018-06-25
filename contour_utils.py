@@ -516,7 +516,9 @@ def get_square_image(input_image, use_opposite):
         thresh_lower = 127
         thresh_upper = 250
         
+
     scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
+    print("returning square image");
     return scale_img, gray
 
 def do_corner_detection(input_image, gray):
@@ -688,6 +690,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
         utils.show_img("square contours", input_image)
     
+    print("return get target square contours in contour utils")
     return target_contour, tcontours
 
 def get_filtered_square_contours(scale_contours, target_contour, target_perc, img_area, check_squareness):
