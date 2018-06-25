@@ -468,9 +468,11 @@ def get_target_lobster_contour(input_image, lobster_template_contour, lower_perc
         if centerIn:
             center_contours.append(contour)
 
+    print("getting largest contour")
     largest = utils.get_largest_contours(center_contours,1)
 
     target_contour = largest[0]
+    print("got largest")
     #orig contours are returned for display/testing
     return target_contour, cnts, top_offset, left_offset
 
@@ -479,7 +481,7 @@ def get_lobster_contour(input_image, lobster_template_contour):
     white_or_gray = True
     target_contour, orig_contours, top_offset, left_offset = get_target_lobster_contour(input_image.copy(), lobster_template_contour, 0.02, white_or_gray, False, 150)
     if target_contour is None:
-        target_contour, orig_contours = get_target_lobster_contour(input_image.copy(), lobster_template_contour, 0.005, white_or_gray, True, 300)
+        target_contour, orig_contours, top_offset, left_offset = get_target_lobster_contour(input_image.copy(), lobster_template_contour, 0.005, white_or_gray, True, 300)
 
     ncols = len(input_image[0]) 
     nrows = len(input_image)

@@ -319,7 +319,7 @@ def get_largest_contours(cnts, num_items):
     print("num items: {}".format(num_items))
     if len(target_contours) < num_items:
         num_items = len(target_contours)
-
+    print("found {}  items".format(num_items))
     return target_contours[:num_items]
 
 def get_largest_edge(cnts):
