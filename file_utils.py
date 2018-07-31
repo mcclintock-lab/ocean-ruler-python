@@ -20,8 +20,7 @@ def read_args():
     ap.add_argument("--ref_object", required=False, help="reference object type: quarter or square")
     ap.add_argument("--ref_object_size", required=False, help="reference object size, 0.955 for quarter (default), squares of 2 or 3")
     ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to inches")
-    ap.add_argument("--min_size", required=False, help="optional minimum size of target species")
-    ap.add_argument("--max_size", required=True, help="optional maximum size of target species")
+
     try:
         args = vars(ap.parse_args())
         if args['image'] is None:
@@ -37,7 +36,7 @@ def read_args():
 
     out_file = args['output_file']
     if not out_file:
-        out_file ="new_data.csv"
+        out_file ="data_617.csv"
 
 
     imageName = args["image"]
@@ -73,7 +72,8 @@ def read_args():
             ref_object = constants.QUARTER
             ref_object_size = constants.QUARTER_SIZE_IN
             ref_object_units = constants.INCHES
-    
+   
+    ''' 
     min_size = args['min_size']
     max_size = args['max_size']
     if min_size is None or len(min_size) == 0:
@@ -86,7 +86,8 @@ def read_args():
     else:
         max_size = float(max_size)
 
-    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units, min_size, max_size
+    '''
+    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units, 0,0
 
 def shouldIgnore(imageName):
     if imageName.startswith("617_data/FrankPhotos"):
@@ -188,6 +189,9 @@ def read_write_simple_csv(out_file, imageName, abaloneLength):
     all_diffs = {}
     last_total_diff = 0.0
     total_diffs = 0.0
+    if out_file == None:
+        out_file = "data_617.csv"
+
     if os.path.exists(out_file):
         with open(out_file, 'rU') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=DELIM, quotechar=QUOTECHAR)

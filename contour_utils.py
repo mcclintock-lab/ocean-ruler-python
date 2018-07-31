@@ -72,6 +72,9 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
+    if False:
+        cv2.drawContours(input_image, cnts[1], -1, (0,255,255),4)
+        utils.show_img("square contours", input_image)
 
     largest = utils.get_largest_edges(cnts[1])
     ncols = len(input_image[0]) 
@@ -103,6 +106,9 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
         
                 target_contour = largest[dex][1]
             
+    if False:
+        cv2.drawContours(input_image, [target_contour], -1, (0,255,255),4)
+        utils.show_img("square contours", input_image)
     #orig contours are returned for display/testing
     return target_contour, cnts[1]
 
@@ -144,7 +150,8 @@ def get_target_contour(input_image, template_contour, is_square_ref_object):
     yDiff = abs(cy-rectCY)
 
     xOffset = cx - rectCX
-    percOffset = xOffset/ncols
+    percOffset = abs(float(xOffset)/float(ncols))
+    print("perc offset::: {}".format(percOffset))
     if abs(percOffset) > 0.008:
         trimmed_contour = trim_abalone_contour(target_contour)
         if trimmed_contour is not None:

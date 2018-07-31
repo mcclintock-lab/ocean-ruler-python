@@ -186,6 +186,7 @@ def find_length(is_deployed, req):
         
 
         if is_mac():
+            print("writing real file! {}".format(out_file))
             file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
 
         rows = len(rescaled_image)
@@ -194,7 +195,7 @@ def find_length(is_deployed, req):
         orig_cols = len(image_full[0])
         
         #if is_deployed:
-        if True:
+        if False:
             utils.print_time("starting upload", _start_time)
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
