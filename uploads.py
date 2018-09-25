@@ -17,7 +17,7 @@ class DecimalEncoder(json.JSONEncoder):
 
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
-        ref_object_units, original_width, original_height, dynamo_table_name):
+        ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(dynamo_table_name)
     try:
@@ -35,7 +35,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
     print("user submitted: {}".format(now))
 
     print("w: {}, h: {}".format(original_width, original_height))
-
+    print("original filename: {}, original size: {}".format(original_filename, original_size))
 
     try:
         response = table.put_item(
@@ -71,7 +71,9 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "ref_object_units":ref_object_units,
                 "orig_width":decimal.Decimal('{}'.format(original_width)),
                 "orig_height":decimal.Decimal('{}'.format(original_height)),
-                "fishery_type":fishery_type
+                "fishery_type":fishery_type,
+                "original_filename":original_filename,
+                "original_size":decimal.Decimal('{}'.format(original_size))
             }
         )
         print("--->>> response::: {}".format(response))
@@ -83,34 +85,37 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
 
 def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
     s3 = boto3.resource('s3')
-    s3.Bucket(bucket_name).put_object(Key="full_size/"+uuid+".png", Body=image_data)
-    
-    presigned_url = s3.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': uuid}, ExpiresIn = 1000)
+
+    s3Client = boto3.client('s3')
+    #uuid = "full_size/"+uuid+".png"
+    presigned_uuid = "public/full_size/"+uuid+".png"
+    s3.Bucket(bucket_name).put_object(Key="public/full_size/"+uuid+".png", Body=image_data)
+    presigned_url = s3Client.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': presigned_uuid}, ExpiresIn = 1000)
     print("presigned url:::::::::::::::: {}".format(presigned_url))
-    
+
     #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
     #print_time("done with thumb")
-    s3.Bucket(bucket_name).put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)
-
+    s3.Bucket(bucket_name).put_object(Key="public/thumbs/"+uuid+".png", Body=final_thumb)
+    return presigned_url
 
 
 def upload_worker(rescaled_image, thumb, img_data, 
     name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
     as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
-    ref_object_units, original_width, original_height, dynamo_table_name, bucket_name):
+    ref_object_units, original_width, original_height, dynamo_table_name, bucket_name, original_filename, original_size):
     #print_time("uploading data now....")
     #final_image = cv2.imencode('.png', rescaled_image)[1].tostring()
     #print_time("done encoding image")
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                  as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, 
-                 ref_object_size, ref_object_units, original_width, original_height, dynamo_table_name)
+                 ref_object_size, ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size)
 
     if True:
         original_thumb_str = cv2.imencode('.png', thumb)[1].tostring()
         #print_time("done encoding thumb")
         final_thumb = utils.get_thumbnail(rescaled_image)
         thumb_str = cv2.imencode('.png', final_thumb)[1].tostring()
-        do_s3_upload(img_data, thumb_str, uuid, bucket_name)
-
+        presigned_url = do_s3_upload(img_data, thumb_str, uuid, bucket_name)
+        return presigned_url
     
     #do_s3_upload(None, thumb_str, None, uuid)

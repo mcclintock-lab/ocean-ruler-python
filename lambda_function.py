@@ -121,6 +121,12 @@ def find_length(is_deployed, req):
             fishery_type = req[u'fisheryType']
             if fishery_type is None or len(fishery_type) == 0:
                 fishery_type = constants.ABALONE
+            original_filename = req[u'originalFilename']
+ 	    if original_filename is None or len(original_filename) == 0:
+		original_filename = "Unknown"
+            original_size = req[u'originalSize']
+            if original_size is None or len(original_size) == 0:
+                original_size = 0.0
 
             ref_object = req[u'refObject']
             if ref_object is None or len(ref_object) == 0:
@@ -165,7 +171,8 @@ def find_length(is_deployed, req):
         if shouldIgnore:
             print("IGNORING THIS ONE!!!!")
             return
-
+        original_filename = imageName
+        original_size = 8.522
         image_full = cv2.imread(imageName)
         thumb = utils.get_thumbnail(image_full)
         img_data = cv2.imencode('.png', image_full)[1].tostring()
@@ -199,10 +206,10 @@ def find_length(is_deployed, req):
             utils.print_time("starting upload", _start_time)
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
-            uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+            presigned_url = uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
                 left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
-                orig_cols, orig_rows, dynamo_name, s3_bucket_name)
+                orig_cols, orig_rows, dynamo_name, s3_bucket_name, original_filename, original_size)
 
         rval =  {
                     "start_x":str(left_point[0]), "start_y":str(left_point[1]), 
@@ -216,7 +223,7 @@ def find_length(is_deployed, req):
                     "uuid":str(uuid),
                     "ref_object":str(ref_object), "ref_object_size":str(ref_object_size),
                     "ref_object_units":str(ref_object_units), "orig_width":orig_cols, "orig_height":orig_rows,
-                    "fishery_type":str(fishery_type)
+                    "fishery_type":str(fishery_type), "presigned_url":presigned_url, "original_filename":str(original_filename), "original_size":str(original_size)
                 }
 
         utils.print_time("total time after upload", _start_time)
@@ -224,7 +231,7 @@ def find_length(is_deployed, req):
         utils.print_time("big bombout....: {}".format(e), _start_time)
 
     jsonVal = json.dumps(rval)
-    #print(jsonVal)
+    print(jsonVal)
     return jsonVal
 
 def execute(imageName, image_full, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize):
