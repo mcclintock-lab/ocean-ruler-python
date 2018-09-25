@@ -100,7 +100,7 @@ def find_length(is_deployed, req):
         try:
             img_data = base64.b64decode(img_str)
             utils.print_time("im data is ok? {}".format(img_data is not None), _start_time)
-        except Exception, e:
+        except Exception:
             print("boom!! could read img_str ::: {}".format(e))
 
         tmp_filename = '/tmp/ab_length_{}.png'.format(time.time()) 
@@ -140,7 +140,7 @@ def find_length(is_deployed, req):
             else:
                 try:
                     minSize = float(minSize)
-                except Exception, e:
+                except Exception:
                     minSize = constants.MIN_SIZE
 
             maxSize = req[u'maxSize']
@@ -149,9 +149,9 @@ def find_length(is_deployed, req):
             else:
                 try:
                     maxSize = float(maxSize)
-                except Exception, e:
+                except Exception:
                     maxSize = constants.MAX_SIZE
-        except Exception, e:
+        except Exception:
             utils.print_time("error getting args: {}".format(e), _start_time)
             fishery_type="abalone"
             ref_object="quarter"
@@ -220,7 +220,7 @@ def find_length(is_deployed, req):
                 }
 
         utils.print_time("total time after upload", _start_time)
-    except StandardError, e:
+    except StandardError:
         utils.print_time("big bombout....: {}".format(e), _start_time)
 
     jsonVal = json.dumps(rval)

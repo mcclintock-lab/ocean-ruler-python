@@ -84,7 +84,10 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
 def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
     s3 = boto3.resource('s3')
     s3.Bucket(bucket_name).put_object(Key="full_size/"+uuid+".png", Body=image_data)
-
+    
+    presigned_url = s3.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': uuid}, ExpiresIn = 1000)
+    print("presigned url:::::::::::::::: {}".format(presigned_url))
+    
     #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
     #print_time("done with thumb")
     s3.Bucket(bucket_name).put_object(Key="thumbs/"+uuid+".png", Body=final_thumb)

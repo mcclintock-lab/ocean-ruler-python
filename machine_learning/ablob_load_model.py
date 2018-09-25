@@ -154,7 +154,7 @@ filter = scipy.misc.imresize(f2F, dx.shape,mode="L")
 # In[44]:
 
 
-f2Filtered = np.ma.masked_where(filter <= 180, filter)
+f2Filtered = np.ma.masked_where(filter <= 200, filter)
 
 
 # In[45]:
@@ -199,7 +199,7 @@ plt.show()
 fig=plt.figure(figsize=(20, 20))
 fig.add_subplot(1,2, 1)
 plt.imshow(dx)
-plt.imshow(f2Filtered, alpha=0.7, cmap='hot');
+plt.imshow(f2Filtered, alpha=0.5, cmap='hot');
 plt.show()
 
 
