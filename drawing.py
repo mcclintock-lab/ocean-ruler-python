@@ -303,8 +303,8 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
         bl = verts[0]
 
     centerPoint = rotRect[0]
-
-    if rotRect < 45:
+    print("rotRect is {}".format(centerPoint))
+    if rotAngle < 45:
         #width is longer side
         #shows as x
         print("long side is width")

@@ -100,30 +100,49 @@ def writeResults(xRange, yRange, filename, maxWidth):
 
 def read_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--image", required=True,
-        help="path to the input image")
-    ap.add_argument("--ref_object", required=True,
-        help="")
-    ap.add_argument("--ref_object_units", required=True,
-        help="")
-    ap.add_argument("--ref_object_size", required=True,
-        help="")
-    ap.add_argument("--fishery_type", required=True,
-        help="")
-    ap.add_argument("--uuid", required=True,
-        help="")
-    ap.add_argument("--username", required=True,
-        help="")
-    ap.add_argument("--email", required=True,
-        help="")
-    ap.add_argument("--original_filename", required=True,
-        help="")
-    ap.add_argument("--original_size", required=True,
-        help="")
-    ap.add_argument("--loc_code", required=True,
-        help="")
+    try:
+        ap.add_argument("--image", required=True,
+            help="path to the input image")
+        ap.add_argument("--ref_object", required=True,
+            help="")
+        ap.add_argument("--ref_object_units", required=True,
+            help="")
+        ap.add_argument("--ref_object_size", required=True,
+            help="")
+        ap.add_argument("--fishery_type", required=True,
+            help="")
+        ap.add_argument("--uuid", required=True,
+            help="")
+        ap.add_argument("--username", required=True,
+            help="")
+        ap.add_argument("--email", required=True,
+            help="")
+        ap.add_argument("--original_filename", required=True,
+            help="")
+        ap.add_argument("--original_size", required=True,
+            help="")
+        ap.add_argument("--loc_code", required=True,
+            help="")
 
-    args = vars(ap.parse_args())
+        args = vars(ap.parse_args())
+        print("reg args are ok...: ", args)
+    except SystemExit as e:
+        print(" regular args are wrong, error parsing args -> {}".format(e))
+        ap = argparse.ArgumentParser()
+        args = ap.parse_known_args()[1]
+
+        print(".............................known args ->>> {}".format(args))
+        parsedArgs = {}
+        for dex, arg in enumerate(args):
+            if str(arg).startswith('--'):
+                strippedArg = arg.replace("--","").strip()
+                parsedArgs[strippedArg] = args[dex+1]
+        print("parsedArgs: ", parsedArgs)
+        args = parsedArgs
+
+
+
+    print("args -> {}".format(args))
     imageName = args["image"]
     ref_object = args["ref_object"]
     ref_object_units = args["ref_object_units"]
@@ -137,7 +156,7 @@ def read_args():
     
     loc_code = args["loc_code"]
 
-    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode
+    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
 
 def execute():
     print("here....")
@@ -187,7 +206,7 @@ def execute():
     zeroMask[zeroMask > 0] = 255
     maskPath = os.environ['ML_PATH']+"/masks/"
     outMaskName = maskPath+imgName
-    scipy.misc.imsave(outImgName, zeroMask)
+    scipy.misc.imsave(outMaskName, zeroMask)
 
 
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size

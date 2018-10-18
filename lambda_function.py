@@ -144,23 +144,7 @@ def find_length(is_deployed, req):
             if ref_object_units is None or len(ref_object_units) == 0:
                 ref_object_units = constants.INCHES
 
-            minSize = req[u'minSize']
-            if minSize is None:
-                minSize = constants.MIN_SIZE
-            else:
-                try:
-                    minSize = float(minSize)
-                except Exception:
-                    minSize = constants.MIN_SIZE
 
-            maxSize = req[u'maxSize']
-            if maxSize is None:
-                maxSize = constants.MAX_SIZE
-            else:
-                try:
-                    maxSize = float(maxSize)
-                except Exception:
-                    maxSize = constants.MAX_SIZE
         except Exception:
             utils.print_time("error getting args: {}".format(e), _start_time)
             fishery_type="abalone"
@@ -170,7 +154,7 @@ def find_length(is_deployed, req):
         print("fishery type: {}, ref object:{}, size: {}, units:{} ".format(fishery_type, ref_object, ref_object_size, ref_object_units))
     else:
         print("here!!!!")
-        (imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize) = file_utils.read_args()
+        (imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units) = file_utils.read_args()
         shouldIgnore = file_utils.shouldIgnore(imageName)
 
         if shouldIgnore:
@@ -191,13 +175,13 @@ def find_length(is_deployed, req):
         picDate = int(time.time()*1000);
 
     rval = {}
-    print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units, minSize, maxSize))
+    print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units))
     try:
-        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point, minSize, maxSize = execute(imageName, image_full, showResults, is_deployed, 
+        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units)
         print("execute........")
 
-        if is_mac():
+        if is_mac() and out_file is not None:
             print("writing real file! {}".format(out_file))
             file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
 
@@ -244,7 +228,7 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         original_filename = imageName
 
         image_full = cv2.imread(imageName)
-        mask_image = cv2.imead(maskImageName)
+        mask_image = cv2.imread(maskImageName)
         thumb = utils.get_thumbnail(image_full)
         img_data = cv2.imencode('.png', image_full)[1].tostring()
         thumb_str = cv2.imencode('.png', thumb)[1].tostring()
@@ -252,15 +236,15 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         notes = 'none'
 
         picDate = int(time.time()*1000)
-        showResults = true
+        showResults = True
 
         is_deployed = False
 
-        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point, minSize, maxSize = execute(imageName, image_full, showResults, is_deployed, 
+        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, mask_image, showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units)
         print("execute........")
 
-        if is_mac():
+        if False:
             print("writing real file! {}".format(out_file))
             file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
 
@@ -297,10 +281,11 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         utils.print_time("total time after upload", _start_time)
     except Exception as e:
         utils.print_time("big bombout....: {}".format(e), _start_time)
-
+        rval={"big bombout":str(e)}
     jsonVal = json.dumps(rval)
     print(jsonVal)
     return jsonVal
+
 def readClippingBounds(rescaled_image):
     clippingFile = "machine_learning/ml_output.csv"
 
@@ -358,7 +343,7 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
     im2, target_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     target_shape = target_shapes[0]
 
-    if True:
+    if False:
         #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
         cv2.drawContours(rescaled_image, [target_shape], 0, (0,255,255),4)
         cv2.imshow("clipped from mask", rescaled_image)
@@ -375,6 +360,7 @@ def getClippedImage(rescaled_image, clippingShape):
     #utils.show_img("clipped!", clippedImage)
 
 def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units):
+    mlPath = os.environ['ML_PATH']+"/../"
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
@@ -414,22 +400,26 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     if fishery_type == constants.ABALONE:
         print("abalone")
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
-        small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/abalone_only_2x.png")
+        small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, is_square_ref)
 
     elif fishery_type == constants.LOBSTER:
         print("lobster")
-        small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/full_lobster_right.png")
-        if mlMask.any():
+        
+        
+        if mlMask is not None and mlMask.any():
+            print("setting contour to mask")
             target_contour = mlMask
             top_offset = left_offset = 0
         else:
+            print("no mask, doing normal")
+            small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"lobster_templates/full_lobster_right.png")
             target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
         print("done getting lobster...")
     else:
         print("everything else")
         tmpimg =rescaled_image.copy()
-        small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/abalone_only_2x.png")
+        small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         utils.print_time("done getting template: ", _start_time);
 
         target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, is_square_ref)
@@ -445,12 +435,14 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         else:
             ref_object_size = constants.QUARTER_SIZE_MM
 
-        ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "images/quarter_template_1280.png")
+        ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/quarter_template_1280.png")
         refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_quarter_dimensions(rescaled_image.copy(), target_contour, ref_object_template_contour, False)    
     else:
         print("getting squares ")
         tmpimg =rescaled_image.copy()
-        ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, "lobster_templates/square_templates_2inch.png")
+        templatePath = mlPath+"lobster_templates/square_templates_2inch.png"
+        print("template path: {}".format(templatePath))
+        ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, templatePath)
         ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
         
         if False:
@@ -488,7 +480,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
 
         utils.show_img("Final Measurements", new_drawing)
 
-    return rescaled_image, pixelsPerMetric, targetLength, left_point, right_point, left_ref_object_point, right_ref_object_point, minSize, maxSize
+    return rescaled_image, pixelsPerMetric, targetLength, left_point, right_point, left_ref_object_point, right_ref_object_point
     
 
 def lambda_handler(event, context):
