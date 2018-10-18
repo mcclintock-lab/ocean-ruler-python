@@ -8,8 +8,10 @@ DELIM = ","
 QUOTECHAR = '|'
 
 def read_args():
+    print("reading args....")
+
     ap = argparse.ArgumentParser()
-    
+    args = ap.parse_known_args()[1]
     ap.add_argument("--image", required=False,
         help="path to the input image")
     ap.add_argument("--show", required=False,
@@ -22,11 +24,15 @@ def read_args():
     ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to inches")
 
     try:
+        print("now....", args)
+        
+        print("args---->>>> ", args['--image'])
         args = vars(ap.parse_args())
         if args['image'] is None:
             ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
             args = vars(ap.parse_known_args())
-    except SystemExit:
+    except SystemExit as err:
+        print("boom....!!!", err)
         ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
         args = vars(ap.parse_args())  
     

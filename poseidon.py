@@ -1,5 +1,6 @@
-
-
+import os
+import numpy as np
+import argparse
 import fastai
 import scipy
 
@@ -12,6 +13,7 @@ from fastai.dataset import *
 from fastai.sgdr import *
 
 import ml_file_utils
+import lambda_function
 
 DELIM = ","
 QUOTECHAR = '|'
@@ -25,7 +27,9 @@ def showResults(f2Filtered, dx):
 
 
 def setup():
-    PATH = "ml_data/ablob/"
+    mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
+    print("Path: {}".format(mlPath))
+    #PATH = "machine_learning/ml_data/ablob/"
     sz = 224
     arch = resnet34
     bs = 64    
@@ -37,7 +41,7 @@ def setup():
                       nn.LogSoftmax())
 
     tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
-    data = ImageClassifierData.from_paths(PATH, tfms=tfms, bs=bs)
+    data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
     learn.load("trained_model_clipped_lobster")
 
@@ -93,12 +97,56 @@ def writeResults(xRange, yRange, filename, maxWidth):
         row = [filename, xRange[0], xRange[1], yRange[0], yRange[1], maxWidth]
         writer.writerow(row)
 
+
+def read_args():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--image", required=True,
+        help="path to the input image")
+    ap.add_argument("--ref_object", required=True,
+        help="")
+    ap.add_argument("--ref_object_units", required=True,
+        help="")
+    ap.add_argument("--ref_object_size", required=True,
+        help="")
+    ap.add_argument("--fishery_type", required=True,
+        help="")
+    ap.add_argument("--uuid", required=True,
+        help="")
+    ap.add_argument("--username", required=True,
+        help="")
+    ap.add_argument("--email", required=True,
+        help="")
+    ap.add_argument("--original_filename", required=True,
+        help="")
+    ap.add_argument("--original_size", required=True,
+        help="")
+    ap.add_argument("--loc_code", required=True,
+        help="")
+
+    args = vars(ap.parse_args())
+    imageName = args["image"]
+    ref_object = args["ref_object"]
+    ref_object_units = args["ref_object_units"]
+    ref_object_size = args["ref_object_size"]
+    fishery_type = args["fishery_type"]
+    uuid = args["uuid"]
+    username = args["username"]
+    email = args["email"]
+    original_filename = args["original_filename"]
+    original_size = args["original_size"]
+    
+    loc_code = args["loc_code"]
+
+    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode
+
 def execute():
+    print("here....")
     m, learn, tfms, data = setup();
 
+    imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
+    targetPath, imgName = os.path.split(imageName)
+    print("target path: ", targetPath);
 
-    targetPath, imgName = ml_file_utils.read_args()
-    
     print("imgName: ", imgName);
     dl, predictions = loadData(imgName, targetPath, tfms, learn)
     print("predictions--->>>>", predictions)
@@ -137,12 +185,18 @@ def execute():
     f2Filtered = np.ma.masked_where(filter <=maxVal, filter)
     zeroMask = np.ma.filled(f2Filtered, 0)
     zeroMask[zeroMask > 0] = 255
-    scipy.misc.imsave("masks/"+imgName, zeroMask)
+    maskPath = os.environ['ML_PATH']+"/masks/"
+    outMaskName = maskPath+imgName
+    scipy.misc.imsave(outImgName, zeroMask)
 
 
-    #showResults(zeroMask, dx)
+    #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
+    jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
+        locCode, fishery_type, original_filename, original_size)
+    
+    print("results---->>>>>>> ")
+    print(jsonVals)
 
-    maxWidth = 224;
 
 
 execute()
