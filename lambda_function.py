@@ -177,7 +177,7 @@ def find_length(is_deployed, req):
     rval = {}
     print("fishery type: {}, ref object: {}, ref size: {}, ref units: {}".format(fishery_type, ref_object, ref_object_size, ref_object_units))
     try:
-        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, showResults, is_deployed, 
+        rescaled_image, pixelsPerMetric, abaloneLength, left_point, right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, None, showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units)
         print("execute........")
 
@@ -252,6 +252,7 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         cols = len(rescaled_image[0])
         orig_rows = len(image_full)
         orig_cols = len(image_full[0])
+        print("orig colsxrows: {}x{}".format(orig_cols, orig_rows))
         presigned_url = ""
         #if is_deployed:
         if False:
@@ -329,18 +330,24 @@ def readClippingBounds(rescaled_image):
 
 def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
 
-
+    new_cols = orig_cols
+    new_rows = orig_rows
+    if orig_cols < orig_rows:
+        new_cols = orig_rows
+        new_rows = orig_cols
 
     #utils.show_img("mask ", mask)
-    rescaled_mask = templates.rescale(orig_cols, orig_rows, mask_image)
+    rescaled_mask = templates.rescale(new_cols, new_rows, mask_image)
 
     #(thresh, im_bw) = cv2.threshold(rescaled_mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     #utils.show_img(thresh)
 
-    mask_edged = cv2.Canny(rescaled_mask, 0, 255)
-    edged_img = cv2.dilate(mask_edged, None, iterations=3)
+    mask_edged = cv2.Canny(rescaled_mask, 128, 255)
+    #utils.show_img("mask:", rescaled_mask)
+    edged_img = cv2.dilate(mask_edged, None, iterations=1)
 
     im2, target_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    
     target_shape = target_shapes[0]
 
     if False:
@@ -357,7 +364,23 @@ def getClippedImage(rescaled_image, clippingShape):
 
     print("x:{},y:{},w:{},h:{}".format(x,y,w,h))
     clippedImage = rescaled_image[y:y+h,x:x+w]
+    return clippedImage, x, y
     #utils.show_img("clipped!", clippedImage)
+
+def offset_contour(contour, x, y):
+    print("size of contour: {}".format(len(contour)))
+    for points in contour:
+        ndims = points.ndim
+        if ndims > 1:
+            for point in points:
+                point[0] = point[0]+x
+                point[1] = point[1]+y
+        else:
+            #for point in points:
+            #print('point: {}'.format(point))
+            points[0] = points[0]+x
+            points[1] = points[1]+y
+    return contour
 
 def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units):
     mlPath = os.environ['ML_PATH']+"/../"
@@ -382,12 +405,21 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         orig_rows = len(image_full)
     
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
-    if fishery_type == constants.LOBSTER:
-        print("getting scale stuff")
-        
-        orig_cols = len(rescaled_image[0]) 
-        orig_rows = len(rescaled_image)
-        mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows)
+    print("rescaled colsxrows: {}x{}".format(scaled_cols, scaled_rows))
+    clipped_image = None
+
+    if mask_image is not None:
+        if fishery_type == constants.LOBSTER:
+            print("getting scale stuff")
+            
+            orig_cols = len(rescaled_image[0]) 
+            orig_rows = len(rescaled_image)
+            mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows)
+        else:
+            print("clipping image...., {}x{}".format(orig_cols, orig_rows))
+            mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows)
+            print("now here....")
+            clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask)
 
     print("here?")
     #get the arget contour for the appropriate fishery
@@ -397,16 +429,20 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     is_square_ref = (ref_object == constants.SQUARE)
 
     print("getting ab stuff")
-    if fishery_type == constants.ABALONE:
+    if fishery_type == constants.ABALONE and mask_image is not None:
         print("abalone")
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, is_square_ref)
-
+        target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, is_square_ref)
+        target_contour = offset_contour(target_contour, xOffset, yOffset)
+        if False:
+            cv2.drawContours(clippedImage, [target_contour], 0, (255,200,200),7)
+            cv2.drawContours(clippedImage, orig_contours,-1,(0,0,255),2)
+            #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
+            utils.show_img("clipped Image with contours", clippedImage)
+            
     elif fishery_type == constants.LOBSTER:
         print("lobster")
-        
-        
         if mlMask is not None and mlMask.any():
             print("setting contour to mask")
             target_contour = mlMask

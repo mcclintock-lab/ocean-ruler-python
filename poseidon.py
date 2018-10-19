@@ -22,7 +22,7 @@ def showResults(f2Filtered, dx):
     fig=plt.figure(figsize=(20, 20))
     fig.add_subplot(1,2, 1)
     plt.imshow(dx)
-    plt.imshow(f2Filtered, alpha=0.9, cmap='hot');
+    plt.imshow(f2Filtered, alpha=0.6, cmap='hot');
     plt.show()
 
 
@@ -141,20 +141,32 @@ def read_args():
         args = parsedArgs
 
 
-
-    print("args -> {}".format(args))
     imageName = args["image"]
-    ref_object = args["ref_object"]
-    ref_object_units = args["ref_object_units"]
-    ref_object_size = args["ref_object_size"]
-    fishery_type = args["fishery_type"]
-    uuid = args["uuid"]
-    username = args["username"]
-    email = args["email"]
-    original_filename = args["original_filename"]
-    original_size = args["original_size"]
-    
-    loc_code = args["loc_code"]
+    print("args: {}".format(args))
+    if not hasattr(args, "ref_object"):
+        ref_object = "quarter"
+        ref_object_units = "inches"
+        ref_object_size = 0.955
+        fishery_type = "abalone"
+        uuid = str(time.time()*1000)
+        username = "none given"
+        email = "none given"
+        original_filename = "none given"
+        original_size = None
+        loc_code = "Fake Place"
+    else:
+        print("args -> {}".format(args))
+        
+        ref_object = args["ref_object"]
+        ref_object_units = args["ref_object_units"]
+        ref_object_size = args["ref_object_size"]
+        fishery_type = args["fishery_type"]
+        uuid = args["uuid"]
+        username = args["username"]
+        email = args["email"]
+        original_filename = args["original_filename"]
+        original_size = args["original_size"]
+        loc_code = args["loc_code"]
 
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
 
@@ -194,7 +206,7 @@ def execute():
     
     multiplier = 0.92
     if(predictions == 0):
-        multiplier = 0.55
+        multiplier = 0.5
 
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
     filter = scipy.misc.imresize(f2, dx.shape,mode="L")
@@ -208,6 +220,7 @@ def execute():
     outMaskName = maskPath+imgName
     scipy.misc.imsave(outMaskName, zeroMask)
 
+    
 
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,

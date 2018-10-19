@@ -24,9 +24,7 @@ def read_args():
     ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to inches")
 
     try:
-        print("now....", args)
-        
-        print("args---->>>> ", args['--image'])
+
         args = vars(ap.parse_args())
         if args['image'] is None:
             ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
@@ -93,7 +91,7 @@ def read_args():
         max_size = float(max_size)
 
     '''
-    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units, 0,0
+    return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units
 
 def shouldIgnore(imageName):
     if imageName.startswith("617_data/FrankPhotos"):
