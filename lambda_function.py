@@ -37,15 +37,10 @@ def get_scaled_image(image_full):
 
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
-    print("orig cols: {}, orig_rows: {}".format(orig_cols, orig_rows))
+    print("------------>>>>>>orig cols: {}, orig_rows: {}".format(orig_cols, orig_rows))
     #orig_cols > 1920
 
-    if(orig_cols > 1920):
-        target_cols = 1280
-    elif(orig_cols < 1280):
-        target_cols = 1280
-    else:
-        target_cols = 1280
+    target_cols = 1280
     
     target_rows = (float(orig_rows)/(float(orig_cols))*target_cols)
     fx = float(target_cols)/float(orig_cols)
@@ -228,6 +223,7 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         original_filename = imageName
 
         image_full = cv2.imread(imageName)
+
         mask_image = cv2.imread(maskImageName)
         thumb = utils.get_thumbnail(image_full)
         img_data = cv2.imencode('.png', image_full)[1].tostring()
@@ -328,14 +324,26 @@ def readClippingBounds(rescaled_image):
 
     return name, int(startX), int(endX), int(startY), int(endY), maxWidth
 
-def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
+def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, real_cols, real_rows):
 
+    #STILL NOT CLIPPING RIGHT FOR ROTATED!
     new_cols = orig_cols
     new_rows = orig_rows
     if orig_cols < orig_rows:
+        print("flipping mask image")
+        img = cv2.transpose(mask_image)  
+        img = cv2.flip(img, 0)
         new_cols = orig_rows
         new_rows = orig_cols
 
+    print('new cols: {}, new rows: {}; real cols: {}, real rows: {}'.format(new_cols, new_rows, real_cols, real_rows))
+    
+    '''
+    if real_cols < 1280:
+        new_cols = real_cols
+        new_rows = real_rows
+    
+    '''
     #utils.show_img("mask ", mask)
     rescaled_mask = templates.rescale(new_cols, new_rows, mask_image)
 
@@ -347,39 +355,63 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
     edged_img = cv2.dilate(mask_edged, None, iterations=1)
 
     im2, target_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    
+    print("trying to get target shape: ")
     target_shape = target_shapes[0]
 
     if False:
         #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
-        cv2.drawContours(rescaled_image, [target_shape], 0, (0,255,255),4)
+        cv2.drawContours(rescaled_image, [target_shape], 0, (0,255,255),10)
         cv2.imshow("clipped from mask", rescaled_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
     return target_shape
 
-def getClippedImage(rescaled_image, clippingShape):
+def getClippedImage(rescaled_image, clippingShape, image_width, image_height):
     x,y,w,h = cv2.boundingRect(clippingShape)
+    print(" clipped!!!!!!!!!!  image width: {}, height:{}".format(image_width, image_height))
+    if image_width < image_height:
 
+        newX = y
+        newY = x
+        newWidth = h
+        newHeight = w
+    else:
+        newX = x
+        newY = y
+        newWidth = w
+        newHeight = h
     print("x:{},y:{},w:{},h:{}".format(x,y,w,h))
-    clippedImage = rescaled_image[y:y+h,x:x+w]
+    clippedImage = rescaled_image[newY:newY+newHeight,newX:newX+newWidth]
+    
+    utils.show_img("clipped!", clippedImage)
     return clippedImage, x, y
-    #utils.show_img("clipped!", clippedImage)
 
-def offset_contour(contour, x, y):
-    print("size of contour: {}".format(len(contour)))
+def offset_contour(contour, x, y, image_width, image_height):
+    '''
+    print("................orig_cols: {}".format(orig_cols))
+    if int(orig_cols) < 1280:
+        print("..............orig cols are small, scaling down...")
+        x = x*(orig_cols/1280)
+        y = y*(orig_rows/960)
+    '''
+    if image_width < image_height:
+        newX = y
+        newY = x
+    else:
+        newX = x
+        newY = y
     for points in contour:
         ndims = points.ndim
         if ndims > 1:
             for point in points:
-                point[0] = point[0]+x
-                point[1] = point[1]+y
+                point[0] = point[0]+newX
+                point[1] = point[1]+newX
         else:
             #for point in points:
             #print('point: {}'.format(point))
-            points[0] = points[0]+x
-            points[1] = points[1]+y
+            points[0] = points[0]+newX
+            points[1] = points[1]+newY
     return contour
 
 def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units):
@@ -397,6 +429,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     print("ref object after conversion: ", ref_object_size);
     
 
+    image_height, image_width, channels = image_full.shape
     if orig_cols < orig_rows:
         img = cv2.transpose(image_full)  
         img = cv2.flip(img, 0)
@@ -404,8 +437,10 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         orig_cols = len(image_full[0])
         orig_rows = len(image_full)
     
+
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
-    print("rescaled colsxrows: {}x{}".format(scaled_cols, scaled_rows))
+    
+
     clipped_image = None
 
     if mask_image is not None:
@@ -414,12 +449,12 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
             
             orig_cols = len(rescaled_image[0]) 
             orig_rows = len(rescaled_image)
-            mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows)
+            mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, orig_cols, orig_rows)
         else:
             print("clipping image...., {}x{}".format(orig_cols, orig_rows))
-            mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows)
+            mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows, orig_cols, orig_rows)
             print("now here....")
-            clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask)
+            clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask, image_width, image_height)
 
     print("here?")
     #get the arget contour for the appropriate fishery
@@ -434,7 +469,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, is_square_ref)
-        target_contour = offset_contour(target_contour, xOffset, yOffset)
+        target_contour = offset_contour(target_contour, xOffset, yOffset, image_width, image_height)
         if False:
             cv2.drawContours(clippedImage, [target_contour], 0, (255,200,200),7)
             cv2.drawContours(clippedImage, orig_contours,-1,(0,0,255),2)

@@ -521,8 +521,8 @@ def get_mean_background_color(input_image):
     h_vals = []
     s_vals = []
     v_vals = []
-    for i in range(130,145):
-        for j in range(255,265):
+    for i in range(20,35):
+        for j in range(30,40):
             h_vals.append(image[i][j][0])
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])
@@ -530,8 +530,8 @@ def get_mean_background_color(input_image):
     rows = len(image)
     cols = len(image[0])
     
-    for i in range(rows-100, rows-150):
-        for j in range(cols-100, cols-150):
+    for i in range(rows-30, rows):
+        for j in range(cols-30, cols):
             h_vals.append(image[i][j][0])
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])
@@ -540,6 +540,7 @@ def get_mean_background_color(input_image):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
+
     return mean_h_val, mean_s_val, mean_v_val
 
 def get_points(rows, cols, first_pass):

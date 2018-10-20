@@ -19,7 +19,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     print("this this white or gray???", white_or_gray)
     blur = cv2.GaussianBlur(gray, (5,5),0)
     #this was white or gray
-    if True:
+    if white_or_gray:
         lower_bound = 20
         upper_bound = 100
     else:
@@ -58,9 +58,13 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
     largest = utils.get_largest_edges(cnts[1])
-    biggest = [largest[0][1], largest[1][1], largest[2][1], largest[3][1],largest[4][1]]
+
+    
 
     if False:
+        biggest = []
+        for l in largest:
+            biggest.append(l[1])
         cv2.drawContours(input_image, biggest, -1, (0,255,255),12)
         utils.show_img("abalone contours", input_image)
 
@@ -85,24 +89,23 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
             x,y,w,h = cv2.boundingRect(current_contour)
             #ditch cutting board borders around the outside
             #before ml, this was 0.9
-            if w < 0.99*ncols and h < 0.99*nrows:
 
-                val = cv2.matchShapes(current_contour, abalone_template_contour, 2, 0.0)
-                val=val*(0.5/actual_perc)
+            val = cv2.matchShapes(current_contour, abalone_template_contour, 2, 0.0)
+            val=val*(0.5/actual_perc)
 
-                if val < minVal:
-                    dex = i
-                    minVal = val
-        
-                target_contour = largest[dex][1]
-            else:
-                print("its too wide or tall..., w{}xh{} vs nrows{}xncols{}".format(w,h,nrows,ncols))
+            if val < minVal:
+                dex = i
+                minVal = val
+    
+            target_contour = current_contour
+
             
     if False:
         cv2.drawContours(input_image, [target_contour], -1, (0,255,255),4)
         utils.show_img("square contours", input_image)
     #orig contours are returned for display/testing
 
+    print("here??")
     return target_contour, cnts[1]
 
 
@@ -432,9 +435,7 @@ def trim_abalone_contour(target_contour):
     #trimmed_contour, trimmed_ellipse = contour_utils.trim_abalone_contour(target_contour)
     try:
         cX, cY = utils.get_centroid(target_contour)
-        print("trying to get abalone contour")
         ab_ellipse = cv2.fitEllipse(target_contour)
-        print("that was ok")
         size = ab_ellipse[1]
         width = int(size[1]/2)
         height = int(size[0])
@@ -475,7 +476,8 @@ def trim_abalone_contour(target_contour):
 
         return ab_contour
     except Exception as e:
-        print("error: {}".format(e))
+        print("--->>>>error: {}".format(e))
+        print(len(target_contour))
         return target_contour
 
 def get_quarter_contour_and_center(quarter_contour):

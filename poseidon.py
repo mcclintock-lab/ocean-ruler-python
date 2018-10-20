@@ -176,9 +176,31 @@ def execute():
 
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
     targetPath, imgName = os.path.split(imageName)
-    print("target path: ", targetPath);
+    
+    img = cv2.imread(imageName)
+    
+    tmpImgName = None
+    '''
+    if(height > width):
 
-    print("imgName: ", imgName);
+        # calculate the center of the image
+        center = (width / 2, height / 2)
+        tmpImgName = "tmp/"+str(int(time.time()*1000000))+".png"
+        M = cv2.getRotationMatrix2D(center, 90, 1.0)
+        rotated90 = cv2.warpAffine(img, M, (width, height))
+        cv2.imwrite(tmpImgName,rotated90)
+        targetPath, imgName = os.path.split(tmpImgName)
+        if True:
+            cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+            cv2.imshow('image',rotated90)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    
+    img = cv2.imread(imageName)
+    (height, width) = img.shape[:2]
+    '''
+
     dl, predictions = loadData(imgName, targetPath, tfms, learn)
     print("predictions--->>>>", predictions)
     x,y = next(iter(dl))
@@ -211,21 +233,24 @@ def execute():
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
     filter = scipy.misc.imresize(f2, dx.shape,mode="L")
     maxVal = filter.max()*multiplier
-    print("maxVal is {}".format(maxVal))
+    
 
     f2Filtered = np.ma.masked_where(filter <=maxVal, filter)
     zeroMask = np.ma.filled(f2Filtered, 0)
     zeroMask[zeroMask > 0] = 255
     maskPath = os.environ['ML_PATH']+"/masks/"
     outMaskName = maskPath+imgName
+    print("trying to save to {}".format(outMaskName))
+    print("shape is {}".format(zeroMask.shape))
     scipy.misc.imsave(outMaskName, zeroMask)
-
     
+
 
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
         locCode, fishery_type, original_filename, original_size)
     
+
     print("results---->>>>>>> ")
     print(jsonVals)
 
