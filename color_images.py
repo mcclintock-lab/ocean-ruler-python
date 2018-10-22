@@ -268,7 +268,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
 
     if False:
         utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
-    print("dumping out color mask...")
+
     return image, threshold_bw, color_res, rows
 
 def do_color_image_match(input_image, template_contour, thresh_val, blur_window, showImg=False, 

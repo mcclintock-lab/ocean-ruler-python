@@ -478,13 +478,21 @@ def is_white_or_gray(input_image):
     #low saturation and high value -- white or really light gray
     return mean_color[1] < 75 and mean_color[2] > 190
 
+def is_dark_gray(input_image):
+    #used for setting erode/dilate thresholds
+    mean_color = get_mean_background_color(input_image)
+    #low saturation and high value -- white or really light gray
+    is_dark_gray = mean_color[0] < 100 and mean_color[1] < 50 and mean_color[2] < 75
+    print("is dark gray --->>>>>>>>>> {}".format(is_dark_gray))
+    return is_dark_gray
+
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
     h_vals = []
     s_vals = []
     v_vals = []
-    for i in range(130,132):
-        for j in range(131,133):
+    for i in range(20,35):
+        for j in range(20,23):
             h_vals.append(image[i][j][0])
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])
@@ -492,8 +500,8 @@ def is_color(input_image):
     rows = len(image)
     cols = len(image[0])
     
-    for i in range(rows-85, rows-83):
-        for j in range(cols-85, cols-83):
+    for i in range(rows-22, rows-20):
+        for j in range(cols-22, cols-20):
             h_vals.append(image[i][j][0])
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])
@@ -541,7 +549,8 @@ def get_mean_background_color(input_image):
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
 
-    return mean_h_val, mean_s_val, mean_v_val
+    print("mean background color: h{}, s{}, v{}".format(mean_h_val, mean_s_val, mean_v_val))
+    return (mean_h_val, mean_s_val, mean_v_val)
 
 def get_points(rows, cols, first_pass):
     row_first = int(rows/8)

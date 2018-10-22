@@ -228,7 +228,7 @@ def execute():
     
     multiplier = 0.92
     if(predictions == 0):
-        multiplier = 0.5
+        multiplier = 0.45
 
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
     filter = scipy.misc.imresize(f2, dx.shape,mode="L")
@@ -245,6 +245,8 @@ def execute():
     scipy.misc.imsave(outMaskName, zeroMask)
     
 
+    #showResults(f2Filtered, dx)
+    print("out mask name is: {}".format(outMaskName))
 
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
