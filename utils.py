@@ -239,6 +239,7 @@ def get_gray_image(input_image, white_or_gray, use_opposite):
         first_pass = True
         is_ruler = True
         use_adaptive = False
+        print("getting gray image..............")
         color_image, threshold_bw, color_img, mid_row = ci.get_image_with_color_mask(input_image, thresh_val, 
             blur_window, False, first_pass, is_ruler, use_adaptive)
         gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
@@ -472,9 +473,13 @@ def is_bright_background(image):
 def reject_outliers(data, m=2):
     return data[abs(data - np.mean(data)) < m * np.std(data)]
 
-def is_white_or_gray(input_image):
+def is_white_or_gray(input_image, imageIsClipped):
     #used for setting erode/dilate thresholds
-    mean_color = get_mean_background_color(input_image)
+    if imageIsClipped:
+        offset = 0
+    else:
+        offset = 100
+    mean_color = get_mean_background_color(input_image, offset)
     #low saturation and high value -- white or really light gray
     return mean_color[1] < 75 and mean_color[2] > 190
 
@@ -482,7 +487,7 @@ def is_dark_gray(input_image):
     #used for setting erode/dilate thresholds
     mean_color = get_mean_background_color(input_image)
     #low saturation and high value -- white or really light gray
-    is_dark_gray = mean_color[0] < 100 and mean_color[1] < 50 and mean_color[2] < 75
+    is_dark_gray = mean_color[0] < 120 and mean_color[1] < 50 and mean_color[2] < 75
     print("is dark gray --->>>>>>>>>> {}".format(is_dark_gray))
     return is_dark_gray
 
@@ -524,22 +529,22 @@ def is_background_similar_color(input_image):
     return diff_v
 
 
-def get_mean_background_color(input_image):
+def get_mean_background_color(input_image,offset=0):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
     h_vals = []
     s_vals = []
     v_vals = []
-    for i in range(20,35):
-        for j in range(30,40):
+    for i in range(20+offset,35+offset):
+        for j in range(30+offset,40+offset):
             h_vals.append(image[i][j][0])
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])
 
-    rows = len(image)
-    cols = len(image[0])
-    
-    for i in range(rows-30, rows):
-        for j in range(cols-30, cols):
+    rows = len(image)-1
+    cols = len(image[0])-1
+
+    for i in range(rows-(30+offset), rows-offset):
+        for j in range(cols-(20+offset), cols-offset):
             h_vals.append(image[i][j][0])
             s_vals.append(image[i][j][1])
             v_vals.append(image[i][j][2])

@@ -130,6 +130,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     return bgr
+
 def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,is_ruler=False):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
@@ -247,7 +248,6 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     image = input_image
 
     is_bright = utils.is_bright_background(image)
-    print("doing color image mask now...")
     color_res = get_color_image_new(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright,is_ruler=is_ruler)
     
     #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
@@ -257,6 +257,7 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
     gray = cv2.GaussianBlur(gray, (blur_window, blur_window), 0)
     
     if is_bright:
+
         #TODO: check for high variability/check patterns here?
         if is_ruler and use_adaptive:
             threshold_bw = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,7,3);
@@ -267,10 +268,11 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
         retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     if False:
-        utils.show_img("thresh {};{}".format(thresh_val, blur_window),threshold_bw)
+        utils.show_img("thresh {};{}  -- is ruler {};is bright? {};path:{}".format(thresh_val, blur_window, is_ruler, is_bright,3),threshold_bw)
 
     return image, threshold_bw, color_res, rows
 
+'''
 def do_color_image_match(input_image, template_contour, thresh_val, blur_window, showImg=False, 
     contour_color=None, is_ruler=False, use_gray_threshold=False, enclosing_contour=None, first_pass=True, 
     small_img=False, use_adaptive=False):
@@ -389,19 +391,19 @@ def do_color_image_match(input_image, template_contour, thresh_val, blur_window,
         if is_ruler:
             #get rid of this
             if thresh_val == 10:
-                '''
+                
                 templateHull = cv2.convexHull(template_contour)
                 templateArea = cv2.contourArea(template_contour)
                 targetHull = cv2.convexHull(target_contour)
                 targetArea = cv2.contourArea(target_contour)
                 hullArea = cv2.contourArea(targetHull)
                 print "target area: {}, hullArea: {}, template area: {}".format(targetArea, hullArea, templateArea)
-                '''
+                
             utils.show_img_and_contour("big color img {}x{};val:{}".format(thresh_val, blur_window, rval), input_image, target_contour, enclosing_contour,0)
 
     print ("done with do_color_image_match")
     return target_contour, rval, aperc, adist, cdiff
-
+'''
 
 def get_min(val):
     minval = np.min(val)

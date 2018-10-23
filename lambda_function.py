@@ -326,13 +326,10 @@ def readClippingBounds(rescaled_image):
 
 def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
 
-    #STILL NOT CLIPPING RIGHT FOR ROTATED!
+    #NEED TO FIX mask if hits edge of screen, ala feb_2017/IMG_8.56_81.jpg
 
     #utils.show_img("mask ", mask)
     rescaled_mask = templates.rescale(orig_cols, orig_rows, mask_image)
-
-    #(thresh, im_bw) = cv2.threshold(rescaled_mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    utils.show_img("rescaled mask", rescaled_mask)
 
     mask_edged = cv2.Canny(rescaled_mask, 10, 255)
     #utils.show_img("mask:", rescaled_mask)
@@ -342,7 +339,7 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
 
     target_shape = target_shapes[0]
 
-    if True:
+    if False:
         #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
         cv2.drawContours(rescaled_image, [target_shape], 0, (0,255,255),10)
         cv2.imshow("clipped from mask", rescaled_image)
@@ -447,9 +444,9 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, is_square_ref)
-        unoffsetContour = target_contour.copy()
+        
         target_contour = offset_contour(target_contour, xOffset, yOffset)
-        if True:
+        if False:
             cv2.drawContours(clippedImage, [target_contour], 0, (255,0,0),5)
             cv2.drawContours(clippedImage, [unoffsetContour],0,(0,0,255),5)
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)

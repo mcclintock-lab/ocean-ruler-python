@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import argparse
-import fastai
 import scipy
 
 from fastai.imports import *
@@ -42,19 +41,23 @@ def setup():
 
     tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
+    
     learn = ConvLearner.from_model_data(m, data)
-    learn.load("trained_model_clipped_lobster")
+    learn.load("trained_model_10_23")
 
-    return m, learn, tfms, data
+    return m, tfms, data
 
-def loadData(imgName, targetPath, tfms, learn):
+def loadData(imgName, targetPath, tfms):
     
     ds = FilesIndexArrayDataset([imgName], np.array([0]), tfms[1], targetPath)
     dl = DataLoader(ds)
-    preds = learn.predict_dl(dl)
-    preds = np.argmax(preds)
+    #preds = learn.predict_dl(dl)
+    #print("predictions------->>>>>")
+    #print(preds)
+    #print("-----------")
+    #preds = np.argmax(preds)
     
-    return dl, preds
+    return dl
 
 def getMinMax(f2Filtered):
     minX = 1000
@@ -171,8 +174,8 @@ def read_args():
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
 
 def execute():
-    print("here....")
-    m, learn, tfms, data = setup();
+
+    m, tfms, data = setup();
 
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
     targetPath, imgName = os.path.split(imageName)
@@ -180,29 +183,10 @@ def execute():
     img = cv2.imread(imageName)
     
     tmpImgName = None
-    '''
-    if(height > width):
 
-        # calculate the center of the image
-        center = (width / 2, height / 2)
-        tmpImgName = "tmp/"+str(int(time.time()*1000000))+".png"
-        M = cv2.getRotationMatrix2D(center, 90, 1.0)
-        rotated90 = cv2.warpAffine(img, M, (width, height))
-        cv2.imwrite(tmpImgName,rotated90)
-        targetPath, imgName = os.path.split(tmpImgName)
-        if True:
-            cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-            cv2.imshow('image',rotated90)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
 
+    dl = loadData(imgName, targetPath, tfms)
     
-    img = cv2.imread(imageName)
-    (height, width) = img.shape[:2]
-    '''
-
-    dl, predictions = loadData(imgName, targetPath, tfms, learn)
-    print("predictions--->>>>", predictions)
     x,y = next(iter(dl))
     x = x[None,0]
     vx = Variable(x.cpu(), requires_grad=True)
@@ -227,8 +211,9 @@ def execute():
     
     
     multiplier = 0.92
-    if(predictions == 0):
-        multiplier = 0.45
+    if(fishery_type == 'abalone'):
+        print("multiplier is 0.42")
+        multiplier = 0.42
 
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
     filter = scipy.misc.imresize(f2, dx.shape,mode="L")
@@ -240,12 +225,20 @@ def execute():
     zeroMask[zeroMask > 0] = 255
     maskPath = os.environ['ML_PATH']+"/masks/"
     outMaskName = maskPath+imgName
-    print("trying to save to {}".format(outMaskName))
-    print("shape is {}".format(zeroMask.shape))
-    scipy.misc.imsave(outMaskName, zeroMask)
+
     
+    #make sure doesn't hit edges
+    nrows, ncols = zeroMask.shape
+    row, col = np.ogrid[:nrows, :ncols]
+    cnt_row, cnt_col = nrows / 2, ncols / 2
+    outer_edge_mask = ((row - cnt_row)**2 + (col - cnt_col)**2 > ((nrows / 2)-4)**2 )
+    zeroMask[outer_edge_mask] = 0
+
+    scipy.misc.imsave(outMaskName, zeroMask)
 
     #showResults(f2Filtered, dx)
+
+
     print("out mask name is: {}".format(outMaskName))
 
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
