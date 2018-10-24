@@ -16,7 +16,6 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     if use_opposite:
         white_or_gray = not white_or_gray
 
-    print("this this white or gray???", white_or_gray)
     blur = cv2.GaussianBlur(gray, (5,5),0)
     #this was white or gray
     if white_or_gray or utils.is_dark_gray(input_image):
@@ -61,7 +60,6 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
-    print("num cnts: {}".format(len(cnts)))
 
     largest = utils.get_largest_edges(cnts[1])
 
@@ -84,9 +82,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     if False:
         n=0
         for l in largest:
-            print("n is {}".format(n))
 
-            
             if n < 100:
                 cv2.drawContours(input_image, l[1], -1, (n,n,n),12)
             n=n+50
@@ -99,7 +95,6 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     minVal = 100000000
     dex = 0
 
-    print("largest is {}".format(largest))
     if largest is not None and largest[0] and largest[1] is not None:
         for i, contour in enumerate(largest):
             perc = contour[0]/img_area
@@ -107,7 +102,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
             current_contour = contour[1]
             if is_square_ref_object and is_square_contour(current_contour):
                 continue
-            print("perc: {}, actual perc: {}".format(perc, actual_perc))
+
             #before ml, this was 0.75
             if perc <= 0.95 and actual_perc > lower_percent_bounds:
                 if(current_contour is None or len(current_contour) == 0):
@@ -117,24 +112,21 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
                 
                 compactness = get_compactness(current_contour)
                 val = cv2.matchShapes(current_contour, abalone_template_contour, 2, 0.0)
-                print("val for {} is {}, actual_perc is {}, compactness: {}".format(i, val, actual_perc, compactness))
+                
                 val=val*compactness*(1/actual_perc)
                 
-                print("{} total val: {}".format(i, val))
                 if val < minVal:
                     dex = i
                     minVal = val
         
                     target_contour = current_contour
 
-        print("final dex is: {}".format(dex))
             
     if False:
         cv2.drawContours(input_image, [target_contour], -1, (0,255,255),4)
         utils.show_img("square contours", input_image)
     #orig contours are returned for display/testing
 
-    print(".......................here??")
     return target_contour, cnts[1]
 
 def get_compactness(match_contour):
@@ -160,11 +152,9 @@ def is_square_contour(cnt):
 
 def get_target_contour(input_image, template_contour, is_square_ref_object):
     white_or_gray = utils.is_white_or_gray(input_image, True)
-    print("white or gray? {}".format(white_or_gray))
 
     target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, 0.1, white_or_gray, False, is_square_ref_object)
     if target_contour is None:
-        print("doing second pass for abalone")
         target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, 0.05, white_or_gray, True, is_square_ref_object)
 
     ncols = len(input_image[0]) 
@@ -182,7 +172,7 @@ def get_target_contour(input_image, template_contour, is_square_ref_object):
 
     xOffset = cx - rectCX
     percOffset = abs(float(xOffset)/float(ncols))
-    print("perc offset::: {}".format(percOffset))
+
     if abs(percOffset) > 0.008:
         trimmed_contour = trim_abalone_contour(target_contour)
         if trimmed_contour is not None:
@@ -196,7 +186,7 @@ def get_quarter_image(input_image, use_opposite):
     white_or_gray = utils.is_white_or_gray(input_image, False)
    
     if not white_or_gray and not use_opposite:
-        print("getting quarter image --->>>>>> is this white or gray??? {}".format(white_or_gray))
+
         thresh_val = 30
         blur_window = 5
         first_pass = True
@@ -324,25 +314,15 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
     radius = 0
     circle_matches = []
     #1. use white or color
-    print("first passs.....")
     circles, scale_contours = get_target_quarter_contours(input_image, False, False)
     matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, True)
 
     circle_matches = get_matches(circles, matches)
     if False:
-        print("num circles: ", len(circle_matches))
         cv2.drawContours(input_image, matches, -1, (0,0,255),4)
         cv2.drawContours(input_image, scale_contours, -1, (255,0,0),3)
         cv2.drawContours(input_image, [abalone_contour], 0, (0,255,0),4)
         utils.show_img("quarter contours", input_image)
-        '''
-        for circle in circle_matches:
-            print("circle: ",circle)
-            center = (circle[0],circle[1])
-            radius = circle[2]
-            cv2.circle(input_image,center, radius, (0,0,255), -1)
-        '''
-        
 
     if len(circle_matches) == 0:
         #2. use the opposite of white or color
@@ -375,7 +355,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
             match_hull = match_data[2]
 
             (x,y),radius = cv2.minEnclosingCircle(match_contour)
-            
+
             atEdge = atEdges(x,y,rows,cols)
             circleRadius = circle[2]
 
@@ -391,10 +371,9 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
 
             #make sure the radius is within a certain size and not at the edges - gets rid of little areas/squiggles
             if radius < 24 or radius > 60 or atEdge or compactness > 1.5:
-                print("{} skipping r:{}, aE:{}, compactness:{}".format(i, radius, str(atEdge), compactness))
+                #print("{} skipping r:{}, aE:{}, compactness:{}".format(i, radius, str(atEdge), compactness))
                 continue
-            else:
-                print("{} ok r:{}, aE:{}, compactness:{}".format(i, radius, str(atEdge), compactness))
+
 
             val = cv2.matchShapes(match_contour, quarter_template_contour, cv2.CONTOURS_MATCH_I3, 0.0)
 
@@ -429,14 +408,11 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
             cx = compactness_values[dex][2][0]
             cy = compactness_values[dex][2][1]
 
-            print("NOTE: hough circle seems too big or small, using original...")
 
     elif(len(circle_matches) == 1):
-        print("one match only...")
         cx, cy, radius = get_circle_info(circle_matches[0][0])
 
     elif(len(circle_matches) == 0):
-        print("picking rando...")
         return int(ncols/2), int(nrows*0.9), 35, matches
     else:
         dex = 0
@@ -450,11 +426,9 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
         target_quarter_contour = matches[dex]
         
         cx, cy,radius = get_quarter_contour_info(target_quarter_contour)
-        print("no matches, picking rando: {},{},{}".format(cx,cy,radius))
     return cx, cy, radius, matches
 
 def atEdges(x,y, rows,cols):
-    print("{}x{}, {}x{}".format(x,y,cols,rows))
     if int(x) < 90 or int(x) > cols-90:
         return True
     elif int(y) < 90 or int(y) > rows-90:
@@ -507,15 +481,13 @@ def trim_abalone_contour(target_contour):
 
         return ab_contour
     except Exception as e:
-        print("--->>>>error: {}".format(e))
-        print(len(target_contour))
         return target_contour
 
 def get_quarter_contour_and_center(quarter_contour):
     cX, cY = utils.get_centroid(quarter_contour)
-    print("q contour")
+   
     quarter_ellipse = cv2.fitEllipse(quarter_contour)
-    print("made it through q contour")
+
     size = quarter_ellipse[1]
     width = int(size[1]/2)
     height = int(size[0])
@@ -604,11 +576,9 @@ def get_target_lobster_contour(input_image, lobster_template_contour, lower_perc
         if centerIn:
             center_contours.append(contour)
 
-    print("getting largest contour")
     largest = utils.get_largest_contours(center_contours,1)
 
     target_contour = largest[0]
-    print("got largest")
     #orig contours are returned for display/testing
     return target_contour, cnts, top_offset, left_offset
 
@@ -657,7 +627,6 @@ def get_square_image(input_image, use_opposite):
         
 
     scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
-    print("returning square image");
     return scale_img, gray
 
 def do_corner_detection(input_image, gray):
@@ -816,7 +785,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
                         target_contour = contour
             
         except Exception as e:
-            print("error: {}".format(e))
+
             continue
     if target_contour is None and not check_for_square:
         return contours[0], tcontours
@@ -827,7 +796,6 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
         utils.show_img("square contours", input_image)
     
-    print("return get target square contours in contour utils")
     return target_contour, tcontours
 
 def get_filtered_square_contours(scale_contours, target_contour, target_perc, img_area, check_squareness):

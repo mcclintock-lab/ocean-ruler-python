@@ -113,7 +113,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
 
     minrange = np.array([final_huemin, final_satmin, final_valmin])
     maxrange = np.array([final_huemax, final_satmax, final_valmax])
-    print("minrange: {}, maxrange: {}".format(minrange, maxrange))
+
     #use original image so we get the non-masked values
     mask = cv2.inRange(image, minrange, maxrange)
     notmask = cv2.bitwise_not(mask)

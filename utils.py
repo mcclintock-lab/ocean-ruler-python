@@ -11,7 +11,7 @@ QUARTER = "_quarter"
 def print_time(msg, start_time):
     now = time.time()
     elapsed = now - start_time
-    print("{} time elapsed: {}".format(msg, elapsed))
+    #print("{} time elapsed: {}".format(msg, elapsed))
 
 
 
@@ -101,11 +101,9 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
                             use_hull =  not retry
                             #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
                             contour_is_enclosed = utils.is_contour_enclosed(contour, enclosing_contour, use_hull)
-                            if which_one != ABALONE:
-                                print("is contour enclosed? {}".format(contour_is_enclosed))
+
                             if contour_is_enclosed:
                                 if not all_bets_are_off:
-                                    print("throwing this one away...")
                                     #utils.show_img_and_contour("enclosed contour", input_image, enclosing_contour, contour)
                                     continue
                     minValue = combined
@@ -129,7 +127,6 @@ def get_best_contour(shapes, lower_area, upper_area, which_one, enclosing_contou
         if not all_bets_are_off:
 
             if which_one != ABALONE and defect_dist > 2000:
-                print("ditching this one, defects are too high")
                 targetContour = None
                 targetKey = None
                 minValue = 1000000
@@ -167,7 +164,6 @@ def find_edges(img=None, thresh_img=None, use_gray=False, showImg=False, erode_i
 
 def is_contour_enclosed(contour, enclosing_contour, use_hull, check_centroid):
     if enclosing_contour is None or len(enclosing_contour) == 0:
-        print("empty enclosing...")
         return False
 
     try:
@@ -193,19 +189,16 @@ def is_contour_enclosed(contour, enclosing_contour, use_hull, check_centroid):
             extRight = tuple(contour[contour[:, :, 0].argmax()][0])
             extTop = tuple(contour[contour[:, :, 1].argmin()][0])
             extBot = tuple(contour[contour[:, :, 1].argmax()][0])
-            #print("left:{};right:{};top:{};bottom:{}".format(extLeft, extRight, extTop, extBot))
             
             lIn = cv2.pointPolygonTest(hull,extLeft,False) >= 0
             rIn = cv2.pointPolygonTest(hull,extRight,False) >= 0
             tIn = cv2.pointPolygonTest(hull,extTop,False) >= 0
             bIn = cv2.pointPolygonTest(hull,extBot,False) >= 0
 
-            #print("lIn:{};rIn:{};tIn:{};bIn:{}".format(lIn, rIn, tIn, bIn))
             contour_is_enclosed = (lIn or rIn or tIn or bIn)
 
         return contour_is_enclosed
     except Exception as e:
-        print("getting enclosed barfed: {}".format(e))
         return False
 
 def is_really_round(contour):
@@ -239,7 +232,7 @@ def get_gray_image(input_image, white_or_gray, use_opposite):
         first_pass = True
         is_ruler = True
         use_adaptive = False
-        print("getting gray image..............")
+
         color_image, threshold_bw, color_img, mid_row = ci.get_image_with_color_mask(input_image, thresh_val, 
             blur_window, False, first_pass, is_ruler, use_adaptive)
         gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
@@ -276,7 +269,6 @@ def get_largest_edges(cnts):
                 continue
 
     except Exception:
-        print("error getting largest edge")
         return None, None
 
     results = []
@@ -313,14 +305,12 @@ def get_largest_contours(cnts, num_items):
                 continue
 
     except Exception:
-        print("error getting largest edge")
         return None, None
 
-    print("len targets: {}".format(len(target_contours)))
-    print("num items: {}".format(num_items))
+
     if len(target_contours) < num_items:
         num_items = len(target_contours)
-    print("found {}  items".format(num_items))
+
     return target_contours[:num_items]
 
 def get_largest_edge(cnts):
@@ -341,7 +331,6 @@ def get_largest_edge(cnts):
                 if carea > max_size:
                     max_size = carea
             except Exception:
-                print("couldn't get size")
                 continue
 
         #include ties
@@ -357,7 +346,6 @@ def get_largest_edge(cnts):
                 continue
 
     except Exception:
-        print("error getting largest edge")
         return None, None
 
     return target_contours, max_size
@@ -371,7 +359,7 @@ def show_img_and_contour(imageName, input_image, contour, template_contour,top_o
             cv2.drawContours(input_image, [template_contour], 0, (255,0,0), 3)
             show_img(imageName, input_image)
     except Exception as err:
-        print("couldn't draw image...{}".format(err))
+        print_time("couldn't draw image...{}".format(err),0)
 
 def show_img(title, img):
     cv2.imshow(title, img)
@@ -412,7 +400,7 @@ def is_dark(image):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-    #print "h{},s{},v{}".format(mean_h_val, mean_s_val, mean_v_val)
+
     return (mean_s_val < 30 and mean_v_val <100)   
 
 def is_light_background(image):
@@ -439,7 +427,7 @@ def is_light_background(image):
     mean_s_val = np.median(s_vals)
     mean_v_val = np.median(v_vals)
     mean_h_val = np.median(h_vals) 
-    #print "H:{}, S:{}, V:{}".format(mean_h_val, mean_s_val, mean_v_val)
+
     return (mean_s_val < 25 and mean_v_val > 75)
 
 def is_bright_background(image):
@@ -488,7 +476,7 @@ def is_dark_gray(input_image):
     mean_color = get_mean_background_color(input_image)
     #low saturation and high value -- white or really light gray
     is_dark_gray = mean_color[0] < 120 and mean_color[1] < 50 and mean_color[2] < 75
-    print("is dark gray --->>>>>>>>>> {}".format(is_dark_gray))
+
     return is_dark_gray
 
 def is_color(input_image):
@@ -514,7 +502,7 @@ def is_color(input_image):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-    #print "hsv::::   {}, {}, {}".format(mean_h_val, mean_s_val, mean_v_val)
+
     return (mean_s_val > 75)
 
 def is_background_similar_color(input_image):
@@ -553,8 +541,6 @@ def get_mean_background_color(input_image,offset=0):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
-
-    print("mean background color: h{}, s{}, v{}".format(mean_h_val, mean_s_val, mean_v_val))
     return (mean_h_val, mean_s_val, mean_v_val)
 
 def get_points(rows, cols, first_pass):

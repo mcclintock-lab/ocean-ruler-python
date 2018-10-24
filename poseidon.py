@@ -10,7 +10,6 @@ from fastai.conv_learner import *
 from fastai.model import *
 from fastai.dataset import *
 from fastai.sgdr import *
-
 import ml_file_utils
 import lambda_function
 
@@ -27,7 +26,6 @@ def showResults(f2Filtered, dx):
 
 def setup():
     mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
-    print("Path: {}".format(mlPath))
     #PATH = "machine_learning/ml_data/ablob/"
     sz = 224
     arch = resnet34
@@ -43,21 +41,18 @@ def setup():
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     
     learn = ConvLearner.from_model_data(m, data)
-    learn.load("trained_model_10_23")
+    learn.load("trained_model_clipped_lobster")
 
-    return m, tfms, data
+    return m, tfms, data,learn
 
-def loadData(imgName, targetPath, tfms):
+def loadData(imgName, targetPath, tfms, learn):
     
     ds = FilesIndexArrayDataset([imgName], np.array([0]), tfms[1], targetPath)
     dl = DataLoader(ds)
-    #preds = learn.predict_dl(dl)
-    #print("predictions------->>>>>")
-    #print(preds)
-    #print("-----------")
-    #preds = np.argmax(preds)
+    preds = learn.predict_dl(dl)
+    preds = np.argmax(preds)
     
-    return dl
+    return dl, preds
 
 def getMinMax(f2Filtered):
     minX = 1000
@@ -79,8 +74,6 @@ def getMinMax(f2Filtered):
                     maxY = j
     xRange = (minX, maxX)
     yRange = (minY, maxY)
-    print("x range: ", xRange)
-    print("y range: ", yRange)
     return xRange, yRange
 
 class SaveFeatures():
@@ -128,25 +121,28 @@ def read_args():
             help="")
 
         args = vars(ap.parse_args())
-        print("reg args are ok...: ", args)
     except SystemExit as e:
-        print(" regular args are wrong, error parsing args -> {}".format(e))
         ap = argparse.ArgumentParser()
         args = ap.parse_known_args()[1]
 
-        print(".............................known args ->>> {}".format(args))
         parsedArgs = {}
         for dex, arg in enumerate(args):
             if str(arg).startswith('--'):
                 strippedArg = arg.replace("--","").strip()
                 parsedArgs[strippedArg] = args[dex+1]
-        print("parsedArgs: ", parsedArgs)
-        args = parsedArgs
 
+        args = parsedArgs
+        print(args)
 
     imageName = args["image"]
-    print("args: {}".format(args))
-    if not hasattr(args, "ref_object"):
+
+    try:
+        hasRefObject = True
+        ref_object = args['ref_object']
+    except KeyError:
+        hasRefObject = False
+
+    if not hasRefObject:
         ref_object = "quarter"
         ref_object_units = "inches"
         ref_object_size = 0.955
@@ -158,7 +154,6 @@ def read_args():
         original_size = None
         loc_code = "Fake Place"
     else:
-        print("args -> {}".format(args))
         
         ref_object = args["ref_object"]
         ref_object_units = args["ref_object_units"]
@@ -171,22 +166,26 @@ def read_args():
         original_size = args["original_size"]
         loc_code = args["loc_code"]
 
+
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
 
 def execute():
 
-    m, tfms, data = setup();
+    m, tfms, data, learn = setup();
 
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
     targetPath, imgName = os.path.split(imageName)
     
+    if imageName == None:
+        return
+
     img = cv2.imread(imageName)
     
     tmpImgName = None
 
 
-    dl = loadData(imgName, targetPath, tfms)
-    
+    dl, predictions = loadData(imgName, targetPath, tfms, learn)
+
     x,y = next(iter(dl))
     x = x[None,0]
     vx = Variable(x.cpu(), requires_grad=True)
@@ -210,9 +209,9 @@ def execute():
     f2/=f2.max()
     
     
-    multiplier = 0.92
+    multiplier = 0.85
+
     if(fishery_type == 'abalone'):
-        print("multiplier is 0.42")
         multiplier = 0.42
 
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
@@ -239,15 +238,12 @@ def execute():
     #showResults(f2Filtered, dx)
 
 
-    print("out mask name is: {}".format(outMaskName))
-
+    print(">>>>>")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
         locCode, fishery_type, original_filename, original_size)
-    
-
-    print("results---->>>>>>> ")
     print(jsonVals)
+    return jsonVals
 
 
 

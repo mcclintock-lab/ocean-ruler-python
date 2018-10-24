@@ -8,7 +8,6 @@ DELIM = ","
 QUOTECHAR = '|'
 
 def read_args():
-    print("reading args....")
 
     ap = argparse.ArgumentParser()
     args = ap.parse_known_args()[1]
@@ -30,7 +29,6 @@ def read_args():
             ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
             args = vars(ap.parse_known_args())
     except SystemExit as err:
-        print("boom....!!!", err)
         ap.add_argument('allimages', metavar='fp', nargs='+', help='file names')
         args = vars(ap.parse_args())  
     
@@ -50,7 +48,6 @@ def read_args():
         out_file ="new_data.csv"
         #out_file = "data.csv"
         allImageNames = args['allimages'][0]
-        print("working on {}".format(allImageNames))
         imageParts = allImageNames.split()
 
         if(len(imageParts) > 1):
@@ -76,21 +73,7 @@ def read_args():
             ref_object = constants.QUARTER
             ref_object_size = constants.QUARTER_SIZE_IN
             ref_object_units = constants.INCHES
-   
-    ''' 
-    min_size = args['min_size']
-    max_size = args['max_size']
-    if min_size is None or len(min_size) == 0:
-        min_size = constants.MIN_SIZE
-    else:
-        min_size = float(min_size)
 
-    if max_size is None or len(max_size) == 0:
-        max_size = constants.MAX_SIZE
-    else:
-        max_size = float(max_size)
-
-    '''
     return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units
 
 def shouldIgnore(imageName):
@@ -184,7 +167,7 @@ def read_real_sizes(imageName):
                     return size
 
         except Exception:
-            print("can't read real files: {}".format(e))
+            utils.print_time("can't read real files: {}".format(e),0)
 
     return size
 
@@ -214,12 +197,12 @@ def read_write_simple_csv(out_file, imageName, abaloneLength):
                         else:
                             last_total_diff = float(diff)
             except Exception as e:
-                print("problem here: {}".format(e))
+                utils.print_time("problem here: {}".format(e),0)
 
 
         try:
             real_size = get_real_size(imageName)
-            print("real size: {}".format(real_size))
+
             if real_size > 0.0:
                 diff = abs(abaloneLength - real_size)
                 all_rows[imageName] = [abaloneLength, real_size, diff]
@@ -241,12 +224,9 @@ def read_write_simple_csv(out_file, imageName, abaloneLength):
                         writer.writerow(row)
 
                     writer.writerow(["Total", 0,0,total_diffs, total_avg])
-            else:
-                print("Couldn't find real size for {}".format(imageName))
-                
-            print("last total: {}; this total: {}".format(last_total_diff, total_diffs))
+
         except Exception as err:
-            print("error trying to write the real size and diff: {}".format(err))
+            utils.print_time("error trying to write the real size and diff: {}".format(err),0)
 
 def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLength, rulerLength, rulerValue, background_val_diff):
 
@@ -276,7 +256,7 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
                             last_total_diff = float(diff)
 
             except Exception:
-                print("problem here: {}".format(e))
+                utils.print_time("problem here: {}".format(e),0)
 
     try:
         real_size = get_real_size(imageName)
@@ -300,9 +280,7 @@ def read_write_csv(out_file, imageName, bestAbaloneKey, bestRulerKey, abaloneLen
                     writer.writerow([name, est_size, real_size, diff,ab_key,ruler_key, valDiff])
 
                 writer.writerow(["Total", 0,0,total_diffs,"-","-","-"])
-        else:
-            print("Couldn't find real size for {}".format(imageName))
+
             
-        print("last total: {}; this total: {}".format(last_total_diff, total_diffs))
     except Exception as err:
-        print("error trying to write the real size and diff: {}".format(err))
+        utils.print_time("error trying to write the real size and diff: {}".format(err),0)
