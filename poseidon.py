@@ -12,6 +12,7 @@ from fastai.dataset import *
 from fastai.sgdr import *
 import ml_file_utils
 import lambda_function
+import uploads
 
 DELIM = ","
 QUOTECHAR = '|'
@@ -132,17 +133,19 @@ def read_args():
                 parsedArgs[strippedArg] = args[dex+1]
 
         args = parsedArgs
-        print(args)
 
     imageName = args["image"]
-
+    print("args-->>{}".format(args))
     try:
         hasRefObject = True
-        ref_object = args['ref_object']
-    except KeyError:
+        ref_object = args["ref_object"]
+        print("ref object: {}".format(ref_object))
+    except KeyError as ke:
+        print("key err: {}".format(ke))
         hasRefObject = False
 
     if not hasRefObject:
+        print("falling back to abalone quarter")
         ref_object = "quarter"
         ref_object_units = "inches"
         ref_object_size = 0.955
@@ -154,7 +157,11 @@ def read_args():
         original_size = None
         loc_code = "Fake Place"
     else:
-        
+        print("its ok...")
+        #ref_object = args["ref_object"]
+        #ref_object_units = args["ref_object_units"]
+        #ref_object_size = args["ref_object_size"]
+        #fishery_type = args["fishery_type"]
         ref_object = args["ref_object"]
         ref_object_units = args["ref_object_units"]
         ref_object_size = args["ref_object_size"]
@@ -166,8 +173,9 @@ def read_args():
         original_size = args["original_size"]
         loc_code = args["loc_code"]
 
-
+    
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
+
 
 def execute():
 
@@ -232,18 +240,18 @@ def execute():
     cnt_row, cnt_col = nrows / 2, ncols / 2
     outer_edge_mask = ((row - cnt_row)**2 + (col - cnt_col)**2 > ((nrows / 2)-4)**2 )
     zeroMask[outer_edge_mask] = 0
-
-    scipy.misc.imsave(outMaskName, zeroMask)
-
-    #showResults(f2Filtered, dx)
+    cv2.imwrite(outMaskName, zeroMask)
 
 
-    print(">>>>>")
+    
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
         locCode, fishery_type, original_filename, original_size)
+    print(">>>>>")
     print(jsonVals)
-    return jsonVals
+
+
+
 
 
 

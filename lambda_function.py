@@ -219,6 +219,7 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
     try: 
         original_filename = imageName
 
+        print("ro:{}, rou:{}, ros:{}, ft:{}".format(ref_object, ref_object_units, ref_object_size, fishery_type))
         image_full = cv2.imread(imageName)
 
         mask_image = cv2.imread(maskImageName)
@@ -238,7 +239,6 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
 
 
         if False:
-
             file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
 
         rows = len(rescaled_image)
@@ -248,14 +248,15 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
 
         presigned_url = ""
         #if is_deployed:
-        if False:
+        if True:
             utils.print_time("starting upload", _start_time)
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
-            presigned_url = uploads.upload_worker(rescaled_image, thumb, img_data, name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+            presigned_url = uploads.upload_worker(rescaled_image, thumb, img_data, username, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
                 left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
                 orig_cols, orig_rows, dynamo_name, s3_bucket_name, original_filename, original_size)
+
 
         rval =  {
                     "start_x":str(left_point[0]), "start_y":str(left_point[1]), 
@@ -272,12 +273,12 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
                     "fishery_type":str(fishery_type), "presigned_url":presigned_url, "original_filename":str(original_filename), "original_size":str(original_size)
                 }
 
+
         utils.print_time("total time after upload", _start_time)
     except Exception as e:
         utils.print_time("big bombout....: {}".format(e), _start_time)
         rval={"big bombout":str(e)}
     jsonVal = json.dumps(rval)
-
     return jsonVal
 
 def readClippingBounds(rescaled_image):
@@ -441,7 +442,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         if mlMask is not None and mlMask.any():
             target_contour = mlMask
 
-            if True:
+            if False:
                 tmpimg = rescaled_image.copy()
                 cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
                 utils.show_img("ref object", tmpimg)
