@@ -362,7 +362,6 @@ def offset_contour(contour, x, y):
 
     newX = x
     newY = y
-
     for points in contour:
         ndims = points.ndim
         if ndims > 1:
@@ -389,6 +388,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     
 
     image_height, image_width, channels = image_full.shape
+    origCellCount = image_height*image_width
     if orig_cols < orig_rows:
         img = cv2.transpose(image_full)  
         img = cv2.flip(img, 0)
@@ -417,20 +417,21 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
   
             clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask)
 
-
     #get the arget contour for the appropriate fishery
     ref_object_contour = None
     all_square_contours = None
 
     is_square_ref = (ref_object == constants.SQUARE)
 
-    if fishery_type == constants.ABALONE and mask_image is not None:
 
+    if fishery_type == constants.ABALONE and mask_image is not None:
+        
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, is_square_ref)
         
         target_contour = offset_contour(target_contour, xOffset, yOffset)
+        
         if False:
             cv2.drawContours(clippedImage, [target_contour], 0, (255,0,0),5)
             cv2.drawContours(clippedImage, [unoffsetContour],0,(0,0,255),5)
@@ -453,6 +454,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
             target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
 
     else:
+        print("getting abalone with no mask")
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         utils.print_time("done getting template: ", _start_time);
@@ -465,13 +467,14 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     utils.print_time("done getting {} contours".format(fishery_type), _start_time)
 
     if ref_object == constants.QUARTER:
+        print("getting quarter stuff...")
         if ref_object_units is None or ref_object_units == constants.INCHES:
             ref_object_size = constants.QUARTER_SIZE_IN
         else:
             ref_object_size = constants.QUARTER_SIZE_MM
 
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/quarter_template_1280.png")
-        refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_quarter_dimensions(rescaled_image.copy(), target_contour, ref_object_template_contour, False)    
+        refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_quarter_dimensions(rescaled_image.copy(), target_contour, ref_object_template_contour, False, origCellCount)    
     else:
 
         tmpimg =rescaled_image.copy()

@@ -243,12 +243,13 @@ def execute():
     cv2.imwrite(outMaskName, zeroMask)
 
 
-    
+    print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
         locCode, fishery_type, original_filename, original_size)
-    print(">>>>>")
+    print(">>>>><<<<<")
     print(jsonVals)
+    return jsonVals
 
 
 
