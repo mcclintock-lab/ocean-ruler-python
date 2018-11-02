@@ -5,6 +5,7 @@ import utils
 import json
 import decimal
 import utils
+import math
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -27,11 +28,11 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         lenfloat = -1.0
 
     now = int(time.time()*1000)
-
-    if original_size is None or original_size == "undefined":
+    try:
+        if original_size is None or original_size == "undefined" or len(original_size) == 0 or math.isnan(float(original_size)):
+            original_size = 0
+    except Error:
         original_size = 0
-
-
     try:
         response = table.put_item(
             Item={
@@ -73,7 +74,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         )
 
     except Exception as e:
-        utils.print_time("error uploading: {}".format(e),0)
+        print("error uploading: {}".format(e))
 
 
 def do_s3_upload(image_data, final_thumb, uuid, bucket_name):

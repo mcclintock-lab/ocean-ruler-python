@@ -219,7 +219,6 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
     try: 
         original_filename = imageName
 
-        print("ro:{}, rou:{}, ros:{}, ft:{}".format(ref_object, ref_object_units, ref_object_size, fishery_type))
         image_full = cv2.imread(imageName)
 
         mask_image = cv2.imread(maskImageName)
@@ -249,7 +248,6 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         presigned_url = ""
         #if is_deployed:
         if True:
-            utils.print_time("starting upload", _start_time)
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
             presigned_url = uploads.upload_worker(rescaled_image, thumb, img_data, username, email, uuid, locCode, picDate, abaloneLength, rating, notes,

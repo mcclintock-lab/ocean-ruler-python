@@ -145,7 +145,7 @@ def read_args():
 
     if not hasRefObject:
         print("falling back to abalone quarter")
-        ref_object = "quarter"
+        ref_object = "abalone"
         ref_object_units = "inches"
         ref_object_size = 0.955
         fishery_type = "abalone"
@@ -241,6 +241,7 @@ def execute():
     zeroMask[outer_edge_mask] = 0
     cv2.imwrite(outMaskName, zeroMask)
 
+    #showResults(f2Filtered, dx)
 
     print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
