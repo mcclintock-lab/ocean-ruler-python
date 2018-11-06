@@ -229,7 +229,7 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         notes = 'none'
 
         picDate = int(time.time()*1000)
-        showResults = True
+        showResults = False
 
         is_deployed = False
 
