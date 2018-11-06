@@ -229,7 +229,7 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         notes = 'none'
 
         picDate = int(time.time()*1000)
-        showResults = False
+        showResults = True
 
         is_deployed = False
 
@@ -422,11 +422,12 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     is_square_ref = (ref_object == constants.SQUARE)
 
 
-    if fishery_type == constants.ABALONE and mask_image is not None:
+    if (fishery_type == constants.ABALONE or fishery_type == constants.SCALLOP) and mask_image is not None:
         
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-        target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, is_square_ref)
+        target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, 
+                                                                            is_square_ref, (fishery_type == constants.ABALONE))
         
         target_contour = offset_contour(target_contour, xOffset, yOffset)
         
@@ -457,7 +458,8 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         utils.print_time("done getting template: ", _start_time);
 
-        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, is_square_ref)
+        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, 
+                                                                            is_square_ref, (fishery_type == constants.ABALONE))
         if False:
             cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
             utils.show_img("ref object", tmpimg)

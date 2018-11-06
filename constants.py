@@ -1,5 +1,7 @@
 ABALONE = "abalone"
 LOBSTER = "lobster"
+SCALLOP = "scallop"
+
 QUARTER = "quarter"
 SQUARE = "square"
 INCHES = "inches"

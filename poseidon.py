@@ -32,16 +32,17 @@ def setup():
     bs = 64    
 
     m = arch(True)
+    #stride (second arg) needs to match num classes, otherwise assert is thrown in pytorch
     m = nn.Sequential(*children(m)[:-2], 
-                      nn.Conv2d(512, 2, 3, padding=1), 
+                      nn.Conv2d(512, 3, 3, padding=1), 
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
 
     tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
-    
     learn = ConvLearner.from_model_data(m, data)
-    learn.load("trained_model_clipped_lobster")
+    learn.load("trained_model_11_5")
+
 
     return m, tfms, data,learn
 
@@ -145,10 +146,10 @@ def read_args():
 
     if not hasRefObject:
         print("falling back to abalone quarter")
-        ref_object = "abalone"
+        ref_object = "square"
         ref_object_units = "inches"
-        ref_object_size = 0.955
-        fishery_type = "abalone"
+        ref_object_size = 2
+        fishery_type = "scallop"
         uuid = str(time.time()*1000)
         username = "none given"
         email = "none given"
@@ -219,7 +220,9 @@ def execute():
     multiplier = 0.85
 
     if(fishery_type == 'abalone'):
-        multiplier = 0.42
+        multiplier = 0.40
+    elif(fishery_type == 'scallop'):
+        multiplier = 0.40
 
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
     filter = scipy.misc.imresize(f2, dx.shape,mode="L")

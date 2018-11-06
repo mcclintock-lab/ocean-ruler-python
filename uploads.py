@@ -33,6 +33,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
             original_size = 0
     except Error:
         original_size = 0
+    print("loc code: {}".format(locCode))
     try:
         response = table.put_item(
             Item={
@@ -63,7 +64,7 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "q_new_end_y":decimal.Decimal(qe_y),
                 "newsize":decimal.Decimal('{}'.format(lenfloat)),
                 "ref_object":ref_object,
-                "ref_object_size":ref_object_size,
+                "ref_object_size":decimal.Decimal('{}'.format(ref_object_size)),
                 "ref_object_units":ref_object_units,
                 "orig_width":decimal.Decimal('{}'.format(original_width)),
                 "orig_height":decimal.Decimal('{}'.format(original_height)),

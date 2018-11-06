@@ -153,7 +153,7 @@ def is_square_contour(cnt):
     ratio = float(w)/float(h)
     return ratio >= 0.75 and ratio <= 1.25
 
-def get_target_contour(input_image, template_contour, is_square_ref_object):
+def get_target_contour(input_image, template_contour, is_square_ref_object, is_abalone):
     white_or_gray = utils.is_white_or_gray(input_image, True)
     print("getting first pass...")
     target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, 0.1, white_or_gray, False, is_square_ref_object)
@@ -178,7 +178,7 @@ def get_target_contour(input_image, template_contour, is_square_ref_object):
     xOffset = cx - rectCX
     percOffset = abs(float(xOffset)/float(ncols))
 
-    if abs(percOffset) > 0.008:
+    if abs(percOffset) > 0.008 and is_abalone:
         trimmed_contour = trim_abalone_contour(target_contour)
         if trimmed_contour is not None:
             target_contour = trimmed_contour
