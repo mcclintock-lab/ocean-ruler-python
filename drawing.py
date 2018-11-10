@@ -50,26 +50,26 @@ def get_bounding_corner_points(contour):
     corners = [tl, tr, br, bl]
     return tl, tr, bl, br
 
-def drawLines(base_img, flipDrawing, startLinePoint, endLinePoint):
+def drawLines(base_img, flipDrawing, startLinePoint, endLinePoint, drawHatches):
     cv2.line(base_img, startLinePoint, endLinePoint,
             (255, 0, 255), 1)
+    if drawHatches:
+        if flipDrawing:
+            firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
+            firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
+            secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
+            secondHatchEnd = (int(endLinePoint[0]+50), int(endLinePoint[1]))
+        else:
+            firstHatchStart = (int(startLinePoint[0]), int(startLinePoint[1]-50))
+            firstHatchEnd = (int(startLinePoint[0]), int(startLinePoint[1]+50))
+            secondHatchStart = (int(endLinePoint[0]), int(endLinePoint[1]-50))
+            secondHatchEnd = (int(endLinePoint[0]), int(endLinePoint[1]+50))
 
-    if flipDrawing:
-        firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
-        firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
-        secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
-        secondHatchEnd = (int(endLinePoint[0]+50), int(endLinePoint[1]))
-    else:
-        firstHatchStart = (int(startLinePoint[0]), int(startLinePoint[1]-50))
-        firstHatchEnd = (int(startLinePoint[0]), int(startLinePoint[1]+50))
-        secondHatchStart = (int(endLinePoint[0]), int(endLinePoint[1]-50))
-        secondHatchEnd = (int(endLinePoint[0]), int(endLinePoint[1]+50))
+        cv2.line(base_img, firstHatchStart, firstHatchEnd,
+            (255, 0, 255), 1)
 
-    cv2.line(base_img, firstHatchStart, firstHatchEnd,
-        (255, 0, 255), 1)
-
-    cv2.line(base_img, secondHatchStart, secondHatchEnd,
-        (255, 0, 255), 1)
+        cv2.line(base_img, secondHatchStart, secondHatchEnd,
+            (255, 0, 255), 1)
 
 def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
 
@@ -79,64 +79,75 @@ def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
     br = (quarterCenterX+quarterRadius, quarterCenterY+quarterRadius)
     return tl, tr, bl, br
 
-
-def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
+def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
     
-    tl, tr, bl, br = get_corner_points("Abalone", contour)
+    extLeft = tuple(c[c[:, :, 0].argmin()][0])
+    extRight = tuple(c[c[:, :, 0].argmax()][0])
+    extTop = tuple(c[c[:, :, 1].argmin()][0])
+    extBot = tuple(c[c[:, :, 1].argmax()][0])
+
+
     #qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
-    #print("quarter corners: {}, {}, {}, {}: radius: {}".format(qtl, qtr, qbl, qbr, quarterRadius))
+    print("points corners: {}, {}, {}, {}".format(extLeft, extRight, extTop, extBot))
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
-        startLinePoint = midpoint(tl, tr)
-        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
-        endLinePoint = midpoint(bl, br)
-        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        dB = abs(startLinePoint[1] - endLinePoint[1])
+        startLinePoint = extTop
+        endLinePoint = extBot
+        dBX = abs(startLinePoint[0] - endLinePoint[0])
+        dBY = abs(startLinePoint[1] - endLinePoint[1])
+        dB = get_distance(dBX, dBY)
 
-        '''
-        quarterStartLinePoint = midpoint(qtl, qtr)
-        quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
-        quarterEndLinePoint = midpoint(qbl, qbr)
-        quarterEndLinePoint = (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1]))
-        '''
+        widthStartLinePoint = extLeft
+        widthEbdLinePoint = extRight
+
+        dBWidthX = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
+        dBWidthY = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
+        dBWidth = get_distance(dBWidthX, dBWidthY)
     else:
-        # compute the midpoint between the top-left and top-right points,
-        # followed by the midpoint between the top-righ and bottom-right
-        startLinePoint = midpoint(tl, bl)
-        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
-        endLinePoint = midpoint(tr, br)
-        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        # compute the Euclidean distance between the midpoints
-        dB = abs(startLinePoint[0] - endLinePoint[0])
+        startLinePoint = extLeft
+        endLinePoint = extRight
+
+        dBX = abs(startLinePoint[0] - endLinePoint[0])
+        dBY = abs(startLinePoint[1] - endLinePoint[1])
+        dB = get_distance(dBX, dBY)
+        print("x distance: {}, real distance: {}".format(dBX, dB))
+
+        widthStartLinePoint = extTop
+        widthEndLinePoint = extBot
+
+        dBWidthX = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
+        dBWidthY = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
+        dBWidth = get_distance(dBWidthX, dBWidthY)
+
+    drawLines(base_img, not flipDrawing, startLinePoint, endLinePoint, False)
+    if True:
+        cv2.circle(base_img, extLeft, 8, (0, 0, 255), -1)
+        cv2.circle(base_img, extRight, 8, (0, 255, 0), -1)
+        cv2.circle(base_img, extTop, 8, (255, 0, 0), -1)
+        cv2.circle(base_img, extBot, 8, (255, 255, 0), -1)
+        cv2.drawContours(base_img,[c],0,(255,0,0),2)
+        drawLines(base_img, not flipDrawing, widthStartLinePoint, widthEndLinePoint, False)
     
-        '''
-        quarterStartLinePoint = midpoint(qtl, qbl)
-        quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
-        quarterEndLinePoint = midpoint(qtr, qbr)
-        quarterEndLinePoint = (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1]))
-        '''
-
-    # draw the midpoints on the image
-    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 0), -1)
-    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 0), -1)
-
     '''
-    cv2.circle(base_img, (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1])), 2, (0, 255, 0), -1)
-    cv2.circle(base_img, (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1])), 2, (0, 255, 0), -1)
+    x,y,w,h = cv2.boundingRect(contour)
+    cv2.rectangle(base_img,(x,y),(x+w,y+h),(255,255,0),3)
+    
+    rect = cv2.minAreaRect(contour)
+    box = cv2.boxPoints(rect)
+    box = np.int0(box)
+    cv2.drawContours(base_img,[box],0,(0,191,255),2)
     '''
-
-    # draw lines between the midpoints
-    drawLines(base_img, flipDrawing, startLinePoint, endLinePoint)
-    #drawLines(base_img, flipDrawing, quarterStartLinePoint, quarterEndLinePoint)
-
-
+    '''
+    ellipse = cv2.fitEllipse(contour)
+    cv2.ellipse(base_img,ellipse,(0,0,255),4)
+    '''
     # if the pixels per metric has not been initialized, then
     # compute it as the ratio of pixels to supplied metric
     # (in this case, inches)
 
     dimB = dB / pixelsPerMetric
-
+    dimBWidth = dBWidth/pixelsPerMetric
     if draw_text:
         if fisheryType is None or len(fisheryType) == 0:
             fisheryType = "Abalone"
@@ -151,7 +162,78 @@ def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetr
             (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
             1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-    return dimB, startLinePoint, endLinePoint
+    return dimB, dimBWidth, startLinePoint, endLinePoint, widthStartLinePoint, widthEndLinePoint
+
+def get_distance(xdiff, ydiff):
+    distance = math.sqrt(math.pow(float(xdiff),2)+math.pow(float(ydiff),2))
+    return distance
+
+def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
+    
+    tl, tr, bl, br = get_corner_points("Abalone", contour)
+
+    #qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
+    #print("quarter corners: {}, {}, {}, {}: radius: {}".format(qtl, qtr, qbl, qbr, quarterRadius))
+    if flipDrawing:
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        startLinePoint = midpoint(tl, tr)
+        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
+        endLinePoint = midpoint(bl, br)
+        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+        dB = abs(startLinePoint[1] - endLinePoint[1])
+
+        widthStartLinePoint = midpoint(tl, bl)
+        widthStartLinePoint = (int(widthStartLinePoint[0]), int(widthStartLinePoint[1]))
+        widthEndLinePoint = midpoint(tr, br)
+        widthEndLinePoint = (int(widthEndLinePoint[0]), int(widthEndLinePoint[1]))
+        dBWidth = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
+    else:
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        startLinePoint = midpoint(tl, bl)
+        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
+        endLinePoint = midpoint(tr, br)
+        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+        # compute the Euclidean distance between the midpoints
+        dBX = abs(startLinePoint[0] - endLinePoint[0])
+        dBY = abs(startLinePoint[1] - endLinePoint[1])
+        dB = get_distance(dBX, dBY)
+        print("x distance: {}, real distance: {}".format(dBX, dB))
+
+        widthStartLinePoint = midpoint(tl, tr)
+        widthStartLinePoint = (int(widthStartLinePoint[0]), int(widthStartLinePoint[1]))
+        widthEndLinePoint = midpoint(bl, br)
+        widthEndLinePoint = (int(widthEndLinePoint[0]), int(widthEndLinePoint[1]))
+        dBWidthX = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
+        dBWidthY = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
+        dBWidth = get_distance(dBWidthX, dBWidthY)
+
+
+
+    # draw the midpoints on the image
+    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 0), -1)
+    drawLines(base_img, flipDrawing, startLinePoint, endLinePoint, False)
+
+
+    dimB = dB / pixelsPerMetric
+    dimBWidth = dBWidth/pixelsPerMetric
+    if draw_text:
+        if fisheryType is None or len(fisheryType) == 0:
+            fisheryType = "Abalone"
+        else:
+            fisheryType = fisheryType.capitalize()
+        # draw the object sizes on the image
+        cv2.putText(base_img, fisheryType,
+            (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
+            1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+
+        cv2.putText(base_img, "{:.1f}in".format(dimB),
+            (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
+            1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+
+    return dimB, dimBWidth, startLinePoint, endLinePoint, widthStartLinePoint, widthEndLinePoint
 
 
 
@@ -206,7 +288,7 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
     # draw lines between the midpoints
     #drawLines(base_img, flipDrawing, startLinePoint, endLinePoint)
-    drawLines(base_img, flipDrawing, quarterStartLinePoint, quarterEndLinePoint)
+    drawLines(base_img, flipDrawing, quarterStartLinePoint, quarterEndLinePoint, False)
 
 
     # if the pixels per metric has not been initialized, then
