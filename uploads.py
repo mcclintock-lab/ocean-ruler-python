@@ -81,7 +81,12 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "target_width_start_x": decimal.Decimal('{}'.format(asw_x)),
                 "target_width_start_y":decimal.Decimal('{}'.format(asw_y)),
                 "target_width_end_x":decimal.Decimal('{}'.format(aew_x)),
-                "target_width_end_y":decimal.Decimal('{}'.format(aew_y))
+                "target_width_end_y":decimal.Decimal('{}'.format(aew_y)),
+                "target_width_new_start_x": decimal.Decimal('{}'.format(asw_x)),
+                "target_width_new_start_y":decimal.Decimal('{}'.format(asw_y)),
+                "target_width_new_end_x":decimal.Decimal('{}'.format(aew_x)),
+                "target_width_new_end_y":decimal.Decimal('{}'.format(aew_y)),
+                "newwidth":decimal.Decimal('{}'.format(original_width))
             }
         )
 

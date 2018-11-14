@@ -129,6 +129,11 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
                     "target_width_start_y":str(width_left_point[1]),
                     "target_width_end_x":str(width_right_point[0]),
                     "target_width_end_y":str(width_right_point[1]),
+                    "newwidth": str(targetWidth),
+                    "target_width_new_start_x": str(width_left_point[0]),
+                    "target_width_new_start_y":str(width_left_point[1]),
+                    "target_width_new_end_x":str(width_right_point[0]),
+                    "target_width_new_end_y":str(width_right_point[1]),
                 }
 
 
