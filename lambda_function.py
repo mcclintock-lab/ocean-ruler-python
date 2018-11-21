@@ -30,6 +30,7 @@ SQUARE = "square"
 _start_time = time.time()
 DELIM = ","
 QUOTECHAR = '|'
+ML_IMAGE_SIZE = 320
 
 def get_scaled_image(image_full):
     target_cols = 1280.0
@@ -153,7 +154,7 @@ def readClippingBounds(rescaled_image):
     endX = 1280
     startY = 0
     endY = 960
-    maxWidth = 224
+    maxWidth = ML_IMAGE_SIZE
     cols = len(rescaled_image[0])
     rows = len(rescaled_image)
 
@@ -173,8 +174,8 @@ def readClippingBounds(rescaled_image):
         except Exception as err:
             print("something went wrong reading clipping file: {}".format(err))
 
-    xScale = int(float(cols)/224.0)
-    yScale = int(float(rows)/224.0)
+    xScale = int(float(cols)/ML_IMAGE_SIZE)
+    yScale = int(float(rows)/ML_IMAGE_SIZE)
 
     xScale = xScale*(float(cols)/float(rows))
 
@@ -198,12 +199,17 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
     edged_img = cv2.dilate(mask_edged, None, iterations=1)
 
     im2, target_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-
-    target_shape = target_shapes[0]
+    largestArea = 0
+    largestDex = 0
+    for i, target_shape in enumerate(target_shapes):
+        area = cv2.contourArea(target_shape)
+        if area > largestArea:
+            largestDex = i
+    target_shape = target_shapes[largestDex]
 
     if False:
         #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
-        cv2.drawContours(rescaled_image, [target_shape], 0, (0,255,255),10)
+        cv2.drawContours(rescaled_image, target_shapes, -1, (0,255,255),10)
         cv2.imshow("clipped from mask", rescaled_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -265,9 +271,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
             mask_image = img.copy()
     
 
-    rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)
-    
-
+    rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)    
     clipped_image = None
 
     if mask_image is not None:
@@ -289,12 +293,10 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
 
 
     if (fishery_type == constants.ABALONE or fishery_type == constants.SCALLOP) and mask_image is not None:
-        
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, 
                                                                             is_square_ref, (fishery_type == constants.ABALONE))
-        
         target_contour = offset_contour(target_contour, xOffset, yOffset)
         
         if False:
