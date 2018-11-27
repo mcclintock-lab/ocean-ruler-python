@@ -378,85 +378,21 @@ def get_centroid(contour):
     return cX,cY
 
 def is_dark(image):
-    h_vals = []
-    s_vals = []
-    v_vals = []
-    for i in range(130,132):
-        for j in range(131,133):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-    rows = len(image)
-    cols = len(image[0])
-    
-    for i in range(rows-85, rows-83):
-        for j in range(cols-85, cols-83):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-
-    mean_s_val = np.mean(s_vals)
-    mean_v_val = np.mean(v_vals)
-    mean_h_val = np.mean(h_vals) 
+    (mean_h_val, mean_s_val, mean_v_val) = get_mean_background_color(image)
 
     return (mean_s_val < 30 and mean_v_val <100)   
 
 def is_light_background(image):
-    h_vals = []
-    s_vals = []
-    v_vals = []
-    for i in range(130,132):
-        for j in range(131,133):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-    rows = len(image)
-    cols = len(image[0])
-    
-    for i in range(rows-85, rows-83):
-        for j in range(cols-85, cols-83):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-
-
-    mean_s_val = np.median(s_vals)
-    mean_v_val = np.median(v_vals)
-    mean_h_val = np.median(h_vals) 
+    (mean_h_val, mean_s_val, mean_v_val) = get_mean_background_color(image)
 
     return (mean_s_val < 25 and mean_v_val > 75)
 
+
 def is_bright_background(image):
-    h_vals = []
-    s_vals = []
-    v_vals = []
-    for i in range(130,132):
-        for j in range(131,133):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-    rows = len(image)
-    cols = len(image[0])
-    
-    for i in range(rows-85, rows-83):
-        for j in range(cols-85, cols-83):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-
-
-    mean_s_val = np.median(s_vals)
-    mean_v_val = np.median(v_vals)
-    mean_h_val = np.median(h_vals) 
+    (mean_h_val, mean_s_val, mean_v_val) = get_mean_background_color(image)
 
     return (mean_h_val < 30 and mean_s_val > 50 and mean_v_val < 60)
-    #return mean_s_val > 75
+
 
 def reject_outliers(data, m=2):
     return data[abs(data - np.mean(data)) < m * np.std(data)]
@@ -481,27 +417,7 @@ def is_dark_gray(input_image):
 
 def is_color(input_image):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
-    h_vals = []
-    s_vals = []
-    v_vals = []
-    for i in range(20,35):
-        for j in range(20,23):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-    rows = len(image)
-    cols = len(image[0])
-    
-    for i in range(rows-22, rows-20):
-        for j in range(cols-22, cols-20):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
-
-    mean_s_val = np.mean(s_vals)
-    mean_v_val = np.mean(v_vals)
-    mean_h_val = np.mean(h_vals) 
+    (mean_h_val, mean_s_val, mean_v_val) = get_mean_background_color(image)
 
     return (mean_s_val > 75)
 
@@ -509,39 +425,52 @@ def is_background_similar_color(input_image):
     ab_h, ab_s, ab_v = get_mean_abalone_color(input_image)
     back_h, back_s, back_v = get_mean_background_color(input_image)
 
-
     diff_h = abs(ab_h - back_h)
     diff_s = abs(ab_s - back_s)
     diff_v = abs(ab_v - back_v)
     
     return diff_v
 
-
 def get_mean_background_color(input_image,offset=0):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
     h_vals = []
     s_vals = []
     v_vals = []
-    for i in range(20+offset,35+offset):
-        for j in range(30+offset,40+offset):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
+    try:
+        for i in range(20+offset,35+offset):
+            for j in range(30+offset,40+offset):
+                h_vals.append(image[i][j][0])
+                s_vals.append(image[i][j][1])
+                v_vals.append(image[i][j][2])
 
-    rows = len(image)-1
-    cols = len(image[0])-1
+        rows = len(image)-1
+        cols = len(image[0])-1
 
-    for i in range(rows-(30+offset), rows-offset):
-        for j in range(cols-(20+offset), cols-offset):
-            h_vals.append(image[i][j][0])
-            s_vals.append(image[i][j][1])
-            v_vals.append(image[i][j][2])
+        for i in range(rows-(30+offset), rows-offset):
+            for j in range(cols-(20+offset), cols-offset):
+                h_vals.append(image[i][j][0])
+                s_vals.append(image[i][j][1])
+                v_vals.append(image[i][j][2])
+    except Exception as e:
+        print("error :{}".format(e))
 
+
+    s_vals = reject_outliers(np.asarray(s_vals, dtype=int))
+    h_vals = reject_outliers(np.asarray(h_vals,dtype=int))
+    v_vals = reject_outliers(np.asarray(v_vals, dtype=int))
 
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
     return (mean_h_val, mean_s_val, mean_v_val)
+
+#get rid of outlying points for determining background color - prevents
+#shadows/black spots/dirt from throwing off white color...
+def reject_outliers(data, m = 2.):
+    d = np.abs(data - np.median(data))
+    mdev = np.median(d)
+    s = d/mdev if mdev else 0.
+    return data[s<m]
 
 def get_points(rows, cols, first_pass):
     row_first = int(rows/8)

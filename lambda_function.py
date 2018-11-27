@@ -87,13 +87,12 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         showResults = False
 
         is_deployed = False
-
         rescaled_image, pixelsPerMetric, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, mask_image, showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units)
 
 
         if False:
-            file_utils.read_write_simple_csv(out_file, imageName, abaloneLength)
+            file_utils.read_write_simple_csv("data_617.csv", imageName, targetLength)
 
         rows = len(rescaled_image)
         cols = len(rescaled_image[0])
@@ -187,7 +186,7 @@ def readClippingBounds(rescaled_image):
 
     return name, int(startX), int(endX), int(startY), int(endY), maxWidth
 
-def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
+def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, allShapes=False):
 
     #NEED TO FIX mask if hits edge of screen, ala feb_2017/IMG_8.56_81.jpg
 
@@ -199,22 +198,34 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows):
     edged_img = cv2.dilate(mask_edged, None, iterations=1)
 
     im2, target_shapes, hierarchy = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    if allShapes:
+        return target_shapes
+
     largestArea = 0
     largestDex = 0
     for i, target_shape in enumerate(target_shapes):
         area = cv2.contourArea(target_shape)
         if area > largestArea:
             largestDex = i
+            largestArea = area
     target_shape = target_shapes[largestDex]
 
     if False:
         #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
-        cv2.drawContours(rescaled_image, target_shapes, -1, (0,255,255),10)
+        cv2.drawContours(rescaled_image, [target_shape], -1, (0,255,255),10)
         cv2.imshow("clipped from mask", rescaled_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
     return target_shape
+
+def getAllClippedImages(rescaled_image, clippingShapes):
+    shapes = []
+    for shape in clippingShapes:
+        clippedImage, x, y = getClippedImage(rescaled_image, shape)
+        shapes.append([clippedImage,x,y])
+
+    return shapes
 
 def getClippedImage(rescaled_image, clippingShape):
     x,y,w,h = cv2.boundingRect(clippingShape)
@@ -253,9 +264,7 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     
     #for calculation and storage, do everything in inches for consistency, then convert on displays
     if ref_object_units == constants.MM:
-        ref_object_size = float(ref_object_size)/constants.INCHES_TO_MM;
-
-    
+        ref_object_size = float(ref_object_size)/constants.INCHES_TO_MM
 
     image_height, image_width, channels = image_full.shape
     origCellCount = image_height*image_width

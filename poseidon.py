@@ -15,6 +15,9 @@ import uploads
 
 DELIM = ","
 QUOTECHAR = '|'
+QUARTER_MODEL = "quarter_square_model_11_19"
+AB_MODEL = "abalone_lobster_model_11_20"
+SCALLOP_MODEL = "scallop_lobster_model_11_20"
 
 def showResults(f2Filtered, dx):
     fig=plt.figure(figsize=(20, 20))
@@ -29,11 +32,11 @@ def setup(fishery_type):
         print("looking for scallops...")
         mlPath = os.environ['ML_PATH']+"/ml_data/scallop/"
         sz = 320
-        model_name = "scallop_lobster_model_11_20"
+        model_name = SCALLOP_MODEL
     else:    
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
         sz = 480
-        model_name = "abalone_lobster_model_11_20"
+        model_name = AB_MODEL
     #PATH = "machine_learning/ml_data/ablob/"
     
     arch = resnet34
@@ -55,7 +58,7 @@ def setup(fishery_type):
     return m, tfms, data,learn
 
 def setupQuarterSquareModel():
-    mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
+    mlPath = os.environ['ML_PATH']+"/ml_data/quarter_square/"
     #PATH = "machine_learning/ml_data/ablob/"
     sz = 480
     arch = resnet34
@@ -71,7 +74,7 @@ def setupQuarterSquareModel():
     tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
-    learn.load("quarter_square_model_11_19")
+    learn.load(QUARTER_MODEL)
 
 
     return m, tfms, data,learn
@@ -84,28 +87,6 @@ def loadData(imgName, targetPath, tfms, learn):
     preds = np.argmax(preds)
     
     return dl, preds
-
-def getMinMax(f2Filtered):
-    minX = 1000
-    minY = 1000
-    maxX = 0
-    maxY = 0
-
-    for i in range(0,len(f2Filtered)):
-        for j in range(0,len(f2Filtered[0])):
-            val = f2Filtered[i][j]
-            if val > 0:
-                if i < minX:
-                    minX = i
-                if j < minY:
-                    minY = j
-                if i > maxX:
-                    maxX = i
-                if j > maxY:
-                    maxY = j
-    xRange = (minX, maxX)
-    yRange = (minY, maxY)
-    return xRange, yRange
 
 class SaveFeatures():
     features=None
@@ -175,11 +156,11 @@ def read_args():
         hasRefObject = False
 
     if not hasRefObject:
-        print("falling back to abalone quarter")
-        ref_object = "square"
+        print(" batch -- falling back to abalone & quarter")
+        ref_object = "quarter"
         ref_object_units = "inches"
-        ref_object_size = 1.9685
-        fishery_type = "scallop"
+        ref_object_size = 0.955
+        fishery_type = "abalone"
         uuid = str(time.time()*1000)
         username = "none given"
         email = "none given"
@@ -187,7 +168,7 @@ def read_args():
         original_size = None
         loc_code = "Fake Place"
     else:
-        print("its ok...")
+        print("has params...")
         #ref_object = args["ref_object"]
         #ref_object_units = args["ref_object_units"]
         #ref_object_size = args["ref_object_size"]
@@ -202,7 +183,7 @@ def read_args():
         original_filename = args["original_filename"]
         original_size = args["original_size"]
         loc_code = args["loc_code"]
-
+        print("ref object units::: {}".format(ref_object_units))
     
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
 
@@ -254,7 +235,8 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
         #writeMask(rZeroMask, outRMaskPath, True)
 
     #do extra masking step of target area
-    if extraMask is not None:
+    #if extraMask is not None:
+    if False:
         #zeroMask = np.add(zeroMask, extraMask)
         zeroMask[extraMask == 255] = 0
 
@@ -292,7 +274,7 @@ def writeMask(zeroMask, outMaskName, show=False):
 def execute():
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
     m, tfms, data, learn = setup(fishery_type);
-    quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
+    #quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
 
     targetPath, imgName = os.path.split(imageName)
     
@@ -313,7 +295,7 @@ def execute():
     if ref_object == "square":
         extraMask = None
 
-    #extraMask, outMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, False, extraMask, True)
+    #extraMask, outMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, True, extraMask, True)
     
     print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size

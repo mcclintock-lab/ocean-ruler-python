@@ -147,25 +147,20 @@ def get_width_and_height(cnt):
     return w,h
 
 def is_square_contour(cnt):
-
     w,h = get_width_and_height(cnt)
-    
     ratio = float(w)/float(h)
     return ratio >= 0.75 and ratio <= 1.25
 
 def get_target_contour(input_image, template_contour, is_square_ref_object, is_abalone):
     white_or_gray = utils.is_white_or_gray(input_image, True)
-    print("getting first pass...")
     target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, 0.1, white_or_gray, False, is_square_ref_object)
     if target_contour is None:
-        print("doing second round!!")
         target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, 0.05, white_or_gray, True, is_square_ref_object)
 
     ncols = len(input_image[0]) 
     nrows = len(input_image)
     img_area = nrows*ncols
 
-    print("getting centroid...")
     cx, cy = utils.get_centroid(target_contour)   
     x,y,w,h = cv2.boundingRect(target_contour)
 
@@ -189,10 +184,11 @@ def get_target_contour(input_image, template_contour, is_square_ref_object, is_a
     return contours, orig_contours
 
 def get_quarter_image(input_image, use_opposite):
-    white_or_gray = utils.is_white_or_gray(input_image, False)
-    
+    white_or_gray = utils.is_white_or_gray(input_image, False)    
+
+
     if not white_or_gray and not use_opposite:
-        print("doing color for quarter...")
+        print("---->>>>>>>>>>>>> doing color for quarter...")
         thresh_val = 30
         blur_window = 5
         first_pass = True

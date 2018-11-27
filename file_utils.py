@@ -3,6 +3,7 @@ import os
 import numpy as np
 import argparse
 import constants
+import utils
 
 DELIM = ","
 QUOTECHAR = '|'
@@ -104,12 +105,13 @@ def shouldIgnore(imageName):
 
 def get_real_size(imageName):
     #IMG_8.93_60.jpg
-    if imageName.startswith("617_data/FrankPhotos"):
+    print("image name: {}".format(imageName))
+    if imageName.startswith("../ocean_ruler_images/abalone/train/"):
         #Glass_Beach_Memorial_Day_ - 2_203.jpg
         filename = imageName.split("/")
-      
-        parts = filename[2].split("-")
-       
+        print("filename: {}".format(filename))
+        parts = filename[4].split("-")
+        print("parts: {}".format(parts))
         sizeparts = parts[1]
         
         size_str = sizeparts.replace(".jpg","")
@@ -117,7 +119,7 @@ def get_real_size(imageName):
         nparts = size_str.split("_")
     
         size = float(nparts[1])
- 
+        print("real size: {}".format(size))
         return size*0.0393701
     elif imageName.startswith("617_data/JonPhotos"):
         #IMG_20170528_085310.jpg
