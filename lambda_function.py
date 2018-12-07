@@ -262,9 +262,14 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
     
+    divisor = 1.0
     #for calculation and storage, do everything in inches for consistency, then convert on displays
     if ref_object_units == constants.MM:
-        ref_object_size = float(ref_object_size)/constants.INCHES_TO_MM
+        divisor = constants.INCHES_TO_MM
+    elif ref_object_units == constants.CM:
+        divisor = constants.INCHES_TO_CM
+
+    ref_object_size = float(ref_object_size)/divisor
 
     image_height, image_width, channels = image_full.shape
     origCellCount = image_height*image_width

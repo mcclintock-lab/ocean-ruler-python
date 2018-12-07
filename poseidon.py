@@ -16,7 +16,7 @@ import uploads
 DELIM = ","
 QUOTECHAR = '|'
 QUARTER_MODEL = "quarter_square_model_11_19"
-AB_MODEL = "abalone_lobster_model_11_20"
+AB_MODEL = "abalone_lobster_model_12_5"
 SCALLOP_MODEL = "scallop_lobster_model_11_20"
 
 def showResults(f2Filtered, dx):
@@ -94,18 +94,6 @@ class SaveFeatures():
     def hook_fn(self, module, input, output): self.features = output
     def remove(self): self.hook.remove()
 
-def writeResults(xRange, yRange, filename, maxWidth):
-    out_file = "ml_output.csv"
-    maxWidth = 224;
-
-    with open(out_file, 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter=DELIM, quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["Filename", "XStart", "XEnd", "YStart", "YEnd", "MaxWidth"])
-
-        row = [filename, xRange[0], xRange[1], yRange[0], yRange[1], maxWidth]
-        writer.writerow(row)
-
-
 def read_args():
     ap = argparse.ArgumentParser()
     try:
@@ -157,10 +145,10 @@ def read_args():
 
     if not hasRefObject:
         print(" batch -- falling back to abalone & quarter")
-        ref_object = "quarter"
-        ref_object_units = "inches"
-        ref_object_size = 0.955
-        fishery_type = "abalone"
+        ref_object = "square"
+        ref_object_units = "cm"
+        ref_object_size = 5.0
+        fishery_type = "scallop"
         uuid = str(time.time()*1000)
         username = "none given"
         email = "none given"
@@ -168,11 +156,7 @@ def read_args():
         original_size = None
         loc_code = "Fake Place"
     else:
-        print("has params...")
-        #ref_object = args["ref_object"]
-        #ref_object_units = args["ref_object_units"]
-        #ref_object_size = args["ref_object_size"]
-        #fishery_type = args["fishery_type"]
+
         ref_object = args["ref_object"]
         ref_object_units = args["ref_object_units"]
         ref_object_size = args["ref_object_size"]

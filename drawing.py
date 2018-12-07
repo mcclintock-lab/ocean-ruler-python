@@ -86,9 +86,6 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
     extTop = tuple(c[c[:, :, 1].argmin()][0])
     extBot = tuple(c[c[:, :, 1].argmax()][0])
 
-
-    #qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
-    print("points corners: {}, {}, {}, {}".format(extLeft, extRight, extTop, extBot))
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
@@ -111,7 +108,6 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
         dBX = abs(startLinePoint[0] - endLinePoint[0])
         dBY = abs(startLinePoint[1] - endLinePoint[1])
         dB = get_distance(dBX, dBY)
-        print("x distance: {}, real distance: {}".format(dBX, dB))
 
         widthStartLinePoint = extTop
         widthEndLinePoint = extBot
@@ -395,17 +391,11 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
         #shows as y
         print("x is short side")
     box = cv2.boxPoints(rotRect)
-    print("rotRect: {}".format(rotRect))
-    print("box: {}".format(box))
 
     #convert from floats to int
     box = np.int0(box)
     cv2.drawContours(base_img,[box],0,(25,25,25),1, offset=(left_offset, top_offset))
     
-    print("width: ", width)
-    print("height: ", height)
-
-    print("----------->>>>> tl:{}, tr:{}, br:{}, bl:{}".format(tl, tr, br, bl))
     flipLine = (rotAngle > 45 and width > height) or (rotAngle < 45 and width < height)
     '''
     a = abs(tl[0] - tr[0])
@@ -421,7 +411,6 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     tr = (tr[0]+left_offset, tr[1]+top_offset)
     bl = (bl[0]+left_offset, bl[1]+top_offset)
     br = (br[0]+left_offset, br[1]+top_offset)
-    print("----------->>>>> tl:{}, tr:{}, br:{}, bl:{}".format(tl, tr, br, bl))
     
     if flipLine:
         # compute the midpoint between the top-left and top-right points,
