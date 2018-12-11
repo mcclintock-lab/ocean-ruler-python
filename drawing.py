@@ -382,6 +382,7 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
 
     centerPoint = rotRect[0]
     print("rotRect is {}".format(centerPoint))
+    print("-------------rotAngle is: {}".format(rotAngle))
     if rotAngle < 45:
         #width is longer side
         #shows as x
@@ -402,7 +403,8 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     b = abs(tl[1] - tr[1])
     dB = math.sqrt(math.pow(a,2)+math.pow(b,2))
     '''
-    if width >= height:
+
+    if width <= height:
         dB = width
     else:
         dB = height
@@ -485,7 +487,8 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     '''
 
     dimB = dB / pixelsPerMetric
-    
+    if True:
+        cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
     if draw_text:
             # draw the object sizes on the image
             cv2.putText(base_img, "Lobster",

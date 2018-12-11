@@ -70,7 +70,7 @@ def trim_quarter(quarter_contour):
 
 
 
-def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size):
+def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size):
     try: 
         original_filename = imageName
 
@@ -87,7 +87,13 @@ def runFromML(imageName, maskImageName, username, email, uuid, ref_object, ref_o
         showResults = False
 
         is_deployed = False
-        rescaled_image, pixelsPerMetric, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point = execute(imageName, image_full, mask_image, showResults, is_deployed, 
+        if fishery_type == constants.LOBSTER and fullMaskName != None and fullMaskName != "":
+            full_mask_image = cv2.imread(fullMaskName)
+        else:
+            full_mask_image = None
+        rescaled_image, pixelsPerMetric, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point = execute(imageName, 
+                        image_full, mask_image, full_mask_image, 
+                        showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units)
 
 
@@ -256,7 +262,7 @@ def offset_contour(contour, x, y):
             points[1] = points[1]+newY
     return contour
 
-def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units):
+def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units):
     mlPath = os.environ['ML_PATH']+"/../"
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
@@ -288,12 +294,16 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)    
     clipped_image = None
 
+    mlFullMask = None
+    clippedFullImage = None
     if mask_image is not None:
         if fishery_type == constants.LOBSTER:
             
             orig_cols = len(rescaled_image[0]) 
             orig_rows = len(rescaled_image)
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows)
+            #mlFullMask = getClippingBoundsFromMask(full_mask_image, rescaled_image, orig_cols, orig_rows)
+            #clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask)
         else:
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows)
   
@@ -323,12 +333,18 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
         if mlMask is not None and mlMask.any():
             target_contour = mlMask
 
+            #target_full_contour, orig_full_contours = contour_utils.get_target_full_lobster_contour(clippedFullImage)
+            #target_full_contour = offset_contour(target_full_contour, xFullOffset, yFullOffset)
+
             if False:
                 tmpimg = rescaled_image.copy()
-                cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
-                utils.show_img("ref object", tmpimg)
+                cv2.drawContours(tmpimg, [target_contour], -1,(0,0,255),2)
+                cv2.drawContours(tmpimg, [target_full_contour], -1, (100,100,200),8)
+                cv2.drawContours(tmpimg, orig_full_contours, -1,(255,0,0),4)
+                utils.show_img("lobster full", tmpimg)
 
             top_offset = left_offset = 0
+            
         else:
             small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"lobster_templates/full_lobster_right.png")
             target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
@@ -386,8 +402,16 @@ def execute(imageName, image_full, mask_image, showResults, is_deployed, fishery
     utils.print_time("drew ref object contour", _start_time)
 
     if fishery_type == constants.LOBSTER:
+
+        '''
         targetLength, left_point, right_point = drawing.draw_lobster_contour(new_drawing, 
             target_contour, pixelsPerMetric, True, flipDrawing, ref_object_size, top_offset, left_offset)  
+        '''
+        targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
+            target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)
+        if showResults: 
+            ellipse = cv2.fitEllipse(target_contour)
+            cv2.ellipse(new_drawing,ellipse,(0,255,0),2)
         targetWidth = 0
         width_left_point = (0,0)
         width_right_point = (0,0)

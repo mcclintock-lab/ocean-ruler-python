@@ -16,8 +16,9 @@ import uploads
 DELIM = ","
 QUOTECHAR = '|'
 QUARTER_MODEL = "quarter_square_model_11_19"
-AB_MODEL = "abalone_lobster_model_12_5"
+AB_MODEL = "abalone_lobster_model_12_10"
 SCALLOP_MODEL = "scallop_lobster_model_11_20"
+AB_FULL_MODEL = "full_abalone_lobster_model_12_11"
 
 def showResults(f2Filtered, dx):
     fig=plt.figure(figsize=(20, 20))
@@ -27,16 +28,27 @@ def showResults(f2Filtered, dx):
     plt.show()
 
 
-def setup(fishery_type):
+def setup(fishery_type, loadFull=False):
+    maxZoom=1.1
+    tform = transforms_side_on
     if fishery_type == "scallop":
         print("looking for scallops...")
         mlPath = os.environ['ML_PATH']+"/ml_data/scallop/"
         sz = 320
         model_name = SCALLOP_MODEL
+        maxZoom = 1.2
+    elif fishery_type == "lobster" and loadFull:
+        mlPath = os.environ['ML_PATH']+"/ml_data/ablob_full/"
+        sz = 320
+        model_name = AB_FULL_MODEL
+        maxZoom = 1.1
     else:    
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
-        sz = 480
+        tform = transforms_top_down
+        sz = 320
         model_name = AB_MODEL
+        maxZoom = 1.1
+
     #PATH = "machine_learning/ml_data/ablob/"
     
     arch = resnet34
@@ -49,7 +61,7 @@ def setup(fishery_type):
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
 
-    tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
+    tfms = tfms_from_model(arch, sz, aug_tfms=tform, max_zoom=maxZoom)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
     learn.load(model_name)
@@ -146,11 +158,11 @@ def read_args():
     if not hasRefObject:
         print(" batch -- falling back to abalone & quarter")
         ref_object = "square"
-        ref_object_units = "cm"
-        ref_object_size = 5.0
-        fishery_type = "scallop"
+        ref_object_units = "inches"
+        ref_object_size = 2.0
+        fishery_type = "lobster"
         uuid = str(time.time()*1000)
-        username = "none given"
+        username = "dytest"
         email = "none given"
         original_filename = "none given"
         original_size = None
@@ -171,7 +183,7 @@ def read_args():
     
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
 
-def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare):
+def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare,fullPrefix=""):
     dl, predictions = loadData(imgName, targetPath, tfms, learn)
 
     x,y = next(iter(dl))
@@ -229,7 +241,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
     else:
         maskPath = os.environ['ML_PATH']+"/masks/"
 
-    outMaskName = maskPath+imgName
+    outMaskName = maskPath+fullPrefix+imgName
     if not os.path.isdir(maskPath):
         os.mkdir(maskPath)
 
@@ -249,7 +261,7 @@ def writeMask(zeroMask, outMaskName, show=False):
     zeroMask[outer_edge_mask] = 0
     cv2.imwrite(outMaskName, zeroMask)
 
-    if show:
+    if False:
         cv2.imshow("mask ", zeroMask)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -258,6 +270,9 @@ def writeMask(zeroMask, outMaskName, show=False):
 def execute():
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
     m, tfms, data, learn = setup(fishery_type);
+
+    #if fishery_type == "lobster":
+    #    fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
     #quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
 
     targetPath, imgName = os.path.split(imageName)
@@ -265,7 +280,7 @@ def execute():
     if imageName == None:
         return
 
-    multiplier = 0.85
+    multiplier = 0.90
     rMultiplier = 0.85
     if(fishery_type == 'abalone'):
         multiplier = 0.40
@@ -274,16 +289,25 @@ def execute():
         multiplier = 0.30
         rMultiplier = 0.5
 
+
     tmpImgName = None
-    extraMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+    print("running model for ablob....")
+    zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+
+    fullMaskName = ""
+    #if fishery_type == "lobster":
+    #    print("running model for full ablob")
+    #    fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.4, rMultiplier, False, None, False, "full_")
+    
     if ref_object == "square":
         extraMask = None
 
-    #extraMask, outMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, True, extraMask, True)
     
+    #extraMask, outMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, True, extraMask, True)
+    fullMaskName = None
     print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
-    jsonVals = lambda_function.runFromML(imageName, outMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
+    jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
         locCode, fishery_type, original_filename, original_size)
     print(">>>>><<<<<")
     print(jsonVals)

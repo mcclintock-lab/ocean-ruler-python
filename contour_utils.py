@@ -520,6 +520,66 @@ def get_quarter_contour_and_center(quarter_contour):
     return cX, cY, qcon, quarter_ellipse
 
 
+def get_target_full_lobster_contour(input_image):
+    
+    white_or_gray = True
+    target_contour = None
+    use_opposite = False
+
+
+    gray = utils.get_gray_image(input_image, white_or_gray, False)
+
+    blur = cv2.GaussianBlur(gray, (5,5),0)
+    if white_or_gray:
+        lower_bound = 50
+        upper_bound = 100
+    else:
+        lower_bound = 50
+        upper_bound = 200
+
+    edged_img = cv2.Canny(blur, lower_bound, upper_bound,3) 
+
+    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,13))
+    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
+    kernel = np.ones((3,3), np.uint8)
+    if not white_or_gray:
+        iters = 2
+    else:
+        iters=3
+        
+    edged_img = cv2.dilate(edged_img, kernel, iterations=iters)
+    edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
+
+    #check this - seems like dark on white needs a cleanup, color needs an thickening
+    if not white_or_gray:
+        edged_img = cv2.dilate(edged_img, kernel, iterations=1)
+    else:
+        edged_img = cv2.erode(edged_img, erode_kernel, iterations=1)
+
+
+    #gray_denoised = cv2.cvtColor(edged_img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
+    if True:
+        utils.show_img("threshold ", thresh)
+    cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
+    all_contours = cnts[1]
+    largest = 0
+    for i, contour in enumerate(all_contours):
+        try:
+            hull = cv2.convexHull(contour)
+            carea = cv2.contourArea(hull) 
+            if carea > largest:
+                largest = i 
+        except Exception as e:
+            continue
+
+    print("largest:: -> {}".format(largest))
+    target_contour = all_contours[i]
+
+    #orig contours are returned for display/testing
+    return target_contour, all_contours
+
 def get_target_lobster_contour(input_image, lobster_template_contour, lower_percent_bounds, white_or_gray, use_opposite, center_offset):
     
     white_or_gray = True
