@@ -11,6 +11,7 @@ import time
 import json
 import time
 import os
+import random
 
 import utils
 import file_utils
@@ -84,10 +85,11 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         notes = 'none'
 
         picDate = int(time.time()*1000)
-        showResults = False
+        showResults = True
 
         is_deployed = False
         if fishery_type == constants.LOBSTER and fullMaskName != None and fullMaskName != "":
+            print("reading {}".format(fullMaskName))
             full_mask_image = cv2.imread(fullMaskName)
         else:
             full_mask_image = None
@@ -108,7 +110,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         presigned_url = ""
         #if is_deployed:
         
-        if True:
+        if False:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
             print("")
@@ -302,8 +304,8 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             orig_cols = len(rescaled_image[0]) 
             orig_rows = len(rescaled_image)
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows)
-            #mlFullMask = getClippingBoundsFromMask(full_mask_image, rescaled_image, orig_cols, orig_rows)
-            #clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask)
+            mlFullMask = getClippingBoundsFromMask(full_mask_image, rescaled_image, orig_cols, orig_rows)
+            clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask)
         else:
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows)
   
@@ -333,14 +335,18 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         if mlMask is not None and mlMask.any():
             target_contour = mlMask
 
-            #target_full_contour, orig_full_contours = contour_utils.get_target_full_lobster_contour(clippedFullImage)
-            #target_full_contour = offset_contour(target_full_contour, xFullOffset, yFullOffset)
+            print("getting contours...")
+            target_full_contour, orig_full_contours = contour_utils.get_target_full_lobster_contour(clippedFullImage)
+            target_full_contour = offset_contour(target_full_contour, xFullOffset, yFullOffset)
 
             if False:
+
                 tmpimg = rescaled_image.copy()
                 cv2.drawContours(tmpimg, [target_contour], -1,(0,0,255),2)
                 cv2.drawContours(tmpimg, [target_full_contour], -1, (100,100,200),8)
-                cv2.drawContours(tmpimg, orig_full_contours, -1,(255,0,0),4)
+                #for i, oc in enumerate(orig_full_contours):
+                #    col = (random.randint(0,254), random.randint(0,254), random.randint(0,254))
+                #    cv2.drawContours(tmpimg, [oc], -1,col,4)
                 utils.show_img("lobster full", tmpimg)
 
             top_offset = left_offset = 0
@@ -403,15 +409,15 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
     if fishery_type == constants.LOBSTER:
 
-        '''
-        targetLength, left_point, right_point = drawing.draw_lobster_contour(new_drawing, 
-            target_contour, pixelsPerMetric, True, flipDrawing, ref_object_size, top_offset, left_offset)  
-        '''
-        targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
-            target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)
-        if showResults: 
-            ellipse = cv2.fitEllipse(target_contour)
-            cv2.ellipse(new_drawing,ellipse,(0,255,0),2)
+        targetLength, left_point, right_point = drawing.draw_target_lobster_contour(new_drawing, target_contour, pixelsPerMetric, True, left_offset, top_offset, target_full_contour)
+        #targetLength, left_point, right_point = drawing.draw_lobster_contour(new_drawing, 
+        #    target_contour, pixelsPerMetric, True, flipDrawing, ref_object_size, top_offset, left_offset, target_full_contour)  
+        
+        #targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
+        #    target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)
+        #if showResults: 
+        #    ellipse = cv2.fitEllipse(target_contour)
+        #    cv2.ellipse(new_drawing,ellipse,(0,255,0),2)
         targetWidth = 0
         width_left_point = (0,0)
         width_right_point = (0,0)

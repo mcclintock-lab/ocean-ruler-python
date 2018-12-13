@@ -271,8 +271,8 @@ def execute():
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
     m, tfms, data, learn = setup(fishery_type);
 
-    #if fishery_type == "lobster":
-    #    fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
+    if fishery_type == "lobster":
+        fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
     #quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
 
     targetPath, imgName = os.path.split(imageName)
@@ -295,16 +295,15 @@ def execute():
     zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
     fullMaskName = ""
-    #if fishery_type == "lobster":
-    #    print("running model for full ablob")
-    #    fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.4, rMultiplier, False, None, False, "full_")
+    if fishery_type == "lobster":
+        print("running model for full ablob")
+        fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
     
     if ref_object == "square":
         extraMask = None
 
     
     #extraMask, outMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, True, extraMask, True)
-    fullMaskName = None
     print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,

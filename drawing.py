@@ -2,6 +2,8 @@ import cv2
 import utils
 import numpy as np
 import math
+from scipy.spatial import distance
+
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
@@ -360,8 +362,127 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
             1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
     return pixelsPerMetric, dimB, startLinePoint, endLinePoint
 
-def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth, left_offset, top_offset):
+def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, left_offset, top_offset, full_contour):
+    c = contour
+
+    #farthest x/y points on the contour
+    extLeft = tuple(c[c[:, :, 0].argmin()][0])
+    extRight = tuple(c[c[:, :, 0].argmax()][0])
+    extTop = tuple(c[c[:, :, 1].argmin()][0])
+    extBottom = tuple(c[c[:, :, 1].argmax()][0])
+
+    rotRect = cv2.minAreaRect(contour)
+    box = cv2.boxPoints(rotRect)
+
+    rows,cols = base_img.shape[:2]
+    [vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
+
+
+    lefty = int((-x*vy/vx) + y)
+    righty = int(((cols-x)*vy/vx)+y)
+    b = (cols-1, righty)
+    a = (0, lefty)
+    slope = abs(float(b[1] - a[1])/float(b[0] - a[0]))
+
+    #use the slope to determine which x/y points to use on the contour
+    if slope < 1.0:
+        startLinePoint = extLeft
+        endLinePoint = extRight
+    else:
+        startLinePoint = extTop
+        endLinePoint = extBottom
+
+    #center of the contour
+    M = cv2.moments(contour)
+    cX = int(M["m10"] / M["m00"])
+    cY = int(M["m01"] / M["m00"])
+
+    dB = distance.euclidean(startLinePoint, endLinePoint)
+    print("dB is {}".format(dB))
+    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 255), -1)
+    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 255), -1)
+
+
+
+    dimB = dB / pixelsPerMetric
+    if False:
+        box = np.int0(box)
+        cv2.drawContours(base_img,[box],0,(125,25,25),4, offset=(left_offset, top_offset))
+        cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
+        cv2.drawContours(base_img,[full_contour],0,(225,225,225),4, offset=(left_offset, top_offset))
+        cv2.circle(base_img, (cX, cY), 10, (50, 50, 255), -1)
+        cv2.line(base_img,a,b,(0,255,0),2)
+
+
+    line = [a,b]
+    startLinePoint, endLinePoint = get_contour_line_intersection(base_img, contour, line, startLinePoint, endLinePoint)
+
+    print("startLinePoint after return: {}".format(startLinePoint))
+    print("endLinePoint after return: {}".format(endLinePoint))
+
+    #utils.show_img("intersection...", img3)
+    if draw_text:
+            # draw the object sizes on the image
+            cv2.putText(base_img, "Lobster",
+                (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
+                1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+
+            cv2.putText(base_img, "{:.1f}in".format(dimB),
+                (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
+                1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
+
+    # draw lines between the midpoints
+    cv2.line(base_img, startLinePoint, endLinePoint,
+        (255, 0, 255), 4)
+
+    return dimB, startLinePoint, endLinePoint
+
+def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLinePoint):
+        #find the union of the fitted line for the entire lobster contour
+    # and the target contour
+    
+    # create an image filled with zeros, single-channel, same size as img.
+    blank = np.zeros( base_img.shape[0:2] )
+
+    # copy each of the contours (assuming there's just two) to its own image. 
+    # Just fill with a '1'.
+    img1 = cv2.drawContours( blank.copy(), [contour], 0, 1 )
+
+    # make the line contour
+    line_contour = np.array(line).reshape((-1,1,2)).astype(np.int32)
+
+    #draw the line contour to turn it into a mask
+    img2 = cv2.drawContours( blank.copy(), [line_contour], 0, 1 )
+
+    #and AND them together
+    imgI = np.logical_and(img1, img2)
+
+    #see where they're true (the intersections)
+    locations = np.argwhere(imgI)
+    print("locations: {}".format(locations))
+    print("startLinePoint: {}".format(startLinePoint))
+    print("endLinePoint: {}".format(endLinePoint))
+
+    if locations.any() and len(locations) >= 2:
+        print("updating line points to intersection with full line...")
+        
+        for i, loc in enumerate(locations):
+            cX = loc[1]
+            cY = loc[0]
+            if(i == 0):
+                startLinePoint = (cX, cY)
+            elif i == 1:
+                endLinePoint = (cX, cY)
+            
+            if True:
+                cv2.circle(base_img, (cX, cY), 12, (50, 50, 255), -1)
+
+    print("startLinePoint after update: {}".format(startLinePoint))
+    print("endLinePoint after update: {}".format(endLinePoint))
+    return startLinePoint, endLinePoint
+def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth, left_offset, top_offset, full_contour):
     #center (x,y), (width, height), angle of rotation 
+    
     rotRect = cv2.minAreaRect(contour)
     width = rotRect[1][0]
     height = rotRect[1][1]
@@ -486,9 +607,27 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
         (255, 0, 255), 1)
     '''
 
+    rows,cols = base_img.shape[:2]
+    [vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
+    print("vx: {}".format(vx))
+    print("vy: {}".format(vy))
+    print("vy/vx: {}".format(vy/vx))
+    lefty = int((-x*vy/vx) + y)
+    righty = int(((cols-x)*vy/vx)+y)
+    b = (cols-1, righty)
+    a = (0, lefty)
+    slope = abs(float(b[1] - a[1])/float(b[0] - a[0]))
+    print("SLOPE:::: {}".format(slope))
+
+
     dimB = dB / pixelsPerMetric
     if True:
+        cv2.drawContours(base_img,[box],0,(25,25,25),1, offset=(left_offset, top_offset))
         cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
+        cv2.drawContours(base_img,[full_contour],0,(225,225,225),4, offset=(left_offset, top_offset))
+
+        cv2.line(base_img,a,b,(0,255,0),2)
+
     if draw_text:
             # draw the object sizes on the image
             cv2.putText(base_img, "Lobster",

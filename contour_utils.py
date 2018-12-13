@@ -559,23 +559,26 @@ def get_target_full_lobster_contour(input_image):
 
     #gray_denoised = cv2.cvtColor(edged_img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
-    if True:
+    if False:
         utils.show_img("threshold ", thresh)
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
     all_contours = cnts[1]
     largest = 0
+    largestDex = 0
     for i, contour in enumerate(all_contours):
         try:
             hull = cv2.convexHull(contour)
             carea = cv2.contourArea(hull) 
+            print("{}: {}".format(i, carea))
             if carea > largest:
-                largest = i 
+                largest = carea
+                largestDex = i
         except Exception as e:
             continue
+    print("largest is {}".format(largest))
 
-    print("largest:: -> {}".format(largest))
-    target_contour = all_contours[i]
+    target_contour = all_contours[largestDex]
 
     #orig contours are returned for display/testing
     return target_contour, all_contours
