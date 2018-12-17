@@ -2,7 +2,7 @@ import cv2
 import time
 import numpy as np
 import color_images as ci
-
+import pdb
 ABALONE = "abalone"
 RULER = "ruler"
 QUARTER = "_quarter"
@@ -404,8 +404,9 @@ def is_white_or_gray(input_image, imageIsClipped):
     else:
         offset = 100
     mean_color = get_mean_background_color(input_image, offset)
+
     #low saturation and high value -- white or really light gray
-    return mean_color[1] < 75 and mean_color[2] > 190
+    return mean_color[1] < 75 and mean_color[2] > 175
 
 def is_dark_gray(input_image):
     #used for setting erode/dilate thresholds
@@ -462,6 +463,7 @@ def get_mean_background_color(input_image,offset=0):
     mean_s_val = np.mean(s_vals)
     mean_v_val = np.mean(v_vals)
     mean_h_val = np.mean(h_vals) 
+ 
     return (mean_h_val, mean_s_val, mean_v_val)
 
 #get rid of outlying points for determining background color - prevents

@@ -86,14 +86,26 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
                 sat_plus = hue_offset+sat_offset*2
                 val_plus = hue_offset+val_offset*2
 
-    #fix this - figure out how to make it a mask of ones and pull out the right bits...
+    #huemin = tuple(cnt[cnt[:,:,0].argmin()][0])
+    print("hue offset is {}".format(hue_offset))
+
+    final_huemin = image[0:range_max,0:range_max,0].min() - hue_offset
+    final_satmin = image[0:range_max, 0:range_max,1].min() - sat_offset
+    final_valmin = image[0:range_max, 0:range_max,2].min() - val_offset
+
+    final_huemax = image[0:range_max,0:range_max,0].max() + hue_offset
+    final_satmax = image[0:range_max, 0:range_max,1].max() + sat_offset
+    final_valmax = image[0:range_max, 0:range_max,2].max() + val_offset
+
+   
+    '''
     for pt in pts:
         for i in range(0,range_max):
             for j in range(0,range_max):
                 tgt_row = pt[0]+i
                 tgt_col = pt[1]+j
                 val = image[tgt_row,tgt_col]
-                #print "h:{},s:{},v:{}".format(val[0],val[1],val[2])
+                
                 huemin = get_min(val[0]-hue_offset)
                 satmin = get_min(val[1]-sat_minus)
                 valmin = get_min(val[2]-val_minus)
@@ -101,6 +113,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
                 huemax = get_max(int(val[0])+hue_offset)
                 satmax = get_max(int(val[1])+sat_plus)
                 valmax = get_max(int(val[2])+val_plus)
+                print("h:{}".format(huemax))
 
                 final_huemin = int(min(final_huemin, huemin))
                 final_huemax = int(max(final_huemax, huemax))
@@ -110,7 +123,7 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
 
                 final_valmin = int(min(final_valmin, valmin))
                 final_valmax = int(max(final_valmax, valmax))
-
+    '''
     minrange = np.array([final_huemin, final_satmin, final_valmin])
     maxrange = np.array([final_huemax, final_satmax, final_valmax])
 
@@ -268,7 +281,8 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
         retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     if False:
-        utils.show_img("thresh {};{}  -- is ruler {};is bright? {};path:{}".format(thresh_val, blur_window, is_ruler, is_bright,3),threshold_bw)
+        print("is bright? {}".format(is_bright))
+        utils.show_img("thresh {};{}  -- is ruler {};is bright? {};path:{}".format(thresh_val, blur_window, is_ruler, is_bright,3),color_res)
 
     return image, threshold_bw, color_res, rows
 
@@ -414,6 +428,7 @@ def get_min(val):
 
 def get_max(val):
     maxval = np.amax(val)
+    
     if maxval > 360:
         return 360
     else:

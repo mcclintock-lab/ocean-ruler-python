@@ -157,10 +157,10 @@ def read_args():
 
     if not hasRefObject:
         print(" batch -- falling back to abalone & quarter")
-        ref_object = "square"
+        ref_object = "quarter"
         ref_object_units = "inches"
-        ref_object_size = 2.0
-        fishery_type = "lobster"
+        ref_object_size = 0.955
+        fishery_type = "abalone"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -273,7 +273,7 @@ def execute():
 
     if fishery_type == "lobster":
         fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
-    #quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
+    quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
 
     targetPath, imgName = os.path.split(imageName)
     
@@ -301,13 +301,14 @@ def execute():
     
     if ref_object == "square":
         extraMask = None
-
+    else:
+        extraMask = zeroMask
     
-    #extraMask, outMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, True, extraMask, True)
+    extraMask, extraMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, False, extraMask, True)
     print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-        locCode, fishery_type, original_filename, original_size)
+        locCode, fishery_type, original_filename, original_size, extraMaskName)
     print(">>>>><<<<<")
     print(jsonVals)
     return jsonVals

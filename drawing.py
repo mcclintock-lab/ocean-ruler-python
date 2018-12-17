@@ -127,15 +127,15 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
         cv2.drawContours(base_img,[c],0,(255,0,0),2)
         drawLines(base_img, not flipDrawing, widthStartLinePoint, widthEndLinePoint, False)
     
-    '''
-    x,y,w,h = cv2.boundingRect(contour)
+    
+    x,y,w,h = cv2.boundingRect(c)
     cv2.rectangle(base_img,(x,y),(x+w,y+h),(255,255,0),3)
     
-    rect = cv2.minAreaRect(contour)
+    rect = cv2.minAreaRect(c)
     box = cv2.boxPoints(rect)
     box = np.int0(box)
     cv2.drawContours(base_img,[box],0,(0,191,255),2)
-    '''
+    
     '''
     ellipse = cv2.fitEllipse(contour)
     cv2.ellipse(base_img,ellipse,(0,0,255),4)
