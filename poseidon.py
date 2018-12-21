@@ -131,6 +131,8 @@ def read_args():
             help="")
         ap.add_argument("--loc_code", required=True,
             help="")
+        ap.add_argument("--show", required=False,
+            help="")
 
         args = vars(ap.parse_args())
     except SystemExit as e:
@@ -146,6 +148,11 @@ def read_args():
         args = parsedArgs
 
     imageName = args["image"]
+    try:
+        showResults = args["show"]
+    except KeyError as ke:
+        showResults=False
+
     print("args-->>{}".format(args))
     try:
         hasRefObject = True
@@ -155,12 +162,13 @@ def read_args():
         print("key err: {}".format(ke))
         hasRefObject = False
 
+    
     if not hasRefObject:
         print(" batch -- falling back to abalone & quarter")
-        ref_object = "quarter"
-        ref_object_units = "inches"
-        ref_object_size = 0.955
-        fishery_type = "abalone"
+        ref_object = "square"
+        ref_object_units = "cm"
+        ref_object_size = 5
+        fishery_type = "scallop"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -179,9 +187,10 @@ def read_args():
         original_filename = args["original_filename"]
         original_size = args["original_size"]
         loc_code = args["loc_code"]
-        print("ref object units::: {}".format(ref_object_units))
+        showResults = args["show"]
     
-    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code
+    print("show: {}".format(showResults))
+    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code, showResults
 
 def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare,fullPrefix=""):
     dl, predictions = loadData(imgName, targetPath, tfms, learn)
@@ -268,7 +277,7 @@ def writeMask(zeroMask, outMaskName, show=False):
 
 
 def execute():
-    imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode = read_args()
+    imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults = read_args()
     m, tfms, data, learn = setup(fishery_type);
 
     if fishery_type == "lobster":
@@ -308,7 +317,7 @@ def execute():
     print("done with ml")
     #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
     jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-        locCode, fishery_type, original_filename, original_size, extraMaskName)
+        locCode, fishery_type, original_filename, original_size, extraMaskName, showResults)
     print(">>>>><<<<<")
     print(jsonVals)
     return jsonVals

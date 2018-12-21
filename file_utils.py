@@ -7,6 +7,11 @@ import utils
 
 DELIM = ","
 QUOTECHAR = '|'
+INCHES_TO_MM = 25.4;
+INCHES_TO_CM = 2.54;
+INCHES_VAL = "inches";
+MM_VAL = "mm";
+CM_VAL = "cm";
 
 def read_args():
 
@@ -103,10 +108,58 @@ def shouldIgnore(imageName):
         return False
     return False
 
+
+def getOriginalSizeFromFilename(filename, ref_object_units):
+    originalSize = 0.0
+    try:
+        if filename.startswith("Glass_Beach_Memorial"):
+            parts = filename.split("-")
+            sizeparts = parts[1]
+            size_str = sizeparts.replace(".jpg","")
+            nparts = size_str.split("_")
+            size = float(nparts[1])
+            originalSize = size*INCHES_TO_MM
+        else:
+            print("filename: {}".format(filename))
+            parts = filename.split("_")
+            
+
+        originalSize = getSize(size_str, ref_object_units)
+        print("size str: {}".format(size_str))
+        
+    except Exception:
+        try:
+            parts = filename.split("_")
+            lengthOfName = len(parts)
+            size_str = parts[lengthOfName-1].replace(".JPG", "")
+
+            originalSize = getSize(size_str, ref_object_units)
+
+        except Exception as e:
+            print("something went wrong on parsing: ", e)
+            originalSize = 0.0
+
+    return originalSize
+
+
+def getSize(size_str, ref_object_units):
+    originalSize = 0.0
+    if ref_object_units == INCHES_VAL:
+        originalSize = float(size_str)
+    elif ref_object_units == MM_VAL:
+        originalSize = float(size_str)/INCHES_TO_MM
+    elif ref_object_units == CM_VAL:
+        originalSize = float(size_str)/INCHES_TO_CM
+    else:
+        originalSize = float(size_str)
+
+    return originalSize
+
+
 def get_real_size(imageName):
     #IMG_8.93_60.jpg
     print("image name: {}".format(imageName))
-    if imageName.startswith("../ocean_ruler_images/abalone/train/"):
+    if imageName.startswith("../ocean_ruler_images/abalone/"):
         #Glass_Beach_Memorial_Day_ - 2_203.jpg
         filename = imageName.split("/")
         print("filename: {}".format(filename))
@@ -144,6 +197,7 @@ def get_real_size(imageName):
             return read_real_sizes(imageName)
     else:
         filename = imageName.split("/")
+        
         return read_real_sizes(filename[len(filename)-1])
     
 
@@ -173,7 +227,7 @@ def read_real_sizes(imageName):
 
     return size
 
-def read_write_simple_csv(out_file, imageName, abaloneLength):
+def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits):
     all_rows = {}
     all_diffs = {}
     last_total_diff = 0.0
@@ -203,8 +257,9 @@ def read_write_simple_csv(out_file, imageName, abaloneLength):
 
 
         try:
-            real_size = get_real_size(imageName)
-
+            #real_size = get_real_size(imageName)
+            real_size = getOriginalSizeFromFilename(imageName, refObjectUnits)
+            print("real size: {}".format(real_size))
             if real_size > 0.0:
                 diff = abs(abaloneLength - real_size)
                 all_rows[imageName] = [abaloneLength, real_size, diff]
