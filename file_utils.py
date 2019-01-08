@@ -71,7 +71,7 @@ def read_args():
 
 
     if ref_object is None or len(ref_object) == 0:
-        if fishery_type == constants.LOBSTER:
+        if constants.isLobster(fishery_type):
             ref_object = constants.SQUARE
             ref_object_size = constants.DEF_SQUARE_SIZE_IN
             ref_object_units = constants.INCHES

@@ -91,7 +91,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         picDate = int(time.time()*1000)
 
         is_deployed = False
-        if fishery_type == constants.LOBSTER and fullMaskName != None and fullMaskName != "":
+        if constants.isLobster(fishery_type) and fullMaskName != None and fullMaskName != "":
             print("reading {}".format(fullMaskName))
             full_mask_image = cv2.imread(fullMaskName)
         else:
@@ -293,14 +293,15 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     mlFullMask = None
     clippedFullImage = None
     if mask_image is not None:
-        if fishery_type == constants.LOBSTER:
+        if constants.isLobster(fishery_type):
+            print("its lobster")
             orig_cols = len(rescaled_image[0]) 
             orig_rows = len(rescaled_image)
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows)
             mlFullMask = getClippingBoundsFromMask(full_mask_image, rescaled_image, orig_cols, orig_rows)
             clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask)
         else:
-            print("here...")
+            print("not lobster, its {}".format(fishery_type))
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows)
   
             clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask)
@@ -310,12 +311,13 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     all_square_contours = None
     is_square_ref = (ref_object == constants.SQUARE)
 
-    if (fishery_type == constants.ABALONE or fishery_type == constants.SCALLOP) and mask_image is not None:
+    if (constants.isAbalone(fishery_type) or constants.isScallop(fishery_type)) and mask_image is not None:
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
+        print('its ab or scallop')
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, 
-                                                                            is_square_ref, (fishery_type == constants.ABALONE), isWhiteOrGray)
+                                                                            is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray)
         target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
         
         if False:
@@ -323,12 +325,12 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
             utils.show_img("clipped Image with contours", clippedImage)
             
-    elif fishery_type == constants.LOBSTER:
+    elif constants.isLobster(fishery_type):
 
         if mlMask is not None and mlMask.any():
             target_contour = mlMask
 
-            print("getting contours...")
+            print("getting contours for lobster")
             target_full_contour, orig_full_contours = contour_utils.get_target_full_lobster_contour(clippedFullImage)
             target_full_contour = contour_utils.offset_contour(target_full_contour, xFullOffset, yFullOffset)
 
@@ -355,7 +357,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         utils.print_time("done getting template: ", _start_time);
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, 
-                                                                            is_square_ref, (fishery_type == constants.ABALONE), isWhiteOrGray)
+                                                                            is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray)
         if False:
             cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
             utils.show_img("ref object", tmpimg)
@@ -416,8 +418,8 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
     utils.print_time("drew ref object contour", _start_time)
 
-    if fishery_type == constants.LOBSTER:
-
+    if constants.isLobster(fishery_type):
+        print("ignoring width for lobster...")
         targetLength, left_point, right_point = drawing.draw_target_lobster_contour(new_drawing, target_contour, pixelsPerMetric, True, left_offset, top_offset, target_full_contour)
         #targetLength, left_point, right_point = drawing.draw_lobster_contour(new_drawing, 
         #    target_contour, pixelsPerMetric, True, flipDrawing, ref_object_size, top_offset, left_offset, target_full_contour)  
@@ -430,8 +432,8 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         targetWidth = 0
         width_left_point = (0,0)
         width_right_point = (0,0)
-    elif fishery_type == constants.SCALLOP:
-        print("doing target with width!")
+    elif constants.isScallop(fishery_type):
+        print("doing target with width for scallop")
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
             target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)  
     else:

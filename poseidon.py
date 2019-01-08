@@ -275,13 +275,23 @@ def writeMask(zeroMask, outMaskName, show=False):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+def isLobster(fishery_type):
+    return "lobster" in fishery_type
+
+def isScallop(fishery_type):
+    return "scallop" in fishery_type
+
+def isAbalone(fishery_type):
+    return "abalone" in fishery_type
 
 def execute():
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults = read_args()
     m, tfms, data, learn = setup(fishery_type);
+    print("fishery type: {}".format(fishery_type))
 
-    if fishery_type == "lobster":
+    if isLobster(fishery_type):
         fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
+
     quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
 
     targetPath, imgName = os.path.split(imageName)
@@ -291,10 +301,10 @@ def execute():
 
     multiplier = 0.90
     rMultiplier = 0.85
-    if(fishery_type == 'abalone'):
+    if(isAbalone(fishery_type)):
         multiplier = 0.40
         rMultiplier = 0.5
-    elif(fishery_type == 'scallop'):
+    elif(isScallop(fishery_type)):
         multiplier = 0.30
         rMultiplier = 0.5
 
@@ -304,7 +314,7 @@ def execute():
     zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
     fullMaskName = ""
-    if fishery_type == "lobster":
+    if isLobster(fishery_type):
         print("running model for full ablob")
         fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
     
