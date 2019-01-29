@@ -16,7 +16,6 @@ class DecimalEncoder(json.JSONEncoder):
                 return int(o)
         return super(DecimalEncoder, self).default(o)
 
-
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
         ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size,
@@ -119,4 +118,5 @@ def upload_worker(rescaled_image, thumb, img_data,
                  targetWidth, asw_x, asw_y, aew_x, aew_y)
     presigned_url = s3Client.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': uuid}, ExpiresIn = 3600)
     return presigned_url
+
 

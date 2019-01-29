@@ -113,7 +113,10 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
 
         presigned_url = ""
         #if is_deployed:
-        
+        print("left point: {}".format(left_point))
+        print("right point: {}".format(right_point))
+        print('left width: {}'.format(width_left_point))
+        print('right width: {}'.format(width_right_point))
         if True:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';

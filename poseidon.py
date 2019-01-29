@@ -166,9 +166,9 @@ def read_args():
     if not hasRefObject:
         print(" batch -- falling back to abalone & quarter")
         ref_object = "square"
-        ref_object_units = "cm"
-        ref_object_size = 5
-        fishery_type = "scallop"
+        ref_object_units = "inches"
+        ref_object_size = 2
+        fishery_type = "lobster"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"

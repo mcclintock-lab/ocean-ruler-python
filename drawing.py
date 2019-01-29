@@ -131,10 +131,11 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
     x,y,w,h = cv2.boundingRect(c)
     cv2.rectangle(base_img,(x,y),(x+w,y+h),(255,255,0),3)
     
+    #this is the rotated box
     rect = cv2.minAreaRect(c)
     box = cv2.boxPoints(rect)
     box = np.int0(box)
-    cv2.drawContours(base_img,[box],0,(0,191,255),2)
+    cv2.drawContours(base_img,[box],0,(0,191,255),8)
     
     '''
     ellipse = cv2.fitEllipse(contour)
@@ -383,7 +384,8 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     b = (cols-1, righty)
     a = (0, lefty)
     slope = abs(float(b[1] - a[1])/float(b[0] - a[0]))
-
+    print("slope is {}".format(slope))
+    print("points are left:{}, right:{}, top:{}, bottom:{}".format(extLeft, extRight, extTop, extBottom))
     #use the slope to determine which x/y points to use on the contour
     if slope < 1.0:
         startLinePoint = extLeft
@@ -407,18 +409,15 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     dimB = dB / pixelsPerMetric
     if False:
         box = np.int0(box)
-        cv2.drawContours(base_img,[box],0,(125,25,25),4, offset=(left_offset, top_offset))
+        cv2.drawContours(base_img,[box],0,(125,225,225),4, offset=(left_offset, top_offset))
         cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
         cv2.drawContours(base_img,[full_contour],0,(225,225,225),4, offset=(left_offset, top_offset))
-        cv2.circle(base_img, (cX, cY), 10, (50, 50, 255), -1)
+        #cv2.circle(base_img, (cX, cY), 10, (50, 50, 255), -1)
         cv2.line(base_img,a,b,(0,255,0),2)
 
 
     line = [a,b]
     startLinePoint, endLinePoint = get_contour_line_intersection(base_img, contour, line, startLinePoint, endLinePoint)
-
-    print("startLinePoint after return: {}".format(startLinePoint))
-    print("endLinePoint after return: {}".format(endLinePoint))
 
     #utils.show_img("intersection...", img3)
     if draw_text:
@@ -459,27 +458,64 @@ def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLi
 
     #see where they're true (the intersections)
     locations = np.argwhere(imgI)
-    print("locations: {}".format(locations))
-    print("startLinePoint: {}".format(startLinePoint))
-    print("endLinePoint: {}".format(endLinePoint))
 
-    if locations.any() and len(locations) >= 2:
+    if len(locations) > 2:
+        locations = remove_duplicates(locations)
+
+    print("num locations: {}".format(locations))
+    if locations is not None and len(locations) >= 2:
         print("updating line points to intersection with full line...")
-        
+        color =  (50, 50, 255)
         for i, loc in enumerate(locations):
             cX = loc[1]
             cY = loc[0]
+            color = (i*30,i*30,i*25)
             if(i == 0):
                 startLinePoint = (cX, cY)
             elif i == 1:
                 endLinePoint = (cX, cY)
             
             if True:
-                cv2.circle(base_img, (cX, cY), 12, (50, 50, 255), -1)
+                cv2.circle(base_img, (cX, cY), 12, (125,125,125), -1)
 
     print("startLinePoint after update: {}".format(startLinePoint))
     print("endLinePoint after update: {}".format(endLinePoint))
     return startLinePoint, endLinePoint
+
+def is_blank(location):
+    return location[0] == -1 and location[1] == -1
+
+def close_enough(orig_value, new_value):
+    if is_blank(new_value):
+        return False
+
+    if (orig_value[0]-2 <= new_value[0] <= orig_value[0]+2) and (orig_value[1]-2 <= new_value[1] <= orig_value[1]+2):
+        print("its close enough, removing")
+        return True
+    else:
+        return False
+
+def remove_duplicates(locations):
+    for i, loc in enumerate(locations):
+        if is_blank(loc):
+            continue
+        nextDex = i+1
+        for j in range(nextDex, len(locations)):
+            curr_loc = locations[j]
+            if close_enough(loc, curr_loc):
+                locations[j] = [-1,-1]
+    
+    print("result: {}".format(locations))
+    results = []
+    for loc in locations:
+        print("loc: {}".format(loc))
+        if not is_blank(loc):
+            results.append(loc)
+
+    print('pruned results: {}'.format(results))
+    return results
+
+
 def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth, left_offset, top_offset, full_contour):
     #center (x,y), (width, height), angle of rotation 
     
