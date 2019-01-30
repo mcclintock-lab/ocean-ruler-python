@@ -407,7 +407,7 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
 
 
     dimB = dB / pixelsPerMetric
-    if False:
+    if True:
         box = np.int0(box)
         cv2.drawContours(base_img,[box],0,(125,225,225),4, offset=(left_offset, top_offset))
         cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
@@ -451,7 +451,7 @@ def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLi
     line_contour = np.array(line).reshape((-1,1,2)).astype(np.int32)
 
     #draw the line contour to turn it into a mask
-    img2 = cv2.drawContours( blank.copy(), [line_contour], 0, 1 )
+    img2 = cv2.drawContours( blank.copy(), [line_contour], 0, 1,2 )
 
     #and AND them together
     imgI = np.logical_and(img1, img2)
@@ -488,8 +488,8 @@ def is_blank(location):
 def close_enough(orig_value, new_value):
     if is_blank(new_value):
         return False
-
-    if (orig_value[0]-2 <= new_value[0] <= orig_value[0]+2) and (orig_value[1]-2 <= new_value[1] <= orig_value[1]+2):
+    offset = 6
+    if (orig_value[0]-offset <= new_value[0] <= orig_value[0]+offset) and (orig_value[1]-offset <= new_value[1] <= orig_value[1]+offset):
         print("its close enough, removing")
         return True
     else:
