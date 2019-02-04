@@ -308,7 +308,6 @@ def execute():
         multiplier = 0.30
         rMultiplier = 0.5
 
-
     tmpImgName = None
     print("running model for ablob....")
     zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)

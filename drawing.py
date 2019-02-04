@@ -325,11 +325,10 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
         dB = abs(startLinePoint[0] - endLinePoint[0])
 
-
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
-    print("square width: {}".format(dB))
-    print("pixels per inch: {}".format(pixelsPerMetric))
+  
     dimB = dB / pixelsPerMetric
+    
 
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 4, (255, 0, 0), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 4, (255, 0, 0), -1)

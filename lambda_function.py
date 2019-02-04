@@ -268,12 +268,13 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     orig_rows = len(image_full)
     
     divisor = 1.0
+    '''
     #for calculation and storage, do everything in inches for consistency, then convert on displays
     if ref_object_units == constants.MM:
         divisor = constants.INCHES_TO_MM
     elif ref_object_units == constants.CM:
         divisor = constants.INCHES_TO_CM
-
+    '''
     ref_object_size = float(ref_object_size)/divisor
 
     image_height, image_width, channels = image_full.shape
@@ -413,10 +414,10 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
     new_drawing = rescaled_image.copy()
     if ref_object == constants.QUARTER:
-        pixelsPerMetric, targetLength, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
+        pixelsPerMetric, quarterSize, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
             target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, refRadius*2, ref_object_size)
     else:
-        pixelsPerMetric, targetLength,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
+        pixelsPerMetric, squareSize,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
             ref_object_contour, None, True, flipDrawing, float(ref_object_size))
 
     utils.print_time("drew ref object contour", _start_time)
