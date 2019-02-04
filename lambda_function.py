@@ -123,7 +123,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
             print("")
             presigned_url = uploads.upload_worker(rescaled_image, thumb, img_data, username, email, uuid, locCode, picDate, targetLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
-                left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object_size, ref_object_size, ref_object_units, 
+                left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object, ref_object_size, ref_object_units, 
                 orig_cols, orig_rows, dynamo_name, s3_bucket_name, original_filename, original_size, targetWidth, width_left_point[0], width_left_point[1], width_right_point[0], width_right_point[1])
 
 
