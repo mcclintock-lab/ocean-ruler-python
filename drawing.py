@@ -296,13 +296,15 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
     print("size of quarter (pixels): {}".format(dB))
     #slight variations based on zoom level...
+    '''
     multiplier = 1.10
     if dB < 64:
         multiplier =1.08
     
     if dB > 80:
         multiplier = 1.12
-    
+    '''
+    multiplier = 1.07
     pixelsPerMetric = get_width_from_ruler(refWidth, refObjectSize)
     
     pixelsPerMetric = pixelsPerMetric*multiplier
