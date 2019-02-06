@@ -75,7 +75,7 @@ def trim_quarter(quarter_contour):
 def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref_object, 
               ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size, extraMaskName,showResults=False):
     try: 
-        original_filename = imageName
+        #original_filename = imageName
 
         image_full = cv2.imread(imageName)
 
@@ -113,10 +113,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
 
         presigned_url = ""
         #if is_deployed:
-        print("left point: {}".format(left_point))
-        print("right point: {}".format(right_point))
-        print('left width: {}'.format(width_left_point))
-        print('right width: {}'.format(width_right_point))
+        print("original filename: {}".format(original_filename))
+        
         if True:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
