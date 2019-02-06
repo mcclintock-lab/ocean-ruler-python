@@ -296,17 +296,20 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
     print("size of quarter (pixels): {}".format(dB))
     #slight variations based on zoom level...
-    '''
+
+    #compensating for distance between abalone and quarter on board
+    # the farther away it is (smaller the quarter) the less it compensates,
+    # since the percentage diff between quarter distance and abalone edge (from camera)
+    # is smaller...    
     multiplier = 1.10
-    if dB < 64:
-        multiplier =1.08
-    
-    if dB > 80:
+    if dB < 60:
+        multiplier = 1.04
+    elif 60 <= dB <= 65:
+        multiplier = 1.08
+    elif dB > 80:
         multiplier = 1.12
-    '''
-    multiplier = 1.07
+
     pixelsPerMetric = get_width_from_ruler(refWidth, refObjectSize)
-    
     pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
 
@@ -338,8 +341,21 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
         dB = abs(startLinePoint[0] - endLinePoint[0])
 
+    #compensating for distance between abalone and quarter on board
+    # the farther away it is (smaller the quarter) the less it compensates,
+    # since the percentage diff between quarter distance and abalone edge (from camera)
+    # is smaller...    
+
+    #TODO: probably need to change this depending on fishery...
+    multiplier = 1.10
+    if dB < 60:
+        multiplier = 1.05
+    elif 60 <= dB <= 65:
+        multiplier = 1.08
+    elif dB > 80:
+        multiplier = 1.12
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
- 
+    pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
 
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 4, (255, 0, 0), -1)

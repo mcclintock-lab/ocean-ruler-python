@@ -97,7 +97,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         else:
             full_mask_image = None
             
-        rescaled_image, pixelsPerMetric, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point = execute(imageName, 
+        rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point = execute(imageName, 
                         image_full, mask_image, full_mask_image, 
                         showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units, extra_mask_image)
@@ -449,7 +449,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
         utils.show_img("Final Measurements", new_drawing)
 
-    return rescaled_image, pixelsPerMetric, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ref_object_point, right_ref_object_point
+    return rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ref_object_point, right_ref_object_point
     
 
 def is_mac():
