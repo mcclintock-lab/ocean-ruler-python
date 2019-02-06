@@ -294,7 +294,18 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
     # compute it as the ratio of pixels to supplied metric
     # (in this case, inches)
 
+    print("size of quarter (pixels): {}".format(dB))
+    #slight variations based on zoom level...
+    multiplier = 1.10
+    if dB < 64:
+        multiplier =1.08
+    
+    if dB > 80:
+        multiplier = 1.12
+    
     pixelsPerMetric = get_width_from_ruler(refWidth, refObjectSize)
+    
+    pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
 
     if draw_text:
@@ -326,9 +337,8 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         dB = abs(startLinePoint[0] - endLinePoint[0])
 
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
-  
+ 
     dimB = dB / pixelsPerMetric
-    
 
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 4, (255, 0, 0), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 4, (255, 0, 0), -1)
