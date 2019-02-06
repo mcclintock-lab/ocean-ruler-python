@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#echo "working on frank..."
+
+for i in lobster/clipped/train_rot/GOPR2510.JPG; do sips -r 45  "${i}" --out 45_"${i}"; done

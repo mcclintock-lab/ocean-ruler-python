@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for f in ../ocean_ruler_images/scallop/train/DSCN*.JPG; 
+do
+ 	echo "running $f"
+ 	python poseidon.py --image "$f"
+done
+
+

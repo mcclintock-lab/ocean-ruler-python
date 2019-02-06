@@ -1,0 +1,31 @@
+#!/bin/bash
+
+echo "working on white..."
+cd new_color_bkground_data 
+for f in white/*.jpg; 
+do
+	echo "running $f"
+	python ../abalone_size.py "$f --show False --outpuf_file ../all_data.csv"
+done
+
+echo "working on blue..."
+for f in blue/*.jpg; 
+do
+	echo "running $f"
+	python ../abalone_size.py "$f --show False --outpuf_file ../all_data.csv"
+done
+
+echo "working on december imgs..."
+cd ../dec_bkground_data 
+for f in *.JPG; 
+do
+	echo "running $f"
+	python ../abalone_size.py "$f --show False --outpuf_file ../all_data.csv"
+done
+
+cd ../blue_bkground_data	 
+for f in *.jpg
+do
+	echo "running $f"
+	python ../abalone_size.py "$f --show False --outpuf_file ../all_data.csv"
+done

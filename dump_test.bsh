@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "working on december imgs..."
+
+echo "running $f"
+python lambda_function_2018.py "dec_bkground_data/IMG_6006.JPG"
+

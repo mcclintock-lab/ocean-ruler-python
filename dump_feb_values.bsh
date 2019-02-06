@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+for f in feb_2017/*.jpg
+do
+	echo "running $f"
+	python lambda_function.py --image "$f"
+done

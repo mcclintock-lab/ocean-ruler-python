@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#echo "working on frank..."
+for f in ../ocean_ruler_images/abalone/train/Glass_Beach_Memorial_Day_*.jpg; 
+do
+ 	echo "running $f"
+ 	python poseidon.py --image "$f"
+done
+
+
