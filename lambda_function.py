@@ -316,6 +316,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     if (constants.isAbalone(fishery_type) or constants.isScallop(fishery_type)) and mask_image is not None:
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         print('its ab or scallop')
+        #threshed_scallop = ci.get_scallop_image(clippedImage)
         #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, 
@@ -416,7 +417,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, refRadius*2, ref_object_size)
     else:
         pixelsPerMetric, squareSize,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
-            ref_object_contour, None, True, flipDrawing, float(ref_object_size))
+            ref_object_contour, None, True, flipDrawing, float(ref_object_size), fishery_type)
 
     utils.print_time("drew ref object contour", _start_time)
 

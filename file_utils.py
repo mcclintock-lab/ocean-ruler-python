@@ -122,7 +122,9 @@ def getOriginalSizeFromFilename(filename, ref_object_units):
         else:
             print("filename: {}".format(filename))
             parts = filename.split("_")
-            
+            print("parts: {}".format(parts))
+            if len(parts) < 2:
+                parts = filename.split("-")
 
         originalSize = getSize(size_str, ref_object_units)
         print("size str: {}".format(size_str))

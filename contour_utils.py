@@ -646,8 +646,9 @@ def get_target_full_lobster_contour(input_image):
     target_contour = None
     use_opposite = False
 
+    gray = ci.get_lobster_image(input_image.copy())
 
-    gray = utils.get_gray_image(input_image, white_or_gray, False)
+    #gray = utils.get_gray_image(input_image, white_or_gray, False)
 
     blur = cv2.GaussianBlur(gray, (5,5),0)
     if white_or_gray:

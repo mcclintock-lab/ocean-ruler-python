@@ -3,6 +3,7 @@ import utils
 import numpy as np
 import math
 from scipy.spatial import distance
+import constants
 
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
@@ -37,9 +38,14 @@ def get_corner_points(pre, contour):
 
 def get_bounding_corner_points(contour):
     brect = cv2.boundingRect(contour)
+    #brect = cv2.boxPoints(rect)
+    #brect = np.int0(box)
+    #print("box: {}".format(brect))
+    
     # unpack the ordered bounding box, then compute the midpoint
     # between the top-left and top-right coordinates, followed by
     # the midpoint between bottom-left and bottom-right coordinates
+    
     x = brect[0]
     y=brect[1]
     y = brect[1]
@@ -49,7 +55,8 @@ def get_bounding_corner_points(contour):
     tr = (x+width, y+height)
     bl = (x,y)
     br = (x+width, y)
-    corners = [tl, tr, br, bl]
+    
+    
     return tl, tr, bl, br
 
 def drawLines(base_img, flipDrawing, startLinePoint, endLinePoint, drawHatches):
@@ -79,6 +86,20 @@ def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
     tr = (quarterCenterX+quarterRadius, quarterCenterY-quarterRadius)
     bl = (quarterCenterX-quarterRadius, quarterCenterY+quarterRadius)
     br = (quarterCenterX+quarterRadius, quarterCenterY+quarterRadius)
+    return tl, tr, bl, br
+
+def get_square_points(c):
+
+    extLeft = tuple(c[c[:, :, 0].argmin()][0])
+    extRight = tuple(c[c[:, :, 0].argmax()][0])
+    extTop = tuple(c[c[:, :, 1].argmin()][0])
+    extBot = tuple(c[c[:, :, 1].argmax()][0])
+
+    tl = (extLeft[0], extTop[1])
+    tr = (extRight[0],extTop[1])
+    bl = (extLeft[0],extBot[1])
+    br = (extRight[0],extBot[1])
+    print("ext left: {}".format(extLeft))
     return tl, tr, bl, br
 
 def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
@@ -321,8 +342,13 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
     return pixelsPerMetric, dimB, quarterStartLinePoint, quarterEndLinePoint
 
-def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize):
+def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, fishery_type):
     tl, tr, bl, br = get_bounding_corner_points(contour)
+    #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
+    print("{}, {}, {}, {}".format(tl,tr, bl, br))
+    #tl, tr, bl, br = get_square_points(contour)
+    #print("{}, {}, {}, {}".format(tl,tr, bl, br))
+
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
@@ -335,6 +361,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
 
+        
         startLinePoint = midpoint(tl, bl)
         startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
         endLinePoint = midpoint(tr, br)
@@ -347,42 +374,32 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     # is smaller...    
 
     #TODO: probably need to change this depending on fishery...
-    multiplier = 1.10
-    if dB < 60:
-        multiplier = 1.05
-    elif 60 <= dB <= 65:
-        multiplier = 1.08
-    elif dB > 80:
-        multiplier = 1.12
+    if(constants.isScallop(fishery_type)):
+        multiplier = 1.0
+    else:
+        multiplier = 1.10
+        if dB < 60:
+            multiplier = 1.05
+        elif 60 <= dB <= 65:
+            multiplier = 1.08
+        elif dB > 80:
+            multiplier = 1.12
+
+    print("dB: {}".format(dB))
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
+    print("multiplier: {}".format(multiplier))
     pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
 
-    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 4, (255, 0, 0), -1)
-    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 4, (255, 0, 0), -1)
+    if True:
+        cv2.drawContours(base_img, [contour],0,(125,0,0),1)
+
+    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 1, (255, 0, 0), -1)
+    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 1, (255, 0, 0), -1)
 
     # draw lines between the midpoints
     cv2.line(base_img, startLinePoint, endLinePoint,
         (255, 0, 255), 1)
-
-    '''
-    if flipDrawing:
-        firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
-        firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
-        secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
-        secondHatchEnd = (int(endLinePoint[0]+50), int(endLinePoint[1]))
-    else:
-        firstHatchStart = (int(startLinePoint[0]), int(startLinePoint[1]-50))
-        firstHatchEnd = (int(startLinePoint[0]), int(startLinePoint[1]+50))
-        secondHatchStart = (int(endLinePoint[0]), int(endLinePoint[1]-50))
-        secondHatchEnd = (int(endLinePoint[0]), int(endLinePoint[1]+50))
-
-    cv2.line(base_img, firstHatchStart, firstHatchEnd,
-        (255, 0, 255), 1)
-
-    cv2.line(base_img, secondHatchStart, secondHatchEnd,
-        (255, 0, 255), 1)
-    '''
 
     if draw_text:
         cv2.putText(base_img, "{}".format("2 in. Square",dimB),
@@ -401,7 +418,7 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
 
     rotRect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rotRect)
-
+    
     rows,cols = base_img.shape[:2]
     [vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
 

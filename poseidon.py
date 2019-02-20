@@ -165,10 +165,10 @@ def read_args():
     
     if not hasRefObject:
         print(" batch -- falling back to abalone & quarter")
-        ref_object = "quarter"
-        ref_object_units = "inches"
-        ref_object_size = 0.955
-        fishery_type = "abalone"
+        ref_object = "square"
+        ref_object_units = "cm"
+        ref_object_size = 5.0
+        fishery_type = "pen_shell_scallop_atrina_maura"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -305,7 +305,7 @@ def execute():
         multiplier = 0.40
         rMultiplier = 0.5
     elif(isScallop(fishery_type)):
-        multiplier = 0.30
+        multiplier = 0.15
         rMultiplier = 0.5
 
     tmpImgName = None

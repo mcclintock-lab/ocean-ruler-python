@@ -2,6 +2,109 @@ import cv2
 import utils
 import numpy as np
 import matching
+
+#experimentation only
+def get_scallop_image(orig_image):
+    image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
+    final_satmin = 80
+    final_valmin = 0
+
+    final_satmax = 255
+    final_valmax = 80
+
+    #minrange = np.array([final_huemin, final_satmin, final_valmin])
+    #maxrange = np.array([final_huemax, final_satmax, final_valmax])
+    lowerRedMinRange = np.array([0, final_satmin, final_valmin])
+    lowerRedMaxRange = np.array([35, final_satmax, final_valmax])
+
+    upperRedMinRange = np.array([150, final_satmin, final_valmin])
+    upperRedMaxRange = np.array([180, final_satmax, final_valmax])
+    rows = len(image)
+    cols = len(image[0])
+    rstart = int(rows/2)-20
+    rend = int(rows/2)+20
+    cstart = int(cols/2)-20
+    cend = int(cols/2)+20
+    sample_val = image[rstart:rend,cstart:cend]
+    print("sample val: {}".format(sample_val))
+    #use original image so we get the non-masked values
+    
+    lowerMaskHSV = cv2.inRange(image, lowerRedMinRange, lowerRedMaxRange)
+    lowerRedMask = cv2.bitwise_and(image, image, mask=lowerMaskHSV)
+
+    upperMaskHSV = cv2.inRange(image, upperRedMinRange, upperRedMaxRange)
+    upperRedMask = cv2.bitwise_and(image, image, mask=upperMaskHSV)
+    combinedImage = cv2.bitwise_or(lowerRedMask, upperRedMask)
+    invertedImage = cv2.bitwise_not(combinedImage)
+    
+    bgrCombined = cv2.cvtColor(invertedImage, cv2.COLOR_HSV2BGR)
+
+    ret, threshed = cv2.threshold(bgrCombined,0,255,cv2.THRESH_BINARY)
+    if True:
+        cv2.imshow("combined", threshed)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        #cv2.imshow("upper", bgrUpperMask)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+
+    return threshed
+
+def get_lobster_image(orig_image):
+    image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
+    final_satmin = 70
+    final_valmin = 0
+
+    final_satmax = 255
+    final_valmax = 80
+    '''
+    cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_red_hue_range);
+10 	cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_red_hue_range
+    '''
+    #minrange = np.array([final_huemin, final_satmin, final_valmin])
+    #maxrange = np.array([final_huemax, final_satmax, final_valmax])
+    lowerRedMinRange = np.array([0, final_satmin, final_valmin])
+    lowerRedMaxRange = np.array([60, final_satmax, final_valmax])
+
+    upperRedMinRange = np.array([150, final_satmin, final_valmin])
+    upperRedMaxRange = np.array([180, final_satmax, final_valmax])
+    rows = len(image)
+    cols = len(image[0])
+    rstart = int(rows/2)-20
+    rend = int(rows/2)+20
+    cstart = int(cols/2)-20
+    cend = int(cols/2)+20
+    sample_val = image[rstart:rend,cstart:cend]
+    print("sample val: {}".format(sample_val))
+    #use original image so we get the non-masked values
+    
+    lowerMaskHSV = cv2.inRange(image, lowerRedMinRange, lowerRedMaxRange)
+    lowerRedMask = cv2.bitwise_and(image, image, mask=lowerMaskHSV)
+
+    upperMaskHSV = cv2.inRange(image, upperRedMinRange, upperRedMaxRange)
+    upperRedMask = cv2.bitwise_and(image, image, mask=upperMaskHSV)
+    combinedImage = cv2.bitwise_or(lowerRedMask, upperRedMask)
+    invertedImage = cv2.bitwise_not(combinedImage)
+    
+    
+    #image = cv2.bitwise_and(image,image,mask=notmask)
+    bgrLowerMask = cv2.cvtColor(lowerRedMask, cv2.COLOR_HSV2BGR)
+    bgrUpperMask = cv2.cvtColor(upperRedMask, cv2.COLOR_HSV2BGR)
+    bgrCombined = cv2.cvtColor(combinedImage, cv2.COLOR_HSV2BGR)
+
+    ret, threshed = cv2.threshold(bgrCombined,0,255,cv2.THRESH_BINARY)
+    if False:
+        cv2.imshow("combined", threshed)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        #cv2.imshow("upper", bgrUpperMask)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+
+    return threshed
+    
 def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = False,is_ruler=False):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
