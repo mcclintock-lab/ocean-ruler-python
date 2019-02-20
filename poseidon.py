@@ -305,12 +305,12 @@ def execute():
         multiplier = 0.40
         rMultiplier = 0.5
     elif(isScallop(fishery_type)):
-        multiplier = 0.15
+        multiplier = 0.3
         rMultiplier = 0.5
 
     tmpImgName = None
     print("running model for ablob....")
-    zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+    zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, True, None, False)
 
     fullMaskName = ""
     if isLobster(fishery_type):
