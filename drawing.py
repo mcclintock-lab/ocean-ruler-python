@@ -99,7 +99,7 @@ def get_square_points(c):
     tr = (extRight[0],extTop[1])
     bl = (extLeft[0],extBot[1])
     br = (extRight[0],extBot[1])
-    print("ext left: {}".format(extLeft))
+   
     return tl, tr, bl, br
 
 def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
@@ -219,7 +219,6 @@ def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetr
         dBX = abs(startLinePoint[0] - endLinePoint[0])
         dBY = abs(startLinePoint[1] - endLinePoint[1])
         dB = get_distance(dBX, dBY)
-        print("x distance: {}, real distance: {}".format(dBX, dB))
 
         widthStartLinePoint = midpoint(tl, tr)
         widthStartLinePoint = (int(widthStartLinePoint[0]), int(widthStartLinePoint[1]))
@@ -315,7 +314,6 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
     # compute it as the ratio of pixels to supplied metric
     # (in this case, inches)
 
-    print("size of quarter (pixels): {}".format(dB))
     #slight variations based on zoom level...
 
     #compensating for distance between abalone and quarter on board
@@ -345,9 +343,6 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, fishery_type):
     tl, tr, bl, br = get_bounding_corner_points(contour)
     #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
-    print("{}, {}, {}, {}".format(tl,tr, bl, br))
-    #tl, tr, bl, br = get_square_points(contour)
-    #print("{}, {}, {}, {}".format(tl,tr, bl, br))
 
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
@@ -385,9 +380,8 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         elif dB > 80:
             multiplier = 1.12
 
-    print("dB: {}".format(dB))
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
-    print("multiplier: {}".format(multiplier))
+   
     pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
 
@@ -428,8 +422,6 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     b = (cols-1, righty)
     a = (0, lefty)
     slope = abs(float(b[1] - a[1])/float(b[0] - a[0]))
-    print("slope is {}".format(slope))
-    print("points are left:{}, right:{}, top:{}, bottom:{}".format(extLeft, extRight, extTop, extBottom))
     #use the slope to determine which x/y points to use on the contour
     if slope < 1.0:
         startLinePoint = extLeft
@@ -444,7 +436,7 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     cY = int(M["m01"] / M["m00"])
 
     dB = distance.euclidean(startLinePoint, endLinePoint)
-    print("dB is {}".format(dB))
+   
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 255), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 255), -1)
 
@@ -506,9 +498,7 @@ def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLi
     if len(locations) > 2:
         locations = remove_duplicates(locations)
 
-    print("num locations: {}".format(locations))
     if locations is not None and len(locations) >= 2:
-        print("updating line points to intersection with full line...")
         color =  (50, 50, 255)
         for i, loc in enumerate(locations):
             cX = loc[1]
@@ -522,8 +512,6 @@ def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLi
             if True:
                 cv2.circle(base_img, (cX, cY), 12, (125,125,125), -1)
 
-    print("startLinePoint after update: {}".format(startLinePoint))
-    print("endLinePoint after update: {}".format(endLinePoint))
     return startLinePoint, endLinePoint
 
 def is_blank(location):
@@ -534,7 +522,6 @@ def close_enough(orig_value, new_value):
         return False
     offset = 6
     if (orig_value[0]-offset <= new_value[0] <= orig_value[0]+offset) and (orig_value[1]-offset <= new_value[1] <= orig_value[1]+offset):
-        print("its close enough, removing")
         return True
     else:
         return False
@@ -549,14 +536,11 @@ def remove_duplicates(locations):
             if close_enough(loc, curr_loc):
                 locations[j] = [-1,-1]
     
-    print("result: {}".format(locations))
     results = []
     for loc in locations:
-        print("loc: {}".format(loc))
         if not is_blank(loc):
             results.append(loc)
 
-    print('pruned results: {}'.format(results))
     return results
 
 
@@ -568,7 +552,7 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     height = rotRect[1][1]
     rotAngle = abs(rotRect[2])
     verts = cv2.boxPoints(rotRect)
-    print("rot angle: {}".format(rotAngle))
+    
     if rotAngle > 45:
         tl = verts[2]
         tr = verts[3]
@@ -582,16 +566,8 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
         bl = verts[0]
 
     centerPoint = rotRect[0]
-    print("rotRect is {}".format(centerPoint))
-    print("-------------rotAngle is: {}".format(rotAngle))
-    if rotAngle < 45:
-        #width is longer side
-        #shows as x
-        print("long side is width")
-    else:
-        #height is longer side
-        #shows as y
-        print("x is short side")
+
+ 
     box = cv2.boxPoints(rotRect)
 
     #convert from floats to int
@@ -599,11 +575,6 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     cv2.drawContours(base_img,[box],0,(25,25,25),1, offset=(left_offset, top_offset))
     
     flipLine = (rotAngle > 45 and width > height) or (rotAngle < 45 and width < height)
-    '''
-    a = abs(tl[0] - tr[0])
-    b = abs(tl[1] - tr[1])
-    dB = math.sqrt(math.pow(a,2)+math.pow(b,2))
-    '''
 
     if width <= height:
         dB = width
@@ -689,15 +660,13 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
 
     rows,cols = base_img.shape[:2]
     [vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
-    print("vx: {}".format(vx))
-    print("vy: {}".format(vy))
-    print("vy/vx: {}".format(vy/vx))
+
     lefty = int((-x*vy/vx) + y)
     righty = int(((cols-x)*vy/vx)+y)
     b = (cols-1, righty)
     a = (0, lefty)
     slope = abs(float(b[1] - a[1])/float(b[0] - a[0]))
-    print("SLOPE:::: {}".format(slope))
+
 
 
     dimB = dB / pixelsPerMetric
@@ -785,7 +754,7 @@ def draw_contour(base_img, contour, pixelsPerMetric, pre, draw_text, flipDrawing
 
 
     dimB = dB / pixelsPerMetric
-    print("db: {}, pixels per: {}; dim b: {}".format(dB, pixelsPerMetric, dimB))
+    
     if draw_text:
         if pre == "Ruler" or pre == "Ellipse":
                 # draw the object sizes on the image

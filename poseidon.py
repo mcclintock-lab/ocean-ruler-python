@@ -310,7 +310,7 @@ def execute():
 
     tmpImgName = None
     print("running model for ablob....")
-    zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, True, None, False)
+    zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
     fullMaskName = ""
     if isLobster(fishery_type):
