@@ -119,7 +119,7 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
         dB = get_distance(dBX, dBY)
 
         widthStartLinePoint = extLeft
-        widthEbdLinePoint = extRight
+        widthEndLinePoint = extRight
 
         dBWidthX = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
         dBWidthY = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
@@ -138,6 +138,9 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
         dBWidthX = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
         dBWidthY = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
         dBWidth = get_distance(dBWidthX, dBWidthY)
+        print("width x: {}".format(dBWidthX))
+        print("widht y: {}".format(dBWidthY))
+        print("width of scallop: {}".format(dBWidth))
 
     drawLines(base_img, not flipDrawing, startLinePoint, endLinePoint, False)
     if True:
@@ -178,7 +181,14 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
             (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
             1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-        cv2.putText(base_img, "{:.1f}in".format(dimB),
+        if(constants.isScallop(fisheryType)):
+            unitStr = "cm"
+            widthToShow = dimBWidth
+        else:
+            unitStr = "in"
+            widthToShow = dimB
+        
+        cv2.putText(base_img, "{:.1f}{}".format(widthToShow,unitStr),
             (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
             1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
@@ -201,13 +211,17 @@ def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetr
         startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
         endLinePoint = midpoint(bl, br)
         endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        dB = abs(startLinePoint[1] - endLinePoint[1])
+        dBX = abs(startLinePoint[1] - endLinePoint[1])
+        dBY = abs(startLinePoint[0] - endLinePoint[0])
+        dB = get_distance(dBX, dBY)
 
         widthStartLinePoint = midpoint(tl, bl)
         widthStartLinePoint = (int(widthStartLinePoint[0]), int(widthStartLinePoint[1]))
         widthEndLinePoint = midpoint(tr, br)
         widthEndLinePoint = (int(widthEndLinePoint[0]), int(widthEndLinePoint[1]))
-        dBWidth = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
+        dBWidthX = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
+        dBWidthY = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
+        dBWidth = get_distance(dBWidthX, dBWidthY)
     else:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
@@ -340,28 +354,21 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
     return pixelsPerMetric, dimB, quarterStartLinePoint, quarterEndLinePoint
 
-def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, fishery_type):
+def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, refObjectUnits, 
+        fishery_type):
     tl, tr, bl, br = get_bounding_corner_points(contour)
     #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
 
-    if flipDrawing:
-        # compute the midpoint between the top-left and top-right points,
-        # followed by the midpoint between the top-righ and bottom-right
-        startLinePoint = midpoint(tl, tr)
-        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
-        endLinePoint = midpoint(bl, br)
-        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        dB = abs(startLinePoint[1] - endLinePoint[1])
-    else:
-        # compute the midpoint between the top-left and top-right points,
-        # followed by the midpoint between the top-righ and bottom-right
 
-        
-        startLinePoint = midpoint(tl, bl)
-        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
-        endLinePoint = midpoint(tr, br)
-        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        dB = abs(startLinePoint[0] - endLinePoint[0])
+    startLinePoint = midpoint(tl, bl)
+    startLinePoint = (int(startLinePoint[0])+2, int(startLinePoint[1])-1)
+    endLinePoint = midpoint(tr, br)
+    endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
+    cornerPoints = get_square_corners(base_img, contour)
+
+    dBX = abs(startLinePoint[0] - endLinePoint[0])
+    dBY =  abs(startLinePoint[1] - endLinePoint[1])
+    dB = get_distance(dBX, dBY)
 
     #compensating for distance between abalone and quarter on board
     # the farther away it is (smaller the quarter) the less it compensates,
@@ -370,7 +377,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
 
     #TODO: probably need to change this depending on fishery...
     if(constants.isScallop(fishery_type)):
-        multiplier = 1.0
+        multiplier = 1.03
     else:
         multiplier = 1.10
         if dB < 60:
@@ -384,9 +391,14 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
    
     pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
-
+    print("----->>>>>>>>>> Db: {}".format(dB))
+    print("ppm: {}".format(pixelsPerMetric))
     if True:
         cv2.drawContours(base_img, [contour],0,(125,0,0),1)
+        cv2.circle(base_img, tl, 1, (255, 0, 0), -1)
+        cv2.circle(base_img, tr, 1, (255, 0, 0), -1)
+        cv2.circle(base_img, bl, 1, (255, 0, 0), -1)
+        cv2.circle(base_img, br, 1, (255, 0, 0), -1)
 
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 1, (255, 0, 0), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 1, (255, 0, 0), -1)
@@ -396,7 +408,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
         (255, 0, 255), 1)
 
     if draw_text:
-        cv2.putText(base_img, "{}".format("2 in. Square",dimB),
+        cv2.putText(base_img, "{}{} Square".format(refObjectSize, refObjectUnits),
             (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
             1, (255, 255, 255), 1,lineType=cv2.LINE_AA)
     return pixelsPerMetric, dimB, startLinePoint, endLinePoint
@@ -462,7 +474,7 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
                 (endLinePoint[0]+10, endLinePoint[1]), cv2.FONT_HERSHEY_TRIPLEX,
                 1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
-            cv2.putText(base_img, "{:.1f}in".format(dimB),
+            cv2.putText(base_img, "{:.2f}in".format(dimB),
                 (endLinePoint[0]+10, endLinePoint[1]+50), cv2.FONT_HERSHEY_TRIPLEX,
                 1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
 
@@ -544,6 +556,33 @@ def remove_duplicates(locations):
     return results
 
 
+def get_square_corners(base_img, contour):
+    rotRect = cv2.minAreaRect(contour)
+
+    box = cv2.boxPoints(rotRect)
+    box = np.array(box, dtype="int")
+    rect = clockwise_points(box)
+    colors = ((0, 0, 255), (240, 0, 159), (255, 0, 0), (255, 255, 0))
+    for ((x, y), color) in zip(rect, colors):
+	    cv2.circle(base_img, (int(x), int(y)), 5, color, -1)
+
+    cv2.drawContours(base_img, [box], -1, (220, 255, 225), 1)
+
+    return rect
+#start in topleft
+def clockwise_points(pts):
+	sortedPts = pts[np.argsort(pts[:, 0]), :]
+
+	left = sortedPts[:2, :]
+	right = sortedPts[2:, :]
+
+	left = left[np.argsort(left[:, 1]), :]
+	(tl, bl) = left
+	euclideanDist = distance.cdist(tl[np.newaxis], right, "euclidean")[0]
+	(br, tr) = right[np.argsort(euclideanDist)[::-1], :]
+
+	return np.array([tl, tr, br, bl], dtype="float32")
+
 def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth, left_offset, top_offset, full_contour):
     #center (x,y), (width, height), angle of rotation 
     
@@ -552,7 +591,7 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     height = rotRect[1][1]
     rotAngle = abs(rotRect[2])
     verts = cv2.boxPoints(rotRect)
-    
+    print("rot rect: {}".format(rotRect))
     if rotAngle > 45:
         tl = verts[2]
         tr = verts[3]
@@ -603,35 +642,7 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
         startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
         endLinePoint = midpoint(tr, br)
         endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        # compute the Euclidean distance between the midpoints
-        #dB = abs(startLinePoint[0] - endLinePoint[0])
-  
 
-    # draw the midpoints on the image
-    '''
-    top_left_point = (int(tl[0]), int(tl[1]))
-    cv2.circle(base_img, top_left_point, 16, (255,0,0), -1) #blue
-    cv2.putText(base_img, "topleft",
-        top_left_point, cv2.FONT_HERSHEY_TRIPLEX,
-        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
-    top_right_point = (int(tr[0]), int(tr[1]))
-    cv2.circle(base_img, top_right_point, 16, (50, 50, 50), -1)#gray
-    cv2.putText(base_img, "topright",
-        top_right_point, cv2.FONT_HERSHEY_TRIPLEX,
-        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
-
-    bottom_right_point = (int(br[0]), int(br[1]))
-    cv2.circle(base_img, bottom_right_point, 16, (255, 255, 255), -1) #white
-    cv2.putText(base_img, "bottomright",
-        bottom_right_point, cv2.FONT_HERSHEY_TRIPLEX,
-        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
-
-    bottom_left_point = (int(bl[0]), int(bl[1]))
-    cv2.circle(base_img, bottom_left_point, 16, (0, 0, 0), -1) #black
-    cv2.putText(base_img, "bottomleft",
-        bottom_left_point, cv2.FONT_HERSHEY_TRIPLEX,
-        1, (255, 255, 255), 1, lineType=cv2.LINE_AA)
-    '''
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 4, (255, 0, 255), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 4, (255, 0, 255), -1)
 
@@ -639,24 +650,6 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     cv2.line(base_img, startLinePoint, endLinePoint,
         (255, 0, 255), 4)
 
-    '''
-    if flipDrawing:
-        firstHatchStart = (int(startLinePoint[0]-50), int(startLinePoint[1]))
-        firstHatchEnd = (int(startLinePoint[0]+50), int(startLinePoint[1]))
-        secondHatchStart = (int(endLinePoint[0]-50), int(endLinePoint[1]))
-        secondHatchEnd = (int(endLinePoint[0]+50), int(endLinePoint[1]))
-    else:
-        firstHatchStart = (int(startLinePoint[0]), int(startLinePoint[1]-50))
-        firstHatchEnd = (int(startLinePoint[0]), int(startLinePoint[1]+50))
-        secondHatchStart = (int(endLinePoint[0]), int(endLinePoint[1]-50))
-        secondHatchEnd = (int(endLinePoint[0]), int(endLinePoint[1]+50))
-
-    cv2.line(base_img, firstHatchStart, firstHatchEnd,
-        (255, 0, 255), 1)
-
-    cv2.line(base_img, secondHatchStart, secondHatchEnd,
-        (255, 0, 255), 1)
-    '''
 
     rows,cols = base_img.shape[:2]
     [vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
@@ -666,7 +659,6 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     b = (cols-1, righty)
     a = (0, lefty)
     slope = abs(float(b[1] - a[1])/float(b[0] - a[0]))
-
 
 
     dimB = dB / pixelsPerMetric
