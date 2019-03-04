@@ -36,16 +36,12 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
         print("is white: {}".format(white_or_gray))
         utils.show_img("edges", edged_img)
         
-        
-
 
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,17))
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,7))
     kernel = np.ones((3,3), np.uint8)
 
-    #if not white_or_gray:
-    #    iters = 2
-    #else:
+ 
     iters=3
 
 
@@ -81,12 +77,11 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     
 
     if False:
-        n=0
-        print("num contours: {}".format(len(largest)))
+        n=50
         for l in largest:
 
-            if n < 100:
-                cv2.drawContours(input_image, l[1], -1, (n,n,n),12)
+            if n < 300:
+                cv2.drawContours(input_image, l[1], -1, (n,n-20,n*2),12)
             n=n+50
         utils.show_img("biggest contours", input_image)
 
@@ -102,12 +97,10 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
             actual_perc = contour[2]/img_area
             current_contour = contour[1]
             if is_square_ref_object and is_square_contour(current_contour):
-                
                 continue
 
             if perc <= 0.95 and perc > lower_percent_bounds:
                 if(current_contour is None or len(current_contour) == 0):
-                    
                     continue
 
                 x,y,w,h = cv2.boundingRect(current_contour)
@@ -128,10 +121,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
                     target_contour = current_contour
 
 
-            
-    if False:
-        cv2.drawContours(input_image, [target_contour], -1, (0,255,255),4)
-        utils.show_img("scallop contours", input_image)
+ 
     #orig contours are returned for display/testing
 
     return target_contour, cnts[1]
@@ -151,10 +141,20 @@ def get_width_and_height(cnt):
     h = abs(topmost[1] - bottommost[1])
     return w,h
 
-def is_square_contour(cnt):
-    w,h = get_width_and_height(cnt)
+def is_square_contour(contour):
+    w,h = get_width_and_height(contour)
     ratio = float(w)/float(h)
-    return ratio >= 0.75 and ratio <= 1.25
+    perimeter = cv2.arcLength(contour, True)
+    approx = cv2.approxPolyDP(contour, 0.01*perimeter, True)
+    area = cv2.contourArea(contour)
+    
+    if ratio >= 0.85 and ratio <= 1.15:
+        if len(approx) == 4:
+            return True
+        else:
+            return False
+    else:
+        return False
 
 def get_target_contour(input_image, template_contour, is_square_ref_object, is_abalone, isWhiteOrGray, fishery_type):
 

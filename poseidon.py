@@ -305,7 +305,7 @@ def execute():
         multiplier = 0.40
         rMultiplier = 0.5
     elif(isScallop(fishery_type)):
-        multiplier = 0.3
+        multiplier = 0.25
         rMultiplier = 0.5
 
     tmpImgName = None
