@@ -5,6 +5,7 @@ import numpy as np
 import color_images as ci
 import math
 import constants
+
 def get_target_oval_contour(input_image, abalone_template_contour, lower_percent_bounds, white_or_gray, 
                             use_opposite, is_square_ref_object, fishery_type):
     
@@ -23,13 +24,14 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
         lower_bound = 10
         upper_bound = 220
         
-    '''
-    if constants.isScallop(fishery_type):
+    if False:
         g = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
-        ret, thresh = cv2.threshold(g, 100, 255, 0)
-        edged_img = cv2.Canny(thresh, lower_bound, upper_bound,7) 
-    else:
-    '''
+        lower_bound = 150
+        upper_bound = 255
+        ret, thresh = cv2.threshold(g, 127, 255, 0)
+        edged_img = cv2.Canny(thresh, lower_bound, upper_bound,9) 
+
+    
     edged_img = cv2.Canny(blur, lower_bound, upper_bound,7) 
 
     if False:
@@ -43,8 +45,6 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
 
  
     iters=3
-
-
     edged_img = cv2.dilate(edged_img, kernel, iterations=iters)
     edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
     edged_img = cv2.erode(edged_img, erode_kernel, iterations=1)

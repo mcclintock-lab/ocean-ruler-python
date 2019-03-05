@@ -31,18 +31,21 @@ def showResults(f2Filtered, dx):
 def setup(fishery_type, loadFull=False):
     maxZoom=1.1
     tform = transforms_side_on
-    if fishery_type == "scallop":
+    print("--->>>fishery type: {}".format(fishery_type))
+    if "scallop" in fishery_type:
         print("looking for scallops...")
         mlPath = os.environ['ML_PATH']+"/ml_data/scallop/"
         sz = 320
         model_name = SCALLOP_MODEL
-        maxZoom = 1.2
-    elif fishery_type == "lobster" and loadFull:
+        maxZoom = 1.1
+    elif "lobster" in fishery_type and loadFull:
+        print("--->>>looking for lobster")
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob_full/"
         sz = 320
         model_name = AB_FULL_MODEL
         maxZoom = 1.1
     else:    
+        print('--->>>looking for abalone')
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
         tform = transforms_top_down
         sz = 320
@@ -60,6 +63,7 @@ def setup(fishery_type, loadFull=False):
                       nn.Conv2d(512, 2, 3, padding=1), 
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
+
 
     tfms = tfms_from_model(arch, sz, aug_tfms=tform, max_zoom=maxZoom)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
@@ -305,7 +309,7 @@ def execute():
         multiplier = 0.40
         rMultiplier = 0.5
     elif(isScallop(fishery_type)):
-        multiplier = 0.25
+        multiplier = 0.30
         rMultiplier = 0.5
 
     tmpImgName = None
