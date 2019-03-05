@@ -358,7 +358,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
 
 
     startLinePoint = midpoint(tl, bl)
-    startLinePoint = (int(startLinePoint[0])+2, int(startLinePoint[1])-1)
+    startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
     endLinePoint = midpoint(tr, br)
     endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
     cornerPoints = get_square_corners(base_img, contour)
