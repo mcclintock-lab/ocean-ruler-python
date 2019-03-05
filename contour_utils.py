@@ -156,6 +156,80 @@ def is_square_contour(contour):
     else:
         return False
 
+def get_big_square_target_contour(input_image, size_place):
+    target_contour = None
+    white_or_gray = True
+    lower_percent_bounds = 0.15
+
+    denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
+    gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+    
+
+    if white_or_gray:
+        lower_bound = 0
+        upper_bound = 100
+        thresh_lower = 70
+        thresh_upper = 255
+
+
+    scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
+  
+    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,17))
+    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
+    kernel = np.ones((3,3), np.uint8)
+
+    iters=3
+        
+    edged_img = cv2.dilate(scale_img, kernel, iterations=iters)
+   
+    edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
+    edged_img = cv2.erode(edged_img, erode_kernel, iterations=1)
+
+
+    #gray_denoised = cv2.cvtColor(edged_img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
+    cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    contours = cnts[1]
+
+    dex = 0
+    tcontours = []
+
+    biggest = 0
+    target_dex = 0
+    for i, contour in enumerate(contours):
+        try:
+            tcontours.append(contour)
+            carea = cv2.contourArea(contour)  
+            if carea > biggest:
+                biggest = carea
+                target_dex = i
+        except Exception as e:
+
+            continue
+
+    nextBiggestDex = 0
+    nextBiggest = 0
+    print('target dex: {}'.format(target_dex))
+    for j, contour in enumerate(contours):
+        carea = cv2.contourArea(contour)
+        print("area for {} is {}".format(j, carea))
+        if j != target_dex and carea > nextBiggest and carea < biggest*0.75:
+            nextBiggest = carea
+            nextBiggestDex = j
+
+    if size_place == 1:
+        target_contour = tcontours[nextBiggestDex]
+    else:
+        target_contour = tcontours[target_dex]
+
+    #orig contours are returned for display/testing
+    if False:
+        cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
+        utils.show_img("square contours {}".format(size_place), input_image)
+    
+    return target_contour, tcontours
+
+
 def get_target_contour(input_image, template_contour, is_square_ref_object, is_abalone, isWhiteOrGray, fishery_type):
 
     lower_perc_bounds = 0.1

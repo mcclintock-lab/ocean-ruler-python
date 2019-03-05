@@ -171,8 +171,8 @@ def read_args():
         print(" batch -- falling back to abalone & quarter")
         ref_object = "square"
         ref_object_units = "cm"
-        ref_object_size = 5.0
-        fishery_type = "pen_shell_scallop_atrina_maura"
+        ref_object_size = 5.08
+        fishery_type = "square_test"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -293,47 +293,54 @@ def execute():
     m, tfms, data, learn = setup(fishery_type);
     print("fishery type: {}".format(fishery_type))
 
-    if isLobster(fishery_type):
-        fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
-
-    quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
-
-    targetPath, imgName = os.path.split(imageName)
-    
-    if imageName == None:
-        return
-
-    multiplier = 0.90
-    rMultiplier = 0.85
-    if(isAbalone(fishery_type)):
-        multiplier = 0.40
-        rMultiplier = 0.5
-    elif(isScallop(fishery_type)):
-        multiplier = 0.30
-        rMultiplier = 0.5
-
-    tmpImgName = None
-    print("running model for ablob....")
-    zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
-
-    fullMaskName = ""
-    if isLobster(fishery_type):
-        print("running model for full ablob")
-        fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
-    
-    if ref_object == "square":
-        extraMask = None
+    if fishery_type == "square_test":
+        jsonVals = lambda_function.runFromML(imageName, None, None, username, email, uuid, ref_object, ref_object_units, ref_object_size,
+            locCode, fishery_type, original_filename, original_size, "", showResults)
+        print(">>>>><<<<<")
+        print(jsonVals)
+        return jsonVals
     else:
-        extraMask = zeroMask
-    
-    extraMask, extraMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, False, extraMask, True)
-    print("done with ml")
-    #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
-    jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-        locCode, fishery_type, original_filename, original_size, extraMaskName, showResults)
-    print(">>>>><<<<<")
-    print(jsonVals)
-    return jsonVals
+        if isLobster(fishery_type):
+            fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
+
+        quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
+
+        targetPath, imgName = os.path.split(imageName)
+        
+        if imageName == None:
+            return
+
+        multiplier = 0.90
+        rMultiplier = 0.85
+        if(isAbalone(fishery_type)):
+            multiplier = 0.40
+            rMultiplier = 0.5
+        elif(isScallop(fishery_type)):
+            multiplier = 0.30
+            rMultiplier = 0.5
+
+        tmpImgName = None
+        print("running model for ablob....")
+        zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+
+        fullMaskName = ""
+        if isLobster(fishery_type):
+            print("running model for full ablob")
+            fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
+        
+        if ref_object == "square":
+            extraMask = None
+        else:
+            extraMask = zeroMask
+        
+        extraMask, extraMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, False, extraMask, True)
+        print("done with ml")
+        #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
+        jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
+            locCode, fishery_type, original_filename, original_size, extraMaskName, showResults)
+        print(">>>>><<<<<")
+        print(jsonVals)
+        return jsonVals
 
 
 

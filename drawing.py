@@ -375,6 +375,8 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     #TODO: probably need to change this depending on fishery...
     if(constants.isScallop(fishery_type)):
         multiplier = 1.03
+    elif fishery_type == "square_test":
+        multiplier = 1.0
     else:
         multiplier = 1.10
         if dB < 60:

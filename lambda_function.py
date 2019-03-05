@@ -365,7 +365,15 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         else:
             small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"lobster_templates/full_lobster_right.png")
             target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
+    elif fishery_type == "square_test":
+        print("square test!!!!!")
+        tmpimg =rescaled_image.copy()
+        is_white_or_gray = True 
 
+        target_contour, orig_contours = contour_utils.get_big_square_target_contour(rescaled_image.copy(),0)
+        if False:
+            cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
+            utils.show_img("ref object", tmpimg)
     else:
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
@@ -404,17 +412,20 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_best_quarter_dimensions(clippedImages, clippedMaskedImages,
                                                                      target_contour, ref_object_template_contour, False, origCellCount, isWhiteOrGray)    
     else:
-        tmpimg =rescaled_image.copy()
-        templatePath = mlPath+"lobster_templates/square_templates_2inch.png"
+        if fishery_type == "square_test":
+            ref_object_contour, all_square_contours = contour_utils.get_big_square_target_contour(rescaled_image.copy(), 1)
+        else:
+            tmpimg =rescaled_image.copy()
+            templatePath = mlPath+"lobster_templates/square_templates_2inch.png"
 
-        ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, templatePath)
-        ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
-        
-        if False:
-            cv2.drawContours(tmpimg, all_square_contours, -1, (255,200,200),5)
-            #cv2.drawContours(tmpimg, [ref_object_contour],-1,(0,0,255),10)
-            #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-            utils.show_img("ref object", tmpimg)
+            ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, templatePath)
+            ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
+            
+            if False:
+                cv2.drawContours(tmpimg, all_square_contours, -1, (255,200,200),5)
+                #cv2.drawContours(tmpimg, [ref_object_contour],-1,(0,0,255),10)
+                #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
+                utils.show_img("ref object", tmpimg)
 
     utils.print_time("ref object contours done", _start_time)
 
