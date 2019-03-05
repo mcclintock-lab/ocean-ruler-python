@@ -131,35 +131,32 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
         dBX = abs(startLinePoint[0] - endLinePoint[0])
         dBY = abs(startLinePoint[1] - endLinePoint[1])
         dB = get_distance(dBX, dBY)
-
-        widthStartLinePoint = extTop
-        widthEndLinePoint = extBot
+        if constants.isScallop(fisheryType):
+            x,y,w,h = cv2.boundingRect(c)
+            cv2.rectangle(base_img,(x,y),(x+w,y+h),(255,255,0),3)
+            widthStartLinePoint = extTop
+            widthEndLinePoint = (extTop[0],extTop[1]+h)
+        else:
+            widthStartLinePoint = extTop
+            widthEndLinePoint = extBot
 
         dBWidthX = abs(widthStartLinePoint[0] - widthEndLinePoint[0])
         dBWidthY = abs(widthStartLinePoint[1] - widthEndLinePoint[1])
         dBWidth = get_distance(dBWidthX, dBWidthY)
-        print("width x: {}".format(dBWidthX))
-        print("widht y: {}".format(dBWidthY))
-        print("width of scallop: {}".format(dBWidth))
 
     drawLines(base_img, not flipDrawing, startLinePoint, endLinePoint, False)
     if True:
-        cv2.circle(base_img, extLeft, 8, (0, 0, 255), -1)
-        cv2.circle(base_img, extRight, 8, (0, 255, 0), -1)
-        cv2.circle(base_img, extTop, 8, (255, 0, 0), -1)
-        cv2.circle(base_img, extBot, 8, (255, 255, 0), -1)
+        cv2.circle(base_img, widthStartLinePoint, 8, (0, 0, 255), -1)
+        cv2.circle(base_img, widthEndLinePoint, 8, (0, 255, 0), -1)
         cv2.drawContours(base_img,[c],0,(255,0,0),2)
         drawLines(base_img, not flipDrawing, widthStartLinePoint, widthEndLinePoint, False)
     
-    
-    x,y,w,h = cv2.boundingRect(c)
-    cv2.rectangle(base_img,(x,y),(x+w,y+h),(255,255,0),3)
-    
     #this is the rotated box
-    rect = cv2.minAreaRect(c)
-    box = cv2.boxPoints(rect)
-    box = np.int0(box)
-    cv2.drawContours(base_img,[box],0,(0,191,255),8)
+    if False:
+        rect = cv2.minAreaRect(c)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        cv2.drawContours(base_img,[box],0,(0,191,255),8)
     
     '''
     ellipse = cv2.fitEllipse(contour)
@@ -483,6 +480,61 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
         (255, 0, 255), 4)
 
     return dimB, startLinePoint, endLinePoint
+
+def get_contour_rect_intersection(base_img, contour, rect):
+        #find the union of the fitted line for the entire lobster contour
+    # and the target contour
+    
+    # create an image filled with zeros, single-channel, same size as img.
+    blank = np.zeros( base_img.shape[0:2] )
+
+    # copy each of the contours (assuming there's just two) to its own image. 
+    # Just fill with a '1'.
+    img1 = cv2.drawContours( blank.copy(), [contour], 0, 1 )
+    #draw the line contour to turn it into a mask
+    x=rect[0]
+    y=rect[1]
+    w=rect[2]
+    h=rect[3]
+    img2 = cv2.rectangle(blank.copy(),(x,y),(x+w,y+h),(255,255,255),2)
+
+
+    #and AND them together
+    imgI = np.logical_and(img1, img2)
+
+    locations = np.argwhere(imgI)
+
+    if len(locations) > 2:
+        locations = remove_duplicates(locations)
+
+    if locations is not None and len(locations) >= 2:
+        print("lotsa points...{}".format(len(locations)))
+        color =  (50, 50, 255)
+        for i, loc in enumerate(locations):
+            cX = loc[1]
+            cY = loc[0]
+            color = (i*30,i*30,i*25)
+            if(i == 0):
+                startLinePoint = (cX, cY)
+            elif i == 1:
+                endLinePoint = (cX, cY)
+            
+            if True:
+                cv2.circle(base_img, (cX, cY), 12, (125,125,125), -1)
+
+    elif len(locations) == 2:
+        print("2 points...")
+        startLinePoint = (locations[0][1],locations[0][1])
+        endLinePoint = (locations[1][1], locations[1][0])
+    else:
+        print("no start or end line point")
+        startLinePoint = 0
+        endLinePoint = 0
+
+
+    #cv2.circle(base_img, startLinePoint, 10,(150,0,5),-1)
+    #cv2.circle(base_img,endLinePoint, 10, (0,150,5),-1)
+    return startLinePoint, endLinePoint    
 
 def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLinePoint):
         #find the union of the fitted line for the entire lobster contour
