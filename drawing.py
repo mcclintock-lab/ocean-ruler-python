@@ -275,13 +275,6 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
     if flipDrawing:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
-        '''
-        startLinePoint = midpoint(tl, tr)
-        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
-        endLinePoint = midpoint(bl, br)
-        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        dB = abs(startLinePoint[1] - endLinePoint[1])
-        '''
         quarterStartLinePoint = midpoint(qtl, qtr)
         quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
         quarterEndLinePoint = midpoint(qbl, qbr)
@@ -291,14 +284,6 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
     else:
         # compute the midpoint between the top-left and top-right points,
         # followed by the midpoint between the top-righ and bottom-right
-        '''
-        startLinePoint = midpoint(tl, bl)
-        startLinePoint = (int(startLinePoint[0]), int(startLinePoint[1]))
-        endLinePoint = midpoint(tr, br)
-        endLinePoint = (int(endLinePoint[0]), int(endLinePoint[1]))
-        # compute the Euclidean distance between the midpoints
-        dB = abs(startLinePoint[0] - endLinePoint[0])
-        '''
 
         quarterStartLinePoint = midpoint(qtl, qbl)
         quarterStartLinePoint = (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1]))
@@ -307,10 +292,7 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
         dB = abs(quarterStartLinePoint[0] - quarterEndLinePoint[0])
 
     # draw the midpoints on the image
-    '''
-    cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 0), -1)
-    cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 0), -1)
-    '''
+
 
     cv2.circle(base_img, (int(quarterStartLinePoint[0]), int(quarterStartLinePoint[1])), 2, (0, 255, 0), -1)
     cv2.circle(base_img, (int(quarterEndLinePoint[0]), int(quarterEndLinePoint[1])), 2, (0, 255, 0), -1)
@@ -356,7 +338,6 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     tl, tr, bl, br = get_bounding_corner_points(contour)
     #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
 
-
     startLinePoint = midpoint(tl, bl)
     startLinePoint = (int(startLinePoint[0])+2, int(startLinePoint[1]))
     endLinePoint = midpoint(tr, br)
@@ -390,8 +371,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
    
     pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
-    print("----->>>>>>>>>> Db: {}".format(dB))
-    print("ppm: {}".format(pixelsPerMetric))
+    
     if True:
         cv2.drawContours(base_img, [contour],0,(125,0,0),1)
         cv2.circle(base_img, tl, 1, (255, 0, 0), -1)
@@ -424,9 +404,18 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     rotRect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rotRect)
     
-    rows,cols = base_img.shape[:2]
-    [vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
 
+    rows,cols = base_img.shape[:2]
+    #[vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
+    ellipse = cv2.fitEllipse(full_contour)
+    (ex,ey),(eMA,ema),eAngle = cv2.fitEllipse(full_contour)
+    #trimmed_lobster_contour = contour_utils.trim_lobster_contour(full_contour, (ex,ey), (eMA, ema), eAngle)
+    
+    isHorizontal = 45.0 <= eAngle <= 135.0
+   
+    poly = cv2.ellipse2Poly((int(ellipse[0][0]), int(ellipse[0][1])), (int(ellipse[1][0] / 2), int(ellipse[1][1] / 2)), int(ellipse[2]), 0, 360, 5)
+    cv2.ellipse(base_img, ellipse, (255,0,255), 2,cv2.LINE_AA)
+    [vx,vy,x,y] = cv2.fitLine(poly, cv2.DIST_L2,0,0.01,0.01)
 
     lefty = int((-x*vy/vx) + y)
     righty = int(((cols-x)*vy/vx)+y)
@@ -451,15 +440,13 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 255), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 2, (255, 0, 255), -1)
 
-
-
     dimB = dB / pixelsPerMetric
     if True:
         box = np.int0(box)
         cv2.drawContours(base_img,[box],0,(125,225,225),4, offset=(left_offset, top_offset))
         cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
         cv2.drawContours(base_img,[full_contour],0,(225,225,225),4, offset=(left_offset, top_offset))
-        #cv2.circle(base_img, (cX, cY), 10, (50, 50, 255), -1)
+        cv2.circle(base_img, (cX, cY), 10, (50, 50, 255), -1)
         cv2.line(base_img,a,b,(0,255,0),2)
 
 
@@ -510,7 +497,7 @@ def get_contour_rect_intersection(base_img, contour, rect):
         locations = remove_duplicates(locations)
 
     if locations is not None and len(locations) >= 2:
-        print("lotsa points...{}".format(len(locations)))
+        
         color =  (50, 50, 255)
         for i, loc in enumerate(locations):
             cX = loc[1]
@@ -525,7 +512,6 @@ def get_contour_rect_intersection(base_img, contour, rect):
                 cv2.circle(base_img, (cX, cY), 12, (125,125,125), -1)
 
     elif len(locations) == 2:
-        print("2 points...")
         startLinePoint = (locations[0][1],locations[0][1])
         endLinePoint = (locations[1][1], locations[1][0])
     else:
@@ -623,6 +609,7 @@ def get_square_corners(base_img, contour):
     cv2.drawContours(base_img, [box], -1, (220, 255, 225), 1)
 
     return rect
+    
 #start in topleft
 def clockwise_points(pts):
 	sortedPts = pts[np.argsort(pts[:, 0]), :]
@@ -645,7 +632,6 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     height = rotRect[1][1]
     rotAngle = abs(rotRect[2])
     verts = cv2.boxPoints(rotRect)
-    print("rot rect: {}".format(rotRect))
     if rotAngle > 45:
         tl = verts[2]
         tr = verts[3]

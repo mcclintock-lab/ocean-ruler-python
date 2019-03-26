@@ -76,7 +76,7 @@ def get_lobster_image(orig_image):
     cstart = int(cols/2)-20
     cend = int(cols/2)+20
     sample_val = image[rstart:rend,cstart:cend]
-    print("sample val: {}".format(sample_val))
+    
     #use original image so we get the non-masked values
     
     lowerMaskHSV = cv2.inRange(image, lowerRedMinRange, lowerRedMaxRange)
@@ -190,7 +190,6 @@ def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = Fal
                 val_plus = hue_offset+val_offset*2
 
     #huemin = tuple(cnt[cnt[:,:,0].argmin()][0])
-    print("hue offset is {}".format(hue_offset))
 
     final_huemin = image[0:range_max,0:range_max,0].min() - hue_offset
     final_satmin = image[0:range_max, 0:range_max,1].min() - sat_offset
@@ -384,7 +383,6 @@ def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,fir
         retval, threshold_bw = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     if False:
-        print("is bright? {}".format(is_bright))
         utils.show_img("thresh {};{}  -- is ruler {};is bright? {};path:{}".format(thresh_val, blur_window, is_ruler, is_bright,3),color_res)
 
     return image, threshold_bw, color_res, rows

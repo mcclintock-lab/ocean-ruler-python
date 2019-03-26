@@ -24,7 +24,7 @@ def showResults(f2Filtered, dx):
     fig=plt.figure(figsize=(20, 20))
     fig.add_subplot(1,2, 1)
     plt.imshow(dx)
-    plt.imshow(f2Filtered, alpha=0.6, cmap='hot');
+    plt.imshow(f2Filtered, alpha=0.2, cmap='hot');
     plt.show()
 
 
@@ -168,11 +168,12 @@ def read_args():
 
     
     if not hasRefObject:
+        #for running it locally
         print(" batch -- falling back to abalone & quarter")
         ref_object = "square"
-        ref_object_units = "cm"
-        ref_object_size = 5.08
-        fishery_type = "square_test"
+        ref_object_units = "inches"
+        ref_object_size = 2
+        fishery_type = "california_spiny_lobster"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -310,7 +311,7 @@ def execute():
         if imageName == None:
             return
 
-        multiplier = 0.90
+        multiplier = 0.85
         rMultiplier = 0.85
         if(isAbalone(fishery_type)):
             multiplier = 0.40
@@ -321,7 +322,11 @@ def execute():
 
         tmpImgName = None
         print("running model for ablob....")
-        zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+        if(isLobster):
+            zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
+        
+        else:
+            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
         fullMaskName = ""
         if isLobster(fishery_type):
