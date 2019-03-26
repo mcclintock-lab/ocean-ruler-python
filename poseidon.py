@@ -171,10 +171,10 @@ def read_args():
     if not hasRefObject:
         #for running it locally
         print(" batch -- falling back to abalone & quarter")
-        ref_object = "square"
+        ref_object = "quarter"
         ref_object_units = "inches"
-        ref_object_size = 2
-        fishery_type = "california_spiny_lobster"
+        ref_object_size = 0.955
+        fishery_type = "abalone"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -323,8 +323,8 @@ def execute():
             rMultiplier = 0.5
 
         tmpImgName = None
-        print("running model for ablob....")
-        if(isLobster):
+        print("running model for ablob...: {}".format(isLobster(fishery_type)))
+        if(isLobster(fisher_type)):
             print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
         
