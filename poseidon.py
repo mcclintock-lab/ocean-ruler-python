@@ -324,7 +324,7 @@ def execute():
 
         tmpImgName = None
         print("running model for ablob...: {}".format(isLobster(fishery_type)))
-        if(isLobster(fisher_type)):
+        if(isLobster(fishery_type)):
             print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
         
