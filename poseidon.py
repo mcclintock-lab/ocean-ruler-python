@@ -87,6 +87,7 @@ def setupQuarterSquareModel():
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
 
+
     tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
@@ -302,6 +303,7 @@ def execute():
         return jsonVals
     else:
         if isLobster(fishery_type):
+            print("setting up full lobster...")
             fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
 
         quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
@@ -323,6 +325,7 @@ def execute():
         tmpImgName = None
         print("running model for ablob....")
         if(isLobster):
+            print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
         
         else:
