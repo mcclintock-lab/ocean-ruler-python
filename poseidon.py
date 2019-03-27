@@ -19,6 +19,7 @@ QUARTER_MODEL = "quarter_square_model_11_19"
 AB_MODEL = "abalone_lobster_model_12_10"
 SCALLOP_MODEL = "scallop_lobster_model_11_20"
 AB_FULL_MODEL = "full_abalone_lobster_model_12_11"
+FINFISH_MODEL = "finfish_multi_320_model_3_27_19a"
 
 def showResults(f2Filtered, dx):
     fig=plt.figure(figsize=(20, 20))
@@ -32,6 +33,8 @@ def setup(fishery_type, loadFull=False):
     maxZoom=1.1
     tform = transforms_side_on
     print("--->>>fishery type: {}".format(fishery_type))
+    numTypes = 2
+
     if "scallop" in fishery_type:
         print("looking for scallops...")
         mlPath = os.environ['ML_PATH']+"/ml_data/scallop/"
@@ -39,11 +42,17 @@ def setup(fishery_type, loadFull=False):
         model_name = SCALLOP_MODEL
         maxZoom = 1.1
     elif "lobster" in fishery_type and loadFull:
-        print("--->>>looking for lobster")
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob_full/"
         sz = 320
         model_name = AB_FULL_MODEL
         maxZoom = 1.1
+    elif "finfish" in fishery_type:
+        numTypes = 4
+        print("--->>>>>finfish")
+        mlPath = os.environ['ML_PATH']+"/ml_data/finfish_multi/"
+        sz = 320
+        model_name = FINFISH_MODEL
+        maxZoom = 1.0
     else:    
         print('--->>>looking for abalone')
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
@@ -60,7 +69,7 @@ def setup(fishery_type, loadFull=False):
     m = arch(True)
     #stride (second arg) needs to match num classes, otherwise assert is thrown in pytorch
     m = nn.Sequential(*children(m)[:-2], 
-                      nn.Conv2d(512, 2, 3, padding=1), 
+                      nn.Conv2d(512, numTypes, 3, padding=1,groups=1), 
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
 
@@ -69,7 +78,6 @@ def setup(fishery_type, loadFull=False):
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
     learn.load(model_name)
-
 
     return m, tfms, data,learn
 
@@ -97,7 +105,6 @@ def setupQuarterSquareModel():
     return m, tfms, data,learn
 
 def loadData(imgName, targetPath, tfms, learn):
-    
     ds = FilesIndexArrayDataset([imgName], np.array([0]), tfms[1], targetPath)
     dl = DataLoader(ds)
     preds = learn.predict_dl(dl)
@@ -171,10 +178,10 @@ def read_args():
     if not hasRefObject:
         #for running it locally
         print(" batch -- falling back to abalone & quarter")
-        ref_object = "square"
+        ref_object = "quarter"
         ref_object_units = "inches"
-        ref_object_size = 2.0
-        fishery_type = "california_spiny_lobster"
+        ref_object_size = 0.955
+        fishery_type = "finfish"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -215,7 +222,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     py = np.exp(to_np(py)[0]); py
     feat = np.maximum(0,to_np(sfs[3].features[0]))
-    feat.shape
+    
     
     f2=np.dot(np.rollaxis(feat,0,3), py)
     maxVal = f2.max()
@@ -235,15 +242,10 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
     rZeroMask = None
     if restrictedMultiplier > 0:
         print("writing restriction mask for quarters/squares")
-        #rMaskPath = os.environ['ML_PATH']+"rmasks"    
-        #if not os.path.isdir(rMaskPath):
-        #    os.mkdir(rMaskPath)
 
         rF2Filtered = np.ma.masked_where(filter <= rMaxVal, filter)
         rZeroMask = np.ma.filled(rF2Filtered, 0)
         rZeroMask[rZeroMask > 0] = 255
-        #outRMaskPath = rMaskPath+imgName
-        #writeMask(rZeroMask, outRMaskPath, True)
 
     #do extra masking step of target area
     #if extraMask is not None:
@@ -270,10 +272,13 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 def writeMask(zeroMask, outMaskName, show=False):
     #make sure doesn't hit edges
     nrows, ncols = zeroMask.shape
-    row, col = np.ogrid[:nrows, :ncols]
-    cnt_row, cnt_col = nrows / 2, ncols / 2
-    outer_edge_mask = ((row - cnt_row)**2 + (col - cnt_col)**2 > ((nrows / 2)-4)**2 )
-    zeroMask[outer_edge_mask] = 0
+    
+    square_mask = np.ones((nrows, ncols), dtype=bool)
+    for (x,y), value in np.ndenumerate(square_mask):
+        square_mask[x][y] = x<2 or x > nrows-2 or y<2 or y>ncols-2
+
+    #zeroMask[outer_edge_mask] = 0
+    zeroMask[square_mask] = 0
     cv2.imwrite(outMaskName, zeroMask)
 
     if False:
@@ -286,6 +291,9 @@ def isLobster(fishery_type):
 
 def isScallop(fishery_type):
     return "scallop" in fishery_type
+
+def isFinfish(fishery_type):
+    return "finfish" in fishery_type
 
 def isAbalone(fishery_type):
     return "abalone" in fishery_type
@@ -321,19 +329,22 @@ def execute():
         elif(isScallop(fishery_type)):
             multiplier = 0.30
             rMultiplier = 0.5
+        elif(isFinfish(fishery_type)):
+            multiplier = 0.36
+            rMultiplier = 0.5
 
         tmpImgName = None
-        print("running model for ablob...: {}".format(isLobster(fishery_type)))
+        print("running model for ablob...: {}".format(fishery_type))
+        print("multiplier: {}".format(multiplier))
+
         if(isLobster(fishery_type)):
             print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
-        
         else:
-            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, True, None, False)
 
         fullMaskName = ""
         if isLobster(fishery_type):
-            print("running model for full ablob")
             fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
         
         if ref_object == "square":
@@ -349,10 +360,6 @@ def execute():
         print(">>>>><<<<<")
         print(jsonVals)
         return jsonVals
-
-
-
-
 
 
 execute()
