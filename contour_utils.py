@@ -234,11 +234,11 @@ def get_big_square_target_contour(input_image, size_place):
     return target_contour, tcontours
 
 
+
 def get_target_contour(input_image, template_contour, is_square_ref_object, is_abalone, isWhiteOrGray, fishery_type):
 
     lower_perc_bounds = 0.1
     if(constants.isScallop(fishery_type)):
-        #note: this is here because i'm temporarily ignoring the ML for scallops, since its chopping tails off...
         lower_perc_bounds = 0.05
     target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, False, is_square_ref_object, fishery_type)
     if target_contour is None:
@@ -272,9 +272,7 @@ def get_target_contour(input_image, template_contour, is_square_ref_object, is_a
     return contours, orig_contours
 
 def get_quarter_image(input_image, use_opposite, isWhiteOrGray):
-
     if not isWhiteOrGray and not use_opposite:
-        
         thresh_val = 30
         blur_window = 5
         first_pass = True
@@ -286,28 +284,26 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray):
             gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
         else:
             gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
-
+        
     else:
-
         denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
         gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+        ret, thresh = cv2.threshold(gray, 100,255,0)
+        gray = thresh
 
     if isWhiteOrGray or utils.is_dark_gray(input_image):
         lower_bound = 0
         upper_bound = 100
-        thresh_lower = 70
-        thresh_upper = 255
     else:
         lower_bound = 20
         upper_bound = 250
-        thresh_lower = 127
-        thresh_upper = 250
         
     scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
-
+    
     return scale_img, gray
 
 def get_target_quarter_contours(input_image, use_opposite, too_close_to_abalone=False, isWhiteOrGray=True):
+
     scale_img, gray = get_quarter_image(input_image, use_opposite, isWhiteOrGray)
     kernel = np.ones((5,3), np.uint8)
     if not too_close_to_abalone:
@@ -315,18 +311,18 @@ def get_target_quarter_contours(input_image, use_opposite, too_close_to_abalone=
     else:
         scale_img = cv2.erode(scale_img, kernel, iterations=2)
 
-    ret, thresh = cv2.threshold(scale_img.copy(), 127,255,0)
+    ret, thresh = cv2.threshold(scale_img.copy(), 50,140,0)
     scale_cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     scale_contours = np.array(scale_cnts[1])
 
-    if False:
+    if True:
         cv2.drawContours(input_image, scale_contours, -1, (0,255,255),4)
         utils.show_img("quarter threshold", input_image)
 
     matches = []
     cnt = 0
-    circle_img = gray.copy()
-    circles = cv2.HoughCircles(circle_img,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=15,maxRadius=80)
+    circle_img = input_image.copy()
+    circles = cv2.HoughCircles(thresh.copy(),cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=15,maxRadius=80)
     if False:
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
@@ -334,7 +330,7 @@ def get_target_quarter_contours(input_image, use_opposite, too_close_to_abalone=
             cv2.circle(circle_img,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
             cv2.circle(circle_img,(i[0],i[1]),2,(0,0,255),3)
-        utils.show_img("circles", circle_img)
+        utils.show_img("--->>>>>>circles", circle_img)
     return circles, scale_contours
 
 def is_point_in_circle(point, circle):
@@ -361,22 +357,21 @@ def get_matches(circles, matches):
                     circle_matches.append(row)
     return circle_matches
 
-
-
 def get_circle_info(circle):
     cx = circle[0]
     cy = circle[1]
     radius = circle[2]
     return cx, cy, radius
 
-def get_filtered_quarter_contours(scale_contours, target_contour, img_area, check_roundness):
+def get_filtered_quarter_contours(scale_contours, target_contour, img_area, check_roundness,original_size=None):
     matches = []
+    
     for i, scontour in enumerate(scale_contours):
         try:
             carea = cv2.contourArea(scontour)
             hull = cv2.convexHull(scontour,returnPoints=True)
             hullArea = cv2.contourArea(hull)
-            perc = hullArea/img_area
+            perc = hullArea/original_size
 
             if perc <= 0.06:
                 #if not utils.is_contour_enclosed(scontour, target_contour, False, not check_roundness):
@@ -392,7 +387,7 @@ def get_filtered_quarter_contours(scale_contours, target_contour, img_area, chec
 
     return matches
 
-def get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray):
+def get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=None):
     results = []
     for i, ciData in enumerate(clippedImages):
         ci = ciData[0]
@@ -400,28 +395,30 @@ def get_quarter_results(clippedImages, target_contour, quarter_template_contour,
         yOffset = ciData[2]
 
         refObjectCenterX, refObjectCenterY, refRadius, matches, score = get_quarter_dimensions(ci, target_contour, 
-                                                                 quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray)
+                                                                 quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size)
 
+        print("xoffset: {}, {}, {}".format(xOffset, yOffset, refRadius))
         if refRadius > 0:
             results.append([refObjectCenterX+xOffset, refObjectCenterY+yOffset, refRadius, matches, score])
+        print("results-->>{}".format(results))
     return results
 
-def get_best_quarter_dimensions(clippedImages, maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray):
+def get_best_quarter_dimensions(clippedImages, maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray, original_size=None):
     results = []
     #first passed, quarter images clipped with target contour masked
-    results = get_quarter_results(maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray)
+    results = get_quarter_results(maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size)
     if len(results) == 0:
         #second, without the target contour masked out
-        results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray)
+        results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size)
         if len(results) == 0:
             #no good, try color with target contour masked
-            results = get_quarter_results(maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray)
+            results = get_quarter_results(maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray,original_size=original_size)
             if len(results) == 0:
                 # and finally, color without target contour masked
-                results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray)
+                results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray,original_size=original_size)
                 #do we need to keep going?
 
-
+    print("results:: {}".format(results))
     results = sorted(results, key=lambda result: result[4])
 
     
@@ -443,7 +440,7 @@ def offset_contour(contour, x, y):
     return contour
 
 
-def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contour, look_for_shapes, origCellCount, xOffset=0, yOffset=0, isWhiteOrGray=True, maskedInputImage=None):
+def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contour, look_for_shapes, origCellCount, xOffset=0, yOffset=0, isWhiteOrGray=True, maskedInputImage=None,original_size=None):
 
     ncols = len(input_image[0]) 
     nrows = len(input_image)
@@ -453,13 +450,15 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
     cy = 0
     radius = 0
     circle_matches = []
+
     #1. use white or color
     circles, scale_contours = get_target_quarter_contours(input_image, False, False, isWhiteOrGray)
-    matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, True)
+    matches = get_filtered_quarter_contours(scale_contours, abalone_contour, img_area, True,original_size=original_size)
 
     circle_matches = get_matches(circles, matches)
+    print("len circle matches: {}".format(len(circle_matches)))
     if False:
-        #cv2.drawContours(input_image, matches, -1, (0,0,255),4)
+        cv2.drawContours(input_image, matches, -1, (0,0,255),4)
         cv2.drawContours(input_image, scale_contours, -1, (255,255,0),6)
         #cv2.drawContours(input_image, [abalone_contour], 0, (0,255,0),4)
         
@@ -482,6 +481,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
 
 
             atEdge = atEdges(x,y,rows,cols)
+            print("at edge? {}".format(atEdge))
             circleRadius = circle[2]
 
             matchPerimeter = cv2.arcLength(match_contour,True)
@@ -491,7 +491,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
             compactness_values.append([radius, compactness, (cX, cY),10000000])
 
             if False:
-                cv2.drawContours(input_image, [match_contour], 0, (0,0,255),5)
+                cv2.drawContours(input_image, [match_contour], 0, (0,0,255),12)
                 utils.show_img("hull and match "+str(i), input_image)
 
             #for small images, set the radius max lower. for example:
@@ -506,10 +506,12 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
             
             #its outside the key range, so set value to big
             if radius < radiusMin or radius > radiusMax:
+                print("too big!")
                 compactness_values[i] = [radius, 10000000, (cX, cY),10000000]
 
             #make sure the radius is within a certain size and not at the edges - gets rid of little areas/squiggles
             if radius < 24 or radius > radiusMax or compactness > 1.5:
+                print("radius: {}, c:{}".format(radius, compactness))
                 continue
         
             val = cv2.matchShapes(match_contour, quarter_template_contour, cv2.CONTOURS_MATCH_I3, 0.0)
@@ -543,6 +545,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
         
         #the circles don't match, and the hough circle seems wrong...
         if(orig_radius > 22 and radius > 25):
+            print("circles don't match...")
             #xperiment - try the circle not the contour
             #radius = orig_radius
             #cx = compactness_values[dex][2][0]
@@ -554,6 +557,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
             vval = compactness_values[dex][3]
             score = cval*vval
         else:
+            print("here??")
             return 0,0,0,[],10000000
 
     else:
@@ -561,7 +565,7 @@ def get_quarter_dimensions(input_image, abalone_contour, quarter_template_contou
 
     if target_quarter_contour is not None:
         #cv2.drawContours(input_image, [target_quarter_contour], -1, (255,0,0),4)
-        
+        print("found a match...")
         #draw the circle 
         cv2.circle(input_image,(target_circle[0],target_circle[1]),target_circle[2],(0,255,0),2)
         ellipse = cv2.fitEllipse(target_quarter_contour)
@@ -981,3 +985,186 @@ def get_square_contour(input_image, lobster_contour, square_template_contour, st
             square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,False, False, start_time)            
               
     return square_contour, scale_contours
+
+
+def get_target_finfish_contour(full_image, clipped_image, template_contour, is_square_ref_object=False,isWhiteOrGray=True):
+
+    print("first pass...")
+    target_contour, orig_contours = get_finfish_contour(full_image, clipped_image, template_contour, 0.1, isWhiteOrGray, use_opposite=False, is_square_ref_object=is_square_ref_object)
+    
+    if target_contour is None:
+        print("working on second pass...")
+        target_contour, orig_contours = get_finfish_contour(full_image, clipped_image, template_contour, 0.01, isWhiteOrGray, use_opposite=True, is_square_ref_object=is_square_ref_object)
+
+
+    contours = np.array(target_contour)
+
+    return contours, orig_contours
+
+def mask_non_finfish(full_image, clipped_image):
+
+
+    rows = len(clipped_image)
+    cols = len(clipped_image[0])
+
+    full_rows = len(full_image)
+    full_cols = len(full_image[0])
+    masks = []
+    final_mask = np.zeros((full_rows,full_cols), np.uint8)
+    
+    for i in range(int((rows/2))-30, int((rows/2))+30):
+        for j in range(int((cols/2))-30, int((cols/2))+30):
+            hlow = clipped_image[i][j][0]
+            slow = clipped_image[i][j][1]
+            vlow = clipped_image[i][j][2]
+           
+            lower_range = np.array([hlow-8, slow-4, vlow-4])
+            upper_range = np.array([hlow+9, slow+8, vlow+8])
+            
+            mask = cv2.inRange(full_image, lower_range, upper_range)
+           
+            final_mask = cv2.bitwise_or(final_mask, mask)
+
+    
+
+    utils.show_img("masked", final_mask)
+    return final_mask
+
+    
+def get_finfish_contour(full_image, clipped_image, template_contour, lower_percent_bounds, white_or_gray, 
+                            use_opposite=False, is_square_ref_object=False):
+    
+    target_contour = None
+   
+    if use_opposite:
+        white_or_gray = not white_or_gray
+
+    print('white or gray: {}'.format(white_or_gray))
+    
+    #this was white or gray
+    if white_or_gray or utils.is_dark_gray(clipped_image):
+        lower_bound = 30
+        upper_bound = 130
+    else:
+        lower_bound = 10
+        upper_bound = 220
+        
+    if white_or_gray:
+        gray = utils.get_gray_image(clipped_image, white_or_gray, use_opposite)
+        #blur = cv2.GaussianBlur(gray, (5,5),0)
+        blur = cv2.bilateralFilter(gray,5,75,75)
+        #utils.show_img("blur:: ", blur)
+        edged_img = cv2.Canny(blur, lower_bound, upper_bound,11) 
+    else:
+
+        hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
+        #utils.show_img("hsv", hsv_image)
+    
+        full_hsv_image = cv2.cvtColor(full_image, cv2.COLOR_BGR2HSV)
+        masked_full = mask_non_finfish(full_hsv_image, hsv_image)
+
+
+    if False:
+        print("is white: {}".format(white_or_gray))
+        utils.show_img("edges", edged_img)
+        
+    
+    
+    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,17))
+    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,7))
+    kernel = np.ones((3,3), np.uint8)
+
+    
+    iters=3
+    edged_img = cv2.dilate(edged_img, kernel, iterations=iters)
+    edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
+    edged_img = cv2.erode(edged_img, erode_kernel, iterations=1)
+
+
+    ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
+    cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+ 
+    if (cnts[1] is None or len(cnts[1]) == 0) and (cnts[0] is not None and len(cnts[0]) > 0):
+        largest = utils.get_largest_edges(cnts[0])
+    else :
+        largest = utils.get_largest_edges(cnts[1])
+
+    if False:
+        try:
+            cv2.drawContours(clipped_image, cnts[0], -1, (255,0,0),4)
+        except Exception as e:
+            print("nothing in 0")
+        try:
+            cv2.drawContours(clipped_image, cnts[1], -1, (0,0,255),4)
+        except Exception:
+            print("couldn't draw 1")
+        try:
+            cv2.drawContours(clipped_image, cnts[2], -1, (0,255,0),4)
+        except Exception:
+            print("coudln't draw 2")
+
+        #cv2.drawContours(input_image, [largest], -1, (255,255,255),3)
+        utils.show_img("cnts 0 is blue, 1 is red,2 is green ", clipped_image)
+    
+
+    if False:
+        if largest is not None and len(largest) > 0:
+            n=50
+            for l in largest:
+
+                if n < 300:
+                    cv2.drawContours(clipped_image, l[1], -1, (n,n-20,n*2),12)
+                n=n+50
+            utils.show_img("biggest contours", clipped_image)
+
+        
+    ncols = len(clipped_image[0]) 
+    nrows = len(clipped_image)
+    img_area = nrows*ncols
+    minVal = 100000000
+    dex = 0
+    if largest is not None and len(largest) > 0 and largest[0] and largest[1] is not None:
+        for i, contour in enumerate(largest):
+            
+            perc = contour[0]/img_area
+            actual_perc = contour[2]/img_area
+            current_contour = contour[1]
+            print("{}. perc is {}".format(i, perc))
+            if is_square_ref_object and is_square_contour(current_contour):
+                continue
+
+            if perc > lower_percent_bounds:
+                if(current_contour is None or len(current_contour) == 0):
+                    print("skipping because perc is {}".format(perc))
+                    continue
+
+                x,y,w,h = cv2.boundingRect(current_contour)
+                compactness = get_compactness(current_contour)
+                if w >= ncols*0.99 and h >= nrows*0.99:
+                    #sanity check for the crazy squiggly contours, like in
+                    #Glass_Beach_Memorial_Day_\ -\ 1252_181.jpg
+                    matchVal = cv2.matchShapes(current_contour, template_contour, 2, 0.0)
+                else:
+                    matchVal = 1
+
+                val=matchVal*compactness*(1/actual_perc)
+
+                if matchVal < minVal:
+                    dex = i
+                    minVal = matchVal
+        
+                    target_contour = current_contour
+
+
+    if False:
+        draw = clipped_image.copy()
+        cv2.drawContours(draw, [target_contour], -1, (255,255,0),12)
+        utils.show_img("target-->>>>", draw)
+    #orig contours are returned for display/testing
+
+    print("done...")
+    if cnts is None or len(cnts) < 1:
+        orig_contours = []
+    else:
+        orig_contours = cnts[1]
+    return target_contour, orig_contours

@@ -19,11 +19,11 @@ QUARTER_MODEL = "quarter_square_model_11_19"
 AB_MODEL = "abalone_lobster_model_12_10"
 SCALLOP_MODEL = "scallop_lobster_model_11_20"
 AB_FULL_MODEL = "full_abalone_lobster_model_12_11"
-FINFISH_MODEL = "finfish_multi_320_model_3_27_19a"
+FINFISH_MODEL = "finfish_lobster_320_model_4_1_19"
 
 def showResults(f2Filtered, dx):
-    fig=plt.figure(figsize=(20, 20))
-    fig.add_subplot(1,2, 1)
+    fig=plt.figure(figsize=(4, 4))
+    fig.add_subplot(1,1, 1)
     plt.imshow(dx)
     plt.imshow(f2Filtered, alpha=0.2, cmap='hot');
     plt.show()
@@ -47,7 +47,7 @@ def setup(fishery_type, loadFull=False):
         model_name = AB_FULL_MODEL
         maxZoom = 1.1
     elif "finfish" in fishery_type:
-        numTypes = 4
+        numTypes = 2
         print("--->>>>>finfish")
         mlPath = os.environ['ML_PATH']+"/ml_data/finfish_multi/"
         sz = 320
@@ -73,8 +73,7 @@ def setup(fishery_type, loadFull=False):
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
 
-
-    tfms = tfms_from_model(arch, sz, aug_tfms=tform, max_zoom=maxZoom)
+    tfms = tfms_from_model(arch, sz, crop_type=CropType.NO, aug_tfms=tform, max_zoom=maxZoom)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
     learn.load(model_name)
@@ -96,7 +95,7 @@ def setupQuarterSquareModel():
                       nn.LogSoftmax())
 
 
-    tfms = tfms_from_model(arch, sz, aug_tfms=transforms_side_on, max_zoom=1.1)
+    tfms = tfms_from_model(arch, sz, crop_type=CropType.NO, aug_tfms=transforms_side_on, max_zoom=1.1)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
     learn = ConvLearner.from_model_data(m, data)
     learn.load(QUARTER_MODEL)
@@ -330,7 +329,7 @@ def execute():
             multiplier = 0.30
             rMultiplier = 0.5
         elif(isFinfish(fishery_type)):
-            multiplier = 0.36
+            multiplier = 0.30
             rMultiplier = 0.5
 
         tmpImgName = None
@@ -341,11 +340,13 @@ def execute():
             print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
         else:
-            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, True, None, False)
+            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
         fullMaskName = ""
         if isLobster(fishery_type):
             fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
+        elif isFinfish(fishery_type):
+            fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.40, rMultiplier, False, None, False, "full_")
         
         if ref_object == "square":
             extraMask = None

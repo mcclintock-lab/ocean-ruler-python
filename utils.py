@@ -524,3 +524,5 @@ def get_mean_abalone_color(input_image):
 
 
     return mean_h_val, mean_s_val, mean_v_val
+
+    

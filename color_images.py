@@ -105,6 +105,7 @@ def get_lobster_image(orig_image):
 
     return threshed
     
+
 def get_color_image_new(orig_image, hue_offset, first_pass=True, is_bright = False,is_ruler=False):
 
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2HSV)
@@ -357,12 +358,13 @@ def get_color_image(orig_image, hue_offset, first_pass=True, is_bright = False,i
     return bgr
 
 
-def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img,first_pass, is_ruler, use_adaptive):
+def get_image_with_color_mask(input_image, thresh_val, blur_window, show_img=False,first_pass=True, is_ruler=False, use_adaptive=False):
     rows = len(input_image)
     cols = len(input_image[0])
     image = input_image
 
     is_bright = utils.is_bright_background(image)
+    print("is bright? {}".format(is_bright))
     color_res = get_color_image_new(image, thresh_val+blur_window, first_pass=first_pass, is_bright=is_bright,is_ruler=is_ruler)
     
     #utils.show_img("color_res {};{}".format(thresh_val, blur_window),color_res)
