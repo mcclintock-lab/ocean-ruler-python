@@ -329,6 +329,7 @@ def execute():
             multiplier = 0.30
             rMultiplier = 0.5
         elif(isFinfish(fishery_type)):
+            #going higher than this starts to chop off fish edges...
             multiplier = 0.30
             rMultiplier = 0.5
 
@@ -340,20 +341,22 @@ def execute():
             print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
         else:
-            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, True, None, False)
 
         fullMaskName = ""
         if isLobster(fishery_type):
-            fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.35, rMultiplier, False, None, False, "full_")
+            fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
         elif isFinfish(fishery_type):
-            fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.40, rMultiplier, False, None, False, "full_")
+            fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.10, rMultiplier, False, None, False, "full_")
         
         if ref_object == "square":
             extraMask = None
         else:
             extraMask = zeroMask
-        
-        extraMask, extraMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.5, 0, False, extraMask, True)
+        if isFinfish(fishery_type):
+            extraMask, extraMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.15, 0, True, extraMask, True)
+        else:    
+            extraMask, extraMaskName = runModel(m, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, extraMask, True)
         print("done with ml")
         #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
         jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,

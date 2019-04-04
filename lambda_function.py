@@ -407,12 +407,17 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     elif fishery_type == "finfish":
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         print("is white or gray: {}".format(isWhiteOrGray))
-        small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
+        finfish_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/finfish.png")
+        if True:
+            draw = rescaled_image.copy()
+            cv2.drawContours(draw, [finfish_template_contour], 0, (255,0,0),5)
+            #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
+            utils.show_img("finfish template contour", draw)
         gray = cv2.cvtColor(rescaled_image, cv2.COLOR_BGR2GRAY)
         ret, thresh = cv2.threshold(gray, 100, 255, 0)
         print("fishery type finfish....")
-        target_contour, orig_contours = contour_utils.get_target_finfish_contour(rescaled_image.copy(), clippedImage, small_abalone_template_contour, 
-                                                                            is_square_ref_object=is_square_ref,isWhiteOrGray=isWhiteOrGray)
+        target_contour, orig_contours = contour_utils.get_target_finfish_contour(rescaled_image.copy(), clippedImage, finfish_template_contour, 
+                                                                            is_square_ref_object=is_square_ref,isWhiteOrGray=True)
         
         if target_contour is None:
             print("target contour is NONE!!")
