@@ -2,6 +2,7 @@ import os
 import numpy as np
 import argparse
 import scipy
+import utils
 
 from fastai.imports import *
 
@@ -180,7 +181,7 @@ def read_args():
         ref_object = "quarter"
         ref_object_units = "inches"
         ref_object_size = 0.955
-        fishery_type = "finfish"
+        fishery_type = "california_finfish"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -285,17 +286,8 @@ def writeMask(zeroMask, outMaskName, show=False):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-def isLobster(fishery_type):
-    return "lobster" in fishery_type
 
-def isScallop(fishery_type):
-    return "scallop" in fishery_type
 
-def isFinfish(fishery_type):
-    return "finfish" in fishery_type
-
-def isAbalone(fishery_type):
-    return "abalone" in fishery_type
 
 def execute():
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults = read_args()
@@ -309,7 +301,7 @@ def execute():
         print(jsonVals)
         return jsonVals
     else:
-        if isLobster(fishery_type):
+        if utils.isLobster(fishery_type):
             print("setting up full lobster...")
             fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
 
@@ -322,45 +314,47 @@ def execute():
 
         multiplier = 0.85
         rMultiplier = 0.85
-        if(isAbalone(fishery_type)):
+        if(utils.isAbalone(fishery_type)):
             multiplier = 0.40
             rMultiplier = 0.5
-        elif(isScallop(fishery_type)):
+        elif(utils.isScallop(fishery_type)):
             multiplier = 0.30
             rMultiplier = 0.5
-        elif(isFinfish(fishery_type)):
+        elif(utils.isFinfish(fishery_type)):
             #going higher than this starts to chop off fish edges...
-            multiplier = 0.30
+            multiplier = 0.43
             rMultiplier = 0.5
 
         tmpImgName = None
         print("running model for ablob...: {}".format(fishery_type))
         print("multiplier: {}".format(multiplier))
 
-        if(isLobster(fishery_type)):
+        if(utils.isLobster(fishery_type)):
             print("doing clipped lobster")
             zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
         else:
-            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, True, None, False)
+            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
         fullMaskName = ""
-        if isLobster(fishery_type):
+        if utils.isLobster(fishery_type):
             fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
-        elif isFinfish(fishery_type):
+        elif utils.isFinfish(fishery_type):
             fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.10, rMultiplier, False, None, False, "full_")
         
         if ref_object == "square":
-            extraMask = None
+            refObjectMask = None
         else:
-            extraMask = zeroMask
-        if isFinfish(fishery_type):
-            extraMask, extraMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.15, 0, True, extraMask, True)
+            refObjectMask = zeroMask
+
+        if utils.isFinfish(fishery_type):
+            refObjectMask, refObjectMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.05, 0, False, refObjectMask, True)
         else:    
-            extraMask, extraMaskName = runModel(m, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, extraMask, True)
+            
+            refObjectMask, refObjectMaskName = runModel(m, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
         print("done with ml")
         #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
         jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-            locCode, fishery_type, original_filename, original_size, extraMaskName, showResults)
+            locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults)
         print(">>>>><<<<<")
         print(jsonVals)
         return jsonVals

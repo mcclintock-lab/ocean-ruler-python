@@ -13,6 +13,17 @@ def print_time(msg, start_time):
     elapsed = now - start_time
     #print("{} time elapsed: {}".format(msg, elapsed))
 
+def isLobster(fishery_type):
+    return "lobster" in fishery_type
+
+def isScallop(fishery_type):
+    return "scallop" in fishery_type
+
+def isFinfish(fishery_type):
+    return "finfish" in fishery_type
+
+def isAbalone(fishery_type):
+    return "abalone" in fishery_type
 
 
 def get_thumbnail(image_full):

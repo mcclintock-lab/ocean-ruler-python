@@ -113,7 +113,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         presigned_url = ""
         #if is_deployed:
         
-        if False:
+        if True:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
@@ -229,6 +229,7 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, 
         target_contour = target_shapes[0]
 
     else:
+
         rescaled_mask = templates.rescale(orig_cols, orig_rows, mask_image)
         gray = cv2.cvtColor(rescaled_mask, cv2.COLOR_BGR2GRAY)
         ret, thresh = cv2.threshold(gray, 127, 255, 0)
@@ -240,8 +241,9 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, 
     if False:
         print("showing now...")
         #cv2.drawContours(input_image, [contour], 0, (0,0,255), 3)
-        cv2.drawContours(rescaled_mask, [target_contour], -1, (0,255,255),4)
-        cv2.imshow("clipped from mask", rescaled_mask)
+        targ = rescaled_image.copy()
+        cv2.drawContours(targ, [target_contour], -1, (0,255,255),4)
+        cv2.imshow("clipped from mask", targ)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -252,17 +254,17 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, 
     else:
         return target_contour
 
-def getAllClippedImages(rescaled_image, clippingShapes, target_contour):
+def getAllClippedImages(rescaled_image, clippingShapes, target_contour, fishery_type):
     shapes = []
     for cs in clippingShapes:
         #area = cv2.contourArea(target_contour)
         #print('area: {}'.format(area))
-        clippedImage, x, y = getClippedImage(rescaled_image, cs, target_contour)
+        clippedImage, x, y = getClippedImage(rescaled_image, cs, target_contour, fishery_type)
         shapes.append([clippedImage,x,y])
 
     return shapes
 
-def getClippedImage(rescaled_image, clippingShape, target_contour=None):
+def getClippedImage(rescaled_image, clippingShape, target_contour=None, fishery_type=None):
     x,y,w,h = cv2.boundingRect(clippingShape)
     newX = x
     newY = y
@@ -276,10 +278,27 @@ def getClippedImage(rescaled_image, clippingShape, target_contour=None):
         
 
     clippedImage = img_to_clip[newY:newY+newHeight,newX:newX+newWidth]
+    if utils.isFinfish(fishery_type):
+        origImg = rescaled_image.copy()
+        origMask = np.ones(origImg.shape[:2], dtype="uint8") *255
+        mask = origMask.copy()
+        cv2.drawContours(mask, [clippingShape], -1, 0, -1)
+        invertMask = cv2.bitwise_not(mask)
+        clippedMaskImage = cv2.bitwise_and(origImg, origImg, mask=invertMask)
+        clippedImage = clippedMaskImage[newY:newY+newHeight,newX:newX+newWidth]
 
+        if False:
+            utils.show_img("mask before fill", mask)
+            utils.show_img("mask after fill", mask)
+            #utils.show_img("mask: ", mask)
+            #utils.show_img("clipped: ", clippedImage)
+            
+            utils.show_img("invert mask: ", invertMask)
+            
+            utils.show_img("inverted mask: ", clippedMaskImage)
     #if target_contour is not None:
     #    utils.show_img("masked with target", img_to_clip)
-    #    utils.show_img("clipped: ", clippedImage)
+    
     return clippedImage, x, y
 
 
@@ -330,10 +349,10 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             orig_rows = len(rescaled_image)
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, allShapes=False, useCircle=True)
             mlFullMask = getClippingBoundsFromMask(full_mask_image, rescaled_image, orig_cols, orig_rows, allShapes=False, useCircle=False)
-            clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask)
+            clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask, None, fishery_type)
         else:
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows,allShapes=False, useCircle=False)
-            clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask)
+            clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask, None, fishery_type)
             #utils.show_img("clipped", clippedImage)
  
     #get the arget contour for the appropriate fishery
@@ -404,11 +423,11 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         if False:
             cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
             utils.show_img("ref object", tmpimg)
-    elif fishery_type == "finfish":
+    elif utils.isFinfish(fishery_type):
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         print("is white or gray: {}".format(isWhiteOrGray))
         finfish_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/finfish.png")
-        if True:
+        if False:
             draw = rescaled_image.copy()
             cv2.drawContours(draw, [finfish_template_contour], 0, (255,0,0),5)
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
@@ -423,11 +442,10 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             print("target contour is NONE!!")
         target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
         
-        if False:
-            draw = rescaled_image.copy()
-            cv2.drawContours(draw, [target_contour], 0, (255,0,0),5)
+        if True:
+            cv2.drawContours(rescaled_image, [target_contour], 0, (255,0,0),5)
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-            utils.show_img("clipped Image from thresholding...", draw)
+            #utils.show_img("clipped Image from thresholding...", draw)
     else:
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
@@ -451,11 +469,11 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         if ro_mask_image is not None:
             print("using ref object mask...")
             roMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_image, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
-            clippedImages = getAllClippedImages(rescaled_image, roMasks, target_contour)
+            clippedImages = getAllClippedImages(rescaled_image, roMasks, target_contour, "Quarter")
 
             rescaled_masked = cv2.drawContours(rescaled_image.copy(),[target_contour],-1,(0,0,0),-1)
             roMaskedMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_masked, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
-            clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour)
+            clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour, "Quarter")
             
         else:
             clippedImages = [rescaled_image.copy()]
