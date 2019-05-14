@@ -307,7 +307,7 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray):
         scale_img = cv2.Canny(thresh, lower_bound, upper_bound,7) 
     else:
 
-        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
+        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,5,5,5,9)
         gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
         #utils.show_img("denoised", denoised)
         #ret, thresh = cv2.threshold(gray, 50,200,cv2.THRESH_BINARY)
@@ -318,11 +318,8 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray):
         scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
         
         
-
-
-        
     
-    if False:
+    if True:
         utils.show_img("quarter scale img: ", scale_img)
     return scale_img, gray
 
@@ -1069,27 +1066,24 @@ def mask_non_finfish(full_image, clipped_image):
     return clipped_mask
 
 #draw the biggest contour then erase the edge of the machine learning clipping mask...
-def erase_edge_of_clipped_mask(current_contour, largest_contours, edge_of_mask, draw):
+def erase_edge_of_clipped_mask(current_contour, edge_of_mask, draw):
 
     origMask = np.zeros(draw.shape[:2], dtype="uint8")
-    largest_contour = np.concatenate(largest_contours)
+
     cv2.fillPoly(origMask, [current_contour],255)
 
-    #cv2.fillPoly(origMask, [edge_of])
-    #cv2.drawContours(origMask  ,[current_contour],-1,255,4)
- 
-    cv2.drawContours(origMask, [edge_of_mask],0,0,10)
-    utils.show_img("orig mask", origMask)
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 15))
-    threshed = cv2.morphologyEx(origMask, cv2.MORPH_CLOSE, rect_kernel)
-    im2, target_shapes, hierarchy = cv2.findContours(threshed, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    target_shapes = sorted(target_shapes, key=lambda shape: cv2.contourArea(shape), reverse=True)
+    cv2.drawContours(origMask, [edge_of_mask],0,0,11)
 
-    print("num contours: {}".format(len(target_shapes)))
+    #rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
+    #threshed = cv2.morphologyEx(origMask, cv2.MORPH_CLOSE, rect_kernel)
+    im2, target_shapes, hierarchy = cv2.findContours(origMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+    target_shapes = sorted(target_shapes, key=lambda shape: cv2.contourArea(cv2.convexHull(shape,returnPoints=True)), reverse=True)
+
+    #target_contour = np.concatenate(target_shapes[:1],0)
     target_contour = target_shapes[0]
-    
     #target_contour = np.concatenate(target_shapes,0)
-    if False:
+    if True:
         cv2.drawContours(draw, [target_contour], -1,(255,10,50),3)
         utils.show_img("contours: ", draw)
     #utils.show_img("orig mask", origMask)
@@ -1114,12 +1108,14 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
         upper_bound = 220
         
     if white_or_gray:
-        gray = utils.get_gray_image(clipped_image, white_or_gray, use_opposite)
+        #denoised = cv2.fastNlMeansDenoisingColored(clipped_image,None,3,3,5,10)
+        gray = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2GRAY)
+        
         #blur = cv2.GaussianBlur(gray, (5,5),0)
         blur = cv2.bilateralFilter(gray,5,75,75)
         #utils.show_img("blur:: ", blur)
         edged_img = cv2.Canny(blur, lower_bound, upper_bound,11) 
-        utils.show_img("edged: ", edged_img)
+        
     else:
 
         hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
@@ -1138,6 +1134,7 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
     
     iters=3
     edged_img = cv2.dilate(edged_img, kernel, iterations=iters)
+
     edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
     edged_img = cv2.erode(edged_img, erode_kernel, iterations=1)
 
@@ -1170,13 +1167,13 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
         utils.show_img("cnts 0 is blue, 1 is red,2 is green ", clipped_image)
     
 
-    if True:
+    if False:
         if largest is not None and len(largest) > 0:
             n=50
             for l in largest:
 
                 if n < 300:
-                    cv2.drawContours(clipped_image, l[1], -1, (n,n-20,n*2),12)
+                    cv2.drawContours(clipped_image, l[1], -1, (n,n,n),3)
                 n=n+60
             utils.show_img("biggest contours", clipped_image)
 
@@ -1193,7 +1190,7 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
 
                 print(contour[1])
                 current_contour = contour[1]
-                current_contour = erase_edge_of_clipped_mask(current_contour, largest_contours_only, edge_of_mask, clipped_image.copy())
+                current_contour = erase_edge_of_clipped_mask(current_contour, edge_of_mask, clipped_image.copy())
                 if current_contour is not None:
                     target_contour = current_contour
 
@@ -1233,7 +1230,7 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
                     target_contour = current_contour
 
 
-    if True:
+    if False:
         draw = clipped_image.copy()
         cv2.drawContours(draw, [target_contour], -1, (255,255,0),12)
         utils.show_img("target-->>>>", draw)

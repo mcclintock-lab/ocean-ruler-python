@@ -322,7 +322,7 @@ def execute():
             rMultiplier = 0.5
         elif(utils.isFinfish(fishery_type)):
             #going higher than this starts to chop off fish edges...
-            multiplier = 0.30
+            multiplier = 0.35
             rMultiplier = 0.5
 
         print("running model for ablob...: {}".format(fishery_type))

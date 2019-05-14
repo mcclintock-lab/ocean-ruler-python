@@ -445,7 +445,11 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
         
         if False:
-            cv2.drawContours(rescaled_image, [target_contour], 0, (255,0,0),5)
+            rect = cv2.minAreaRect(target_contour)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            cv2.drawContours(rescaled_image,[box],0,(0,191,255),8)
+            #cv2.drawContours(rescaled_image, [target_contour], 0, (255,0,0),5)
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
             #utils.show_img("clipped Image from thresholding...", draw)
     else:
@@ -456,8 +460,12 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         print("is white or gray: {}".format(isWhiteOrGray))
         target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, 
                                                                             is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
-        if True:
-            cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
+        if False:
+            rect = cv2.minAreaRect(target_contour)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            cv2.drawContours(tmpimg,[box],0,(0,191,255),8)
+            #cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
             utils.show_img("ref object", tmpimg)
 
     utils.print_time("done getting {} contours".format(fishery_type), _start_time)
