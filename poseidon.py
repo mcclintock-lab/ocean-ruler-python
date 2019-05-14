@@ -322,10 +322,9 @@ def execute():
             rMultiplier = 0.5
         elif(utils.isFinfish(fishery_type)):
             #going higher than this starts to chop off fish edges...
-            multiplier = 0.43
+            multiplier = 0.30
             rMultiplier = 0.5
 
-        tmpImgName = None
         print("running model for ablob...: {}".format(fishery_type))
         print("multiplier: {}".format(multiplier))
 
@@ -346,11 +345,20 @@ def execute():
         else:
             refObjectMask = zeroMask
 
+        if not utils.isQuarter(ref_object):
+            print("getting square mask")
+            refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+        else:
+            print("getting quarter masks...")
+            refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+            #refObjectMaskName = imageName
+        '''
         if utils.isFinfish(fishery_type):
             refObjectMask, refObjectMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.05, 0, False, refObjectMask, True)
         else:    
-            
             refObjectMask, refObjectMaskName = runModel(m, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+        '''
+
         print("done with ml")
         #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
         jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,

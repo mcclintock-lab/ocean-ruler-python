@@ -113,7 +113,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         presigned_url = ""
         #if is_deployed:
         
-        if True:
+        print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        if False:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
@@ -149,7 +150,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
                 }
 
 
-        print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
     except Exception as e:
         utils.print_time("big bombout....: {}".format(e), _start_time)
         rval={"big bombout":str(e)}
@@ -353,8 +354,9 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         else:
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows,allShapes=False, useCircle=False)
             clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask, None, fishery_type)
+            
             #utils.show_img("clipped", clippedImage)
- 
+    edge_contour = contour_utils.offset_contour(mlMask, -xOffset, -yOffset)
     #get the arget contour for the appropriate fishery
     ref_object_contour = None
     all_square_contours = None
@@ -424,7 +426,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
             utils.show_img("ref object", tmpimg)
     elif utils.isFinfish(fishery_type):
-        isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
+        isWhiteOrGray = utils.is_white_or_gray(clippedImage, False) 
         print("is white or gray: {}".format(isWhiteOrGray))
         finfish_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/finfish.png")
         if False:
@@ -436,20 +438,20 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         ret, thresh = cv2.threshold(gray, 100, 255, 0)
         print("fishery type finfish....")
         target_contour, orig_contours = contour_utils.get_target_finfish_contour(rescaled_image.copy(), clippedImage, finfish_template_contour, 
-                                                                            is_square_ref_object=is_square_ref,isWhiteOrGray=True)
+                                                                            is_square_ref_object=is_square_ref,isWhiteOrGray=True, edge_of_mask=edge_contour)
         
         if target_contour is None:
             print("target contour is NONE!!")
         target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
         
-        if True:
+        if False:
             cv2.drawContours(rescaled_image, [target_contour], 0, (255,0,0),5)
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
             #utils.show_img("clipped Image from thresholding...", draw)
     else:
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-        utils.print_time("done getting template: ", _start_time);
+        utils.print_time("done getting template: ", _start_time)
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         print("is white or gray: {}".format(isWhiteOrGray))
         target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, 
@@ -480,7 +482,8 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/quarter_template_1280.png")
         
-        isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False)   
+        #isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False)   
+        isWhiteOrGray = True
         original_size = scaled_rows*scaled_cols
         print("trying to get quarter dimension...")
         refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_best_quarter_dimensions(clippedImages, clippedMaskedImages,

@@ -25,6 +25,8 @@ def isFinfish(fishery_type):
 def isAbalone(fishery_type):
     return "abalone" in fishery_type
 
+def isQuarter(ref_object_type):
+    return "quarter" in ref_object_type
 
 def get_thumbnail(image_full):
     target_cols = 200.0
@@ -260,7 +262,7 @@ def get_largest_edges(cnts):
         max_size = 0
         targetDex = 0
         target_contours = []
-
+        contours_only = []
         #include ties
         for i, contour in enumerate(cnts):
             try:
@@ -276,17 +278,14 @@ def get_largest_edges(cnts):
                     else:
                         break
                 target_contours.insert(dex, pair)
+                contours_only.insert(dex, contour)
             except Exception:
                 continue
 
     except Exception:
         return None, None
 
-    results = []
-    #for x, pair in enumerate(target_contours):
-        
-        #results.append(pair[1])
-    return target_contours[:5]
+    return target_contours[:5], contours_only[:2]
 
 
 def get_largest_contours(cnts, num_items):
