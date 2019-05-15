@@ -1,5 +1,6 @@
 ABALONE = "abalone"
 LOBSTER = "lobster"
+FINFISH = "finfish"
 SCALLOP = "scallop"
 
 QUARTER = "quarter"
@@ -26,6 +27,11 @@ INCHES_TO_CM = 2.54
 
 REF_TYPES = [ABALONE, QUARTER, SQUARE]
 REF_UNITS = [INCHES, MM, CM]
+
+def isFinfish(fishery_type):
+    isFinfish = FINFISH in fishery_type
+    return isFinfish
+
 
 def isLobster(fishery_type):
     isLob = LOBSTER in fishery_type

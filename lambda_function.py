@@ -443,7 +443,8 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         if target_contour is None:
             print("target contour is NONE!!")
         target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
-        
+        left_offset = xOffset
+        top_offset = yOffset
         if False:
             rect = cv2.minAreaRect(target_contour)
             box = cv2.boxPoints(rect)
@@ -521,7 +522,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     if ref_object == constants.QUARTER:
         print("drawing quarter contour...")
         pixelsPerMetric, quarterSize, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
-            target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, refRadius*2, ref_object_size)
+            target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, (refRadius*2)-1, ref_object_size)
     else:
         pixelsPerMetric, squareSize,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
             ref_object_contour, None, True, flipDrawing, float(ref_object_size), ref_object_units, fishery_type)
@@ -536,9 +537,18 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     elif constants.isScallop(fishery_type):
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
             target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)  
+    elif constants.isFinfish(fishery_type):
+        targetLength, left_point, right_point = drawing.draw_target_finfish_contour(new_drawing, 
+            target_contour, pixelsPerMetric, showText, 0, 0) 
+        
+        targetWidth = 0
+        width_left_point = (0,0)
+        width_right_point = (0,0)
     else:
+        print("falling back to default")
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour(new_drawing, 
-            target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)    
+            target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type) 
+                
 
     utils.print_time("done drawing target contours", _start_time)
 

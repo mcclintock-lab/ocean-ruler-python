@@ -285,7 +285,7 @@ def get_largest_edges(cnts):
     except Exception:
         return None, None
 
-    return target_contours[:5], contours_only[:2]
+    return target_contours[:5], contours_only
 
 
 def get_largest_contours(cnts, num_items):
