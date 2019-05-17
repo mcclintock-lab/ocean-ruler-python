@@ -108,6 +108,13 @@ def shouldIgnore(imageName):
         return False
     return False
 
+def remove_extension(size_str):
+    sizestr = size_str.replace(".jpg","")
+    sizestr = sizestr.replace(".JPG", "")
+    sizestr = sizestr.replace(".png", "")
+    sizestr = sizestr.replace(".PNG", "")
+
+    return sizestr
 
 def getOriginalSizeFromFilename(filename, ref_object_units):
     originalSize = 0.0
@@ -115,7 +122,7 @@ def getOriginalSizeFromFilename(filename, ref_object_units):
         if filename.startswith("Glass_Beach_Memorial"):
             parts = filename.split("-")
             sizeparts = parts[1]
-            size_str = sizeparts.replace(".jpg","")
+            sizestr = remove_extension(sizestr)
             nparts = size_str.split("_")
             size = float(nparts[1])
             originalSize = size*INCHES_TO_MM
@@ -125,17 +132,16 @@ def getOriginalSizeFromFilename(filename, ref_object_units):
             print("parts: {}".format(parts))
             if len(parts) < 2:
                 parts = filename.split("-")
-
-        originalSize = getSize(size_str, ref_object_units)
+        sizestr = remove_extension(sizestr)
+        originalSize = getSize(sizestr, ref_object_units)
         print("size str: {}".format(size_str))
         
     except Exception:
         try:
             parts = filename.split("_")
             lengthOfName = len(parts)
-            size_str = parts[lengthOfName-1].replace(".JPG", "")
-
-            originalSize = getSize(size_str, ref_object_units)
+            sizestr = remove_extension(parts[lengthOfName-1])
+            originalSize = getSize(sizestr, ref_object_units)
 
         except Exception as e:
             print("something went wrong on parsing: ", e)
@@ -229,7 +235,12 @@ def read_real_sizes(imageName):
 
     return size
 
-def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits):
+def read_write_error(out_file, imageName, error):
+    with open(out_file,'a') as fd:
+        writer=csv.writer(fd)
+        writer.writerow([imageName, error])
+
+def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits, realSizeUnits="inches"):
     all_rows = {}
     all_diffs = {}
     last_total_diff = 0.0
@@ -263,6 +274,14 @@ def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits):
             real_size = getOriginalSizeFromFilename(imageName, refObjectUnits)
             print("real size: {}".format(real_size))
             if real_size > 0.0:
+                if refObjectUnits == "inches":
+                    if realSizeUnits == "mm":
+                        abaloneLength = abaloneLength*INCHES_TO_MM
+                    elif realSizeUnits == "cm":
+                        abaloneLength = abaloneLength*INCHES_TO_CM
+                elif refObjectUnits == "cm":
+                    if realSizeUnits == "mm":
+                        abaloneLength = abaloneLength*10
                 diff = abs(abaloneLength - real_size)
                 all_rows[imageName] = [abaloneLength, real_size, diff]
                 

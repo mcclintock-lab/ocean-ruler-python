@@ -102,8 +102,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
                         fishery_type, ref_object, ref_object_size, ref_object_units, extra_mask_image)
 
         
-        if False:
-            file_utils.read_write_simple_csv("data_scallop_1219.csv", imageName, targetLength, ref_object_units)
+        if True:
+            file_utils.read_write_simple_csv("data_finfish_516.csv", imageName, targetLength, ref_object_units, "mm")
 
         rows = len(rescaled_image)
         cols = len(rescaled_image[0])
@@ -150,10 +150,12 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
                 }
 
 
-        
     except Exception as e:
         utils.print_time("big bombout....: {}".format(e), _start_time)
         rval={"big bombout":str(e)}
+        if True:
+            file_utils.read_write_error("error.csv", imageName, str(e))
+            
     jsonVal = json.dumps(rval)
     return jsonVal
 
@@ -309,6 +311,18 @@ def rotate_img(img):
         img = cv2.flip(img, 0)
         img = img.copy()
     return img
+
+def get_clipped_quarter_image(input_image):
+    ca = 10
+    cols = len(input_image[0]) 
+    rows = len(input_image)
+    scaled_image = input_image[ca:rows-ca,ca:cols-ca]
+    '''
+    hsv = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+    hue_layer = hsv[:,:,1]
+    utils.show_img("sat layer", hue_layer)
+    '''
+    return [[scaled_image,ca,ca]]
 
 def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, ro_mask_image=None):
     mlPath = os.environ['ML_PATH']+"/../"
@@ -477,7 +491,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         else:
             ref_object_size = constants.QUARTER_SIZE_MM
 
-        if ro_mask_image is not None:
+        if False:
             print("using ref object mask...")
             roMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_image, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
             clippedImages = getAllClippedImages(rescaled_image, roMasks, target_contour, "Quarter")
@@ -487,7 +501,16 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour, "Quarter")
             
         else:
-            clippedImages = [rescaled_image.copy()]
+            print("clipping input.....")
+            #experiment with ditching quarter mask and just clipping image
+            clippedImages = get_clipped_quarter_image(rescaled_image.copy())
+        
+            clippedMaskedImages = [clippedImages[0]]
+
+            #rescaled_masked = cv2.drawContours(rescaled_image.copy(),[target_contour],-1,(0,0,0),-1)
+            #roMaskedMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_masked, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
+            #clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour, "Quarter")
+            #clippedImages = [rescaled_image.copy()]
 
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/quarter_template_1280.png")
         

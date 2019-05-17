@@ -394,16 +394,13 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     return pixelsPerMetric, dimB, startLinePoint, endLinePoint
 
 def draw_target_finfish_contour(base_img, contour, pixelsPerMetric, draw_text, left_offset, top_offset):
-    print("drawing finfish contour")
+    
     rotRect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rotRect)
     box = np.int0(box)
-    print("getting intersection, rotRect: {}".format(rotRect))
-    print('box: {}'.format(box))
-    #startLinePoint, endLinePoint = get_contour_rect_intersection(base_img, contour)
-    #startLinePoint, endLinePoint = get_far_points(base_img, contour)
+
     startLinePoint, endLinePoint = get_middle_of_min_rect(base_img, contour)
-    print('start: {}, end: {}'.format(startLinePoint, endLinePoint))
+
     dB = distance.euclidean(startLinePoint, endLinePoint)
    
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 2, (255, 0, 255), -1)
@@ -412,7 +409,7 @@ def draw_target_finfish_contour(base_img, contour, pixelsPerMetric, draw_text, l
     dimB = dB / pixelsPerMetric
     if True:
         #box = np.int0(box)
-        cv2.drawContours(base_img,[box],0,(125,225,225),4, offset=(left_offset, top_offset))
+        #cv2.drawContours(base_img,[box],0,(125,225,225),4, offset=(left_offset, top_offset))
         #cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
         cv2.circle(base_img, (startLinePoint[0], startLinePoint[1]), 10, (50, 50, 255), -1)
         cv2.circle(base_img, (endLinePoint[0], endLinePoint[1]), 10, (50, 50, 255), -1)
