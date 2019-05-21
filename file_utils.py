@@ -240,7 +240,7 @@ def read_write_error(out_file, imageName, error):
         writer=csv.writer(fd)
         writer.writerow([imageName, error])
 
-def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits, realSizeUnits="inches"):
+def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits, realSizeUnits="inches", whichTechnique=""):
     all_rows = {}
     all_diffs = {}
     last_total_diff = 0.0
@@ -259,9 +259,10 @@ def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits, re
                         real_size = row[2]
                         diff = row[3]
                         avg = row[4]
+                        tech = row[5]
                         if name != "Total":
                             #print "for {}, best ab key: {}, best ruler key: {}".format(name, best_ab_key, best_ruler_key)
-                            all_rows[name] = [size, real_size, diff, avg]
+                            all_rows[name] = [size, real_size, diff, avg, tech]
                             all_diffs[name] = float(diff)
                         else:
                             last_total_diff = float(diff)
@@ -283,7 +284,7 @@ def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits, re
                     if realSizeUnits == "mm":
                         abaloneLength = abaloneLength*10
                 diff = abs(abaloneLength - real_size)
-                all_rows[imageName] = [abaloneLength, real_size, diff]
+                all_rows[imageName] = [abaloneLength, real_size, diff,0,whichTechnique]
                 
                 all_diffs[imageName] = abs(diff)
 
@@ -292,13 +293,15 @@ def read_write_simple_csv(out_file, imageName, abaloneLength, refObjectUnits, re
                 total_avg = total_diffs/len(all_diffs.values())
                 with open(out_file, 'w') as csvfile:
                     writer = csv.writer(csvfile, delimiter=DELIM, quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
-                    writer.writerow(["Name", "Estimated", "Real", "Val Diff", "Average"])
+                    writer.writerow(["Name", "Estimated", "Real", "Val Diff", "Average", "QuarterMethod"])
                     for name, sizes in all_rows.items():
-                        diff = all_diffs.get(name)
+                        
                         est_size = sizes[0]
                         real_size = sizes[1]
-                        avg = 0
-                        row = [name, est_size, real_size, diff,avg]
+                        diff = all_diffs.get(name)
+                        avg = sizes[3]
+                        tech = sizes[4]
+                        row = [name, est_size, real_size, diff, avg, tech]
                         writer.writerow(row)
 
                     writer.writerow(["Total", 0,0,total_diffs, total_avg])

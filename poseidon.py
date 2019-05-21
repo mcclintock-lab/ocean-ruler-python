@@ -181,7 +181,7 @@ def read_args():
         ref_object = "quarter"
         ref_object_units = "inches"
         ref_object_size = 0.955
-        fishery_type = "california_finfish"
+        fishery_type = "abalone"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -315,7 +315,7 @@ def execute():
         multiplier = 0.85
         rMultiplier = 0.85
         if(utils.isAbalone(fishery_type)):
-            multiplier = 0.40
+            multiplier = 0.35
             rMultiplier = 0.5
         elif(utils.isScallop(fishery_type)):
             multiplier = 0.30
@@ -337,9 +337,11 @@ def execute():
         fullMaskName = ""
         if utils.isLobster(fishery_type):
             fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
+        '''
         elif utils.isFinfish(fishery_type):
-            fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.10, rMultiplier, False, None, False, "full_")
-        
+            fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.50, rMultiplier, True, None, False, "full_")
+        '''
+
         if ref_object == "square":
             refObjectMask = None
         else:
@@ -348,10 +350,11 @@ def execute():
         if not utils.isQuarter(ref_object):
             print("getting square mask")
             refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+        
         else:
             print("getting quarter masks...")
-            refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
-            #refObjectMaskName = imageName
+            #refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+            refObjectMaskName = imageName
         '''
         if utils.isFinfish(fishery_type):
             refObjectMask, refObjectMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.05, 0, False, refObjectMask, True)

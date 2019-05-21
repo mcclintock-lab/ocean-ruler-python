@@ -306,19 +306,25 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray, use_thresh, low_
             #hsv = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
             #value_layer = hsv[:,:,2]
             
-            median, low, high = get_image_stats(input_image)
-            print("median:{}, low:{}, high:{}".format(median, low, high))
 
             #note: calculating image stats doesnt help. problem is if quarter is in shadow, a high low-bounds (above 60) won't see it
+            
+            
+            grayIn = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+            blur = cv2.GaussianBlur(grayIn, (5,5),0)
+            '''
             hsv = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
             hue_layer = hsv[:,:,0]
             sat_layer = hsv[:,:,1]
             value_layer = hsv[:,:,2]
-            '''
+            
             cv2.imshow("hue, sat, value", np.hstack([hue_layer, sat_layer, value_layer]))
             cv2.waitKey(0)
+            cv2.destroyAllWindows()
             '''
-            ret, gray = cv2.threshold(value_layer.copy(), low_bounds,255,0)
+
+            
+            ret, gray = cv2.threshold(blur, low_bounds,255,0)
            
             #gray = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
             
@@ -336,22 +342,20 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray, use_thresh, low_
         utils.show_img("quarter scale img: ", scale_img)
     return scale_img
 
-def get_target_quarter_contours2(input_image, quarter_template_contour, use_opposite,  too_close_to_abalone=False, isWhiteOrGray=True, use_thresh=False, low_bounds=100, target_contour=None,original_size=None):
+def get_target_quarter_contours2(input_image, quarter_template_contour, use_opposite,  too_close_to_abalone=False, 
+                                 isWhiteOrGray=True, use_thresh=False, low_bounds=100, target_contour=None,
+                                 original_size=None,lastPass=False):
     ncols = len(input_image[0]) 
     nrows = len(input_image)
     img_area = nrows*ncols
 
     scale_img = get_quarter_image(input_image, use_opposite, isWhiteOrGray,use_thresh,low_bounds=low_bounds)
-    #utils.show_img("scale img", scale_img)
+    
     kernel = np.ones((3,3), np.uint8)
     if not use_thresh:
-        if not too_close_to_abalone:
-            print("not too close")
+        if low_bounds != 75:
             scale_img = cv2.dilate(scale_img, kernel, iterations=1)
-        else:
-            print("too close")
-            scale_img = cv2.erode(scale_img, kernel, iterations=1)
-        
+
 
     #ret, thresh = cv2.threshold(scale_img.copy(), 50,140,0)
     
@@ -359,23 +363,46 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
     if use_thresh:
         scale_cnts = cv2.findContours(scale_img, cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
         scale_contours = np.array(scale_cnts[1])
-        #add the contours to make sure circles are found
-        cv2.drawContours(contour_image, scale_contours, -1, (100,100,100),2)
+        #fill the contours to make sure circles are found
+        #this helps for the contours that are circular on the outside but a mess inside,
+        #which increases compactness substantially -- close up images with bright quarters 
+        #where you can see details can have very complex contours
+        for c in scale_contours:
+            if len(c) >= 5:
+                (x,y), radius = cv2.minEnclosingCircle(c)
+                if radius >= 15 and radius <= 60:
+                    cv2.fillPoly(contour_image, c, 0)
+        
+        scale_cnts = cv2.findContours(contour_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        scale_contours = np.array(scale_cnts[1])
+        
         circle_image = contour_image.copy()
     else:
-        print("not thresh")
         ret, thresh = cv2.threshold(contour_image, 50,140,0)
         scale_cnts = cv2.findContours(contour_image, cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
         scale_contours = np.array(scale_cnts[1])
         circle_image = thresh.copy()
 
-    if False:
+    if not use_thresh and low_bounds == 105 and lastPass:
         d = input_image.copy()
         cv2.drawContours(d, scale_contours, -1,(255,0,0),3)
-        utils.show_img("contours for use thresh {} and low bounds {}".format(use_thresh, low_bounds),d)
-    return get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_template_contour)
+        utils.show_img("contours for thresh: {}, low_bounds:{}".format(use_thresh, low_bounds),d)
+        showOutput = True
+    else:
+        showOutput = False
+        
+    if False:
+        utils.show_img("scale img", scale_img)
 
+    matches, matching_contours, okComp = get_filtered_quarter_contours_by_radius(scale_contours, img_area, 
+                                                                                 quarter_template_contour, showOutput,
+                                                                                 lastPass=lastPass)
+    if False:
+        d = input_image.copy()
+        cv2.drawContours(d, matching_contours, -1,(250,150,150),3)
+        utils.show_img("ones that match, {}:{}".format(use_thresh, low_bounds), d)
 
+    return matches, matching_contours, okComp, circle_image
 
 def get_target_quarter_contours(input_image, use_opposite, too_close_to_abalone=False, isWhiteOrGray=True, use_thresh=False, low_bounds=100, target_contour=None,original_size=None):
     ncols = len(input_image[0]) 
@@ -486,7 +513,7 @@ def get_circle_info(circle):
 
 
 
-def get_filtered_quarter_contours(scale_contours, target_contour, img_area, check_roundness,original_size=None):
+def get_filtered_quarter_contours(scale_contours, target_contour, img_area, check_roundness,original_size=None,lastPass=False):
     matches = []
     
     for i, scontour in enumerate(scale_contours):
@@ -509,51 +536,72 @@ def get_filtered_quarter_contours(scale_contours, target_contour, img_area, chec
             continue
 
     return matches
-
-def get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=None, use_thresh=False,low_bounds=100):
+                        #
+def get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, 
+                        origCellCount, isWhiteOrGray,original_size=None, use_thresh=False,low_bounds=100,lastPass=False):
     results = []
     for i, ciData in enumerate(clippedImages):
         ci = ciData[0]
         xOffset = ciData[1]
         yOffset = ciData[2]
-
+        
         refObjectCenterX, refObjectCenterY, refRadius, matches, score = get_quarter_dimensions(ci, target_contour, 
                                                                  quarter_template_contour, look_for_shapes, origCellCount, 
-                                                                 isWhiteOrGray,original_size=original_size, use_thresh=use_thresh,low_bounds=low_bounds)
+                                                                 isWhiteOrGray,original_size=original_size, 
+                                                                 use_thresh=use_thresh,low_bounds=low_bounds,
+                                                                 lastPass=lastPass)
         if refRadius > 0:
             results.append([refObjectCenterX+xOffset, refObjectCenterY+yOffset, refRadius, matches, score])
     
     return results
 
-def get_best_quarter_dimensions(clippedImages, maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray, original_size=None):
+def get_best_quarter_dimensions(clippedImages, originalImage, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray, original_size=None):
     results = []
     #first passed, quarter images clipped with target contour masked
-    print("doing first")
-    results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size,use_thresh=False,low_bounds=105)
-    if results is None or len(results) == 0:
-        #second, without the target contour masked out
-        results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=105)
-        print("done with second with normal thresh")
+    whichOne = ""
+    imagesToUse = [clippedImages, originalImage, originalImage]
+    for i, imageToUse in enumerate(imagesToUse):
+        lastPass = i==2
+        results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size,use_thresh=False,low_bounds=105, lastPass=lastPass)
+        whichOne = "Thresh-105-{}".format(lastPass)
         if results is None or len(results) == 0:
-            #no good, try color with target contour masked
-            #for dark images (quarter in shadow)
-            results = get_quarter_results(maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=75)
-            print("done with third with low thresh (shadowy pictures)")
+            #second, without the target contour masked out
+            results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=105,lastPass=lastPass)
+            whichOne = "NoThresh-105-{}".format(lastPass)
             if results is None or len(results) == 0:
-                # and finally, color without target contour masked
-                #for pale/blurry images
-                print("done with fourth with high threshold for overexposed...")
-                results = get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=150)
-                #do we need to keep going?
+                #for very bright images, do a really high number if last pass
+                if lastPass:
+                    low_bounds = 170
+                else:
+                    low_bounds = 160
+                results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=low_bounds,lastPass=lastPass)
+                whichOne = "Thresh-{}-{}".format(low_bounds, lastPass)
+                print("done with third with low thresh (shadowy pictures)")
                 if results is None or len(results) == 0:
-                    print("final try for color pics")
-                    results = get_quarter_results(maskedInputImages, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray,original_size=original_size, use_thresh=False,low_bounds=100)
+                    # and finally, color without target contour masked
+                    #for pale/blurry images
+                    print("done with fourth with high threshold for overexposed...")
+                    results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=125,lastPass=lastPass)
+                    whichOne = "Thresh-160-{}".format(lastPass)
+                    #do we need to keep going?
+                    if results is None or len(results) == 0:
+
+                        low_bounds=75
+                        results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=low_bounds,lastPass=lastPass)
+                        whichOne = "Thresh-{}-{}".format(low_bounds, lastPass)
+                        if results is None or len(results) == 0:
+                            print("trying color pics")
+                            results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=False,low_bounds=75,lastPass=lastPass)
+                            whichOne = "NoThresh-75-{}".format(lastPass)
+
+        if results is not None and len(results) > 0:
+            break
     print("sorting results...")
 
     results = sorted(results, key=lambda result: result[4])
 
     
-    return results[0][0], results[0][1], results[0][2], results[0][3]
+    return results[0][0], results[0][1], results[0][2], results[0][3], whichOne
 
 def offset_contour(contour, x, y):
 
@@ -570,14 +618,14 @@ def offset_contour(contour, x, y):
             points[1] = points[1]+newY
     return contour
 
-def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_template_contour):
+def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_template_contour, showOutput,lastPass=False):
     matches = []
     matching_contours = []
+    okComp = []
 
-
-    radiusMax = 60
+    radiusMax = 70
     radiusMin = 17
-
+    
     for i,match_contour in enumerate(scale_contours):
         try:
             (x,y),circleRadius = cv2.minEnclosingCircle(match_contour)
@@ -586,27 +634,63 @@ def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_te
             matchArea = cv2.contourArea(match_contour)
             if matchArea > 0:
                 compactness = (matchPerimeter*matchPerimeter)/(4*matchArea*math.pi)
-                
-                if circleRadius >= radiusMin and circleRadius <= radiusMax:
-                    val = cv2.matchShapes(match_contour, quarter_template_contour, cv2.CONTOURS_MATCH_I3, 0.0)
-                    score = compactness*val
-                    print("----------------------->>>>>>>>>>>>>>>>>>>{}. score".format(i, score))
-                    matches.append([match_contour, circleRadius, (x, y), compactness,  val, score])
-                    #for drawing while debugging
-                    matching_contours.append(match_contour)
+                compactnessLimit = 1.5
+                if lastPass:
+                    #images where quarter is slightly cut off for heavy shadows or edges
+                    compactnessLimit = 2.5
+                    #for the zoomed out images
+                    radiusMin=12
+                if compactness < compactnessLimit and (utils.is_really_round(match_contour) or lastPass):
+                    if circleRadius >= radiusMin and circleRadius <= radiusMax:
+                        val = cv2.matchShapes(match_contour, quarter_template_contour, cv2.CONTOURS_MATCH_I3, 0.0)
+                        score = compactness*val
+                        matches.append([match_contour, circleRadius, (x, y), compactness,  val, score])
+                        #for drawing while debugging
+                        matching_contours.append(match_contour)
+
                 else:
-                    print("circle radius: {}, radiusMin: {}, radius Max: {}".format(circleRadius, radiusMin, radiusMax))
-                    print("{}. radius: {}, compactness:{}".format(i, circleRadius, compactness))
-            else:
-                print("skipping {}, match area is 0".format(i))
+                    if showOutput and (circleRadius >= radiusMin and circleRadius <= radiusMax):
+                        print("{}. radius: {}, compactness:{}".format(i, circleRadius, compactness))
+                    okComp.append(match_contour)
+
+
         except Exception as e:
             print("blew up while filtereing: {}".format(e))
             continue
 
         
-    return matches, matching_contours
+    return matches, matching_contours, okComp
 
-def get_quarter_dimensions(input_image, target_contour, quarter_template_contour, look_for_shapes, origCellCount, xOffset=0, yOffset=0, isWhiteOrGray=True, maskedInputImage=None,original_size=None, use_thresh=False, low_bounds=100):
+def get_bounds(c, offset, nrows, ncols):
+    extLeft = tuple(c[c[:, :, 0].argmin()][0])
+    extRight = tuple(c[c[:, :, 0].argmax()][0])
+    extTop = tuple(c[c[:, :, 1].argmin()][0])
+    extBottom = tuple(c[c[:, :, 1].argmax()][0])
+
+    extLeft = extLeft[0]
+    extRight = extRight[0]
+    extTop = extTop[1]
+    extBottom = extBottom[1]
+
+    left = extLeft-offset if extLeft-offset >= 0 else extLeft
+    right = extRight+offset if extRight+offset < ncols else extRight
+    top = extTop-offset if extTop-offset >= 0 else extTop
+    bottom = extBottom+offset if extBottom+offset < nrows else extBottom
+    if left != extLeft:
+        left_offset = extLeft-offset
+    else:
+        left_offset = extLeft
+    
+    if top != extTop:
+        top_offset = extTop-offset
+    else:
+        top_offset = extTop
+
+    return left, right, top, bottom, left_offset, top_offset
+
+def get_quarter_dimensions(input_image, target_contour, quarter_template_contour, 
+                            look_for_shapes, origCellCount, xOffset=0, yOffset=0, isWhiteOrGray=True, 
+                            maskedInputImage=None,original_size=None, use_thresh=False, low_bounds=100,lastPass=False):
 
     ncols = len(input_image[0]) 
     nrows = len(input_image)
@@ -621,11 +705,12 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
 
     if True:
 
-        filtered_contours, just_conts = get_target_quarter_contours2(input_image.copy(), quarter_template_contour, False, False, 
-            isWhiteOrGray, use_thresh, low_bounds=low_bounds, target_contour=target_contour,original_size=None)
+        filtered_contours, just_conts, okComp, circle_image = get_target_quarter_contours2(input_image.copy(), 
+            quarter_template_contour, False, False, isWhiteOrGray, use_thresh, low_bounds=low_bounds, 
+            target_contour=target_contour,original_size=None,lastPass=lastPass)
 
         if filtered_contours is not None and len(filtered_contours) > 0:
-            if True:
+            if False:
                 d = input_image.copy()
                 cv2.drawContours(d, just_conts, -1,(150,150,150),3)
                 utils.show_img("filtered contours", d)
@@ -633,15 +718,60 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
             #sort by score
             filtered_contours = sorted(filtered_contours, key=lambda shape: shape[4], reverse=False)
             for x, fc in enumerate(filtered_contours):
-                print("{}. fc val: {}".format(x, fc[4]))
+                print("{}. fc val: score: {}, compact: {}, radius: {}".format(x, fc[4], fc[3], fc[1]))
+            #if there are multiple contours, ditch ones that don't get circles...
+            for target in filtered_contours:
+
+                target_contour = target[0]
             
-            target = filtered_contours[0]
-            target_contour = target[0]
-            radius = target[1]
-            (cx, cy) = target[2]
-            score = target[3]
-            return cx, cy, radius, [], score
-            #([match_contour, circleRadius, (cX, cY), compactness,  val, score])
+                if lastPass:
+                    quarterBuffer = 3
+                else:
+                    quarterBuffer = 1
+                left, right, top, bottom, left_offset, top_offset = get_bounds(target_contour, quarterBuffer, nrows, ncols)
+                circle_image = input_image.copy()
+                circle_image = circle_image[top:bottom,left:right]
+               
+                circle_image = cv2.cvtColor(circle_image, cv2.COLOR_BGR2GRAY)
+            
+                circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=20,param2=30,minRadius=20,maxRadius=40)
+                
+                if circles is not None and circles.any():
+                    break
+                
+
+            if circles is not None and circles.any():
+                if False:
+                    
+                    for i in circles[0,:]:
+                        # draw the outer circle
+                        cv2.circle(circle_image,(i[0],i[1]),i[2],(0,200,0),1)
+                    
+                    utils.show_img("--->>>>>>circles", circle_image)
+                print("getting circles")
+                circles = circles[0,:,:]
+                print("circles: {}".format(circles))
+                circles = sorted(circles, key=lambda circle: circle[2], reverse=True)
+                target_circle = circles[0]
+                print('target circle: {}'.format(target_circle))
+                #add a check for big diff in hough circles?
+                radius = target_circle[2]
+                (cx,cy) = (target_circle[0]+left_offset,target_circle[1]+top_offset)
+                score = target[3]
+                print("radius: {}, center:{}".format(radius, (cx,cy)))
+                return cx,cy,radius, [], score
+            else:
+                if lastPass:
+                    print("no hough circles, but desperate times...")
+                    radius = target[1]
+                    (cx, cy) = target[2]
+                    score = target[3]
+                    return cx, cy, radius, [], score
+                else:
+                    print("no hough circles found...")
+                    return 0,0,0,[],10000000
+                
+
         else:
             return 0,0,0,[],10000000
 
@@ -683,7 +813,7 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
                     radiusMin = 30
                 else:
                     radiusMax = 60
-                    radiusMin = 17
+                    radiusMin = 14
 
                 print("now...")
                 #its outside the key range, so set value to big

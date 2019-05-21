@@ -91,19 +91,19 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         picDate = int(time.time()*1000)
 
         is_deployed = False
-        if constants.isLobster(fishery_type) and fullMaskName != None and fullMaskName != "":
+        if constants.isLobster(fishery_type) or constants.isFinfish(fishery_type) and fullMaskName != None and fullMaskName != "":
             full_mask_image = cv2.imread(fullMaskName)
         else:
             full_mask_image = None
             
-        rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point = execute(imageName, 
+        rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point, whichTechnique = execute(imageName, 
                         image_full, mask_image, full_mask_image, 
                         showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units, extra_mask_image)
 
         
         if True:
-            file_utils.read_write_simple_csv("data_finfish_516.csv", imageName, targetLength, ref_object_units, "mm")
+            file_utils.read_write_simple_csv("data_abalone_521.csv", imageName, targetLength, ref_object_units, "mm", whichTechnique)
 
         rows = len(rescaled_image)
         cols = len(rescaled_image[0])
@@ -312,16 +312,28 @@ def rotate_img(img):
         img = img.copy()
     return img
 
-def get_clipped_quarter_image(input_image):
-    ca = 10
-    cols = len(input_image[0]) 
-    rows = len(input_image)
-    scaled_image = input_image[ca:rows-ca,ca:cols-ca]
-    '''
-    hsv = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
-    hue_layer = hsv[:,:,1]
-    utils.show_img("sat layer", hue_layer)
-    '''
+def get_clipped_quarter_image(input_image,full_mask_image, target_contour):
+    if target_contour is not None:
+        orig_cols = len(input_image[0]) 
+        orig_rows = len(input_image)
+
+        #clippingShape = getClippingBoundsFromMask(full_mask_image, input_image, orig_cols, orig_rows, allShapes=False, useCircle=False)
+        clippingShape = target_contour
+        clippedMaskImage = input_image.copy()
+        
+        cv2.fillPoly(clippedMaskImage, [clippingShape], 0)
+ 
+        ca = 2
+        cols = len(input_image[0]) 
+        rows = len(input_image)
+        scaled_image = clippedMaskImage[ca:rows-ca,ca:cols-ca]
+    else:
+        ca = 2
+        cols = len(input_image[0]) 
+        rows = len(input_image)
+        scaled_image = input_image[ca:rows-ca,ca:cols-ca]
+    
+
     return [[scaled_image,ca,ca]]
 
 def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, ro_mask_image=None):
@@ -329,7 +341,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
     orig_rows = len(image_full)
-    
+    whichTechnique = ""
     divisor = 1.0
     '''
     #for calculation and storage, do everything in inches for consistency, then convert on displays
@@ -395,7 +407,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
                 utils.show_img("clipped Image from thresholding...", rescaled_image.copy())
         else:
             isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
-     
+            print("------->>>>>>>>>>>> is it white or gray??", isWhiteOrGray)
             #threshed_scallop = ci.get_scallop_image(clippedImage)
             #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
             small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
@@ -503,10 +515,9 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         else:
             print("clipping input.....")
             #experiment with ditching quarter mask and just clipping image
-            clippedImages = get_clipped_quarter_image(rescaled_image.copy())
-        
-            clippedMaskedImages = [clippedImages[0]]
-
+            clippedImages = get_clipped_quarter_image(rescaled_image.copy(), full_mask_image, target_contour)
+            simpleQuarterImage =  get_clipped_quarter_image(rescaled_image.copy(), None, None)
+            
             #rescaled_masked = cv2.drawContours(rescaled_image.copy(),[target_contour],-1,(0,0,0),-1)
             #roMaskedMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_masked, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
             #clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour, "Quarter")
@@ -518,7 +529,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         isWhiteOrGray = True
         original_size = scaled_rows*scaled_cols
         print("trying to get quarter dimension...")
-        refObjectCenterX, refObjectCenterY, refRadius, matches = contour_utils.get_best_quarter_dimensions(clippedImages, clippedMaskedImages,
+        refObjectCenterX, refObjectCenterY, refRadius, matches, whichTechnique = contour_utils.get_best_quarter_dimensions(clippedImages, simpleQuarterImage,
                                                                      target_contour, ref_object_template_contour, False, origCellCount, isWhiteOrGray, original_size=original_size)    
     else:
         if fishery_type == "square_test":
@@ -577,11 +588,29 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
     if not is_deployed and showResults:
         #cv2.circle(new_drawing,(quarterCenterX, quarterCenterY),quarterRadius,(0,255,0),4)
+        
+        utils.show_img("Final Measurements for {}".format(imageName), new_drawing)
+        write_new_image(imageName, new_drawing)
+    else:
+        if not is_deployed:
+            write_new_image(imageName, new_drawing)
 
-        utils.show_img("Final Measurements", new_drawing)
 
-    return rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ref_object_point, right_ref_object_point
+    return rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ref_object_point, right_ref_object_point, whichTechnique
     
+def write_new_image(imageName, image):
+    basename = os.path.basename(imageName)
+    path = os.path.dirname(imageName)
+    
+    print("image name: {}".format(basename))
+    print("path: {}".format(path))
+    out_path = os.path.join(path, "output")
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
+
+    out_name = os.path.join(out_path, basename)
+    cv2.imwrite(out_name, image)
+
 
 def is_mac():
     os_name = sys.platform
