@@ -383,7 +383,7 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
         scale_contours = np.array(scale_cnts[1])
         circle_image = thresh.copy()
 
-    if not use_thresh and low_bounds == 105 and lastPass:
+    if False:
         d = input_image.copy()
         cv2.drawContours(d, scale_contours, -1,(255,0,0),3)
         utils.show_img("contours for thresh: {}, low_bounds:{}".format(use_thresh, low_bounds),d)
@@ -573,7 +573,7 @@ def get_best_quarter_dimensions(clippedImages, originalImage, target_contour, qu
                 if lastPass:
                     low_bounds = 170
                 else:
-                    low_bounds = 160
+                    low_bounds = 165
                 results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=low_bounds,lastPass=lastPass)
                 whichOne = "Thresh-{}-{}".format(low_bounds, lastPass)
                 print("done with third with low thresh (shadowy pictures)")
@@ -734,7 +734,7 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
                
                 circle_image = cv2.cvtColor(circle_image, cv2.COLOR_BGR2GRAY)
             
-                circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=20,param2=30,minRadius=20,maxRadius=40)
+                circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=60,param2=30,minRadius=20,maxRadius=40)
                 
                 if circles is not None and circles.any():
                     break
@@ -748,17 +748,20 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
                         cv2.circle(circle_image,(i[0],i[1]),i[2],(0,200,0),1)
                     
                     utils.show_img("--->>>>>>circles", circle_image)
-                print("getting circles")
+                
+                contourWidth = int(abs(left-right)/2)
+                print("all circles: {}".format(circles))
                 circles = circles[0,:,:]
-                print("circles: {}".format(circles))
                 circles = sorted(circles, key=lambda circle: circle[2], reverse=True)
+                
                 target_circle = circles[0]
                 print('target circle: {}'.format(target_circle))
                 #add a check for big diff in hough circles?
                 radius = target_circle[2]
                 (cx,cy) = (target_circle[0]+left_offset,target_circle[1]+top_offset)
                 score = target[3]
-                print("radius: {}, center:{}".format(radius, (cx,cy)))
+                print("-----_>>>>>>>>>>>>radius: {}, contour width:{}".format(radius, contourWidth))
+
                 return cx,cy,radius, [], score
             else:
                 if lastPass:

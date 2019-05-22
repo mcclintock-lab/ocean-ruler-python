@@ -102,8 +102,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
                         fishery_type, ref_object, ref_object_size, ref_object_units, extra_mask_image)
 
         
-        if True:
-            file_utils.read_write_simple_csv("data_abalone_521.csv", imageName, targetLength, ref_object_units, "mm", whichTechnique)
+        if False:
+            file_utils.read_write_simple_csv("data_finfish_516.csv", imageName, targetLength, ref_object_units, "mm", whichTechnique)
 
         rows = len(rescaled_image)
         cols = len(rescaled_image[0])
@@ -113,8 +113,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         presigned_url = ""
         #if is_deployed:
         
-        print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        if False:
+        #print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        if True:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
