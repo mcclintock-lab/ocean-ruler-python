@@ -22,19 +22,49 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     if white_or_gray or utils.is_dark_gray(input_image):
         lower_bound = 20
         upper_bound = 100
-    else:
-        lower_bound = 10
-        upper_bound = 220
-        
-    if False:
-        g = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
-        lower_bound = 150
-        upper_bound = 255
-        ret, thresh = cv2.threshold(g, 127, 255, 0)
-        edged_img = cv2.Canny(thresh, lower_bound, upper_bound,9) 
 
-    
-    edged_img = cv2.Canny(blur, lower_bound, upper_bound,7) 
+        edged_img = cv2.Canny(blur, lower_bound, upper_bound,9)
+        utils.show_img("edged ", edged_img)
+        #edged_img = get_canny(blur, 0.50)
+        '''
+        cv2.imshow("original, auto canny", np.hstack([edged_img, new_edged_img]))
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        '''
+    else:
+        lower_bound = 0
+        upper_bound = 99
+        
+        hsv = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+       
+        hue_layer = hsv[:,:,0]
+        #hue_layer[hue_layer > 80] = 80
+
+        sat_layer = hsv[:,:,1]
+        value_layer = hsv[:,:,2]
+        
+
+        '''
+        cv2.imshow("sat", sat_layer)
+        cv2.imshow("val", value_layer)
+        '''
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
+        if utils.is_dark_gray(input_image):
+            print("its dark gray")
+            edged_img = cv2.Canny(blur, lower_bound, upper_bound,7) 
+        else:
+            #blur = cv2.GaussianBlur(hue_layer, (5,5),0)
+            #edged_img = get_canny(blur, 0.6)
+            hsv = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+
+            hue_layer = hsv[:,:,0]
+            ret, thresh = cv2.threshold(hue_layer, 30, 100, 0)
+            #utils.show_img("thresh hue", thresh)
+            edged_img = cv2.Canny(thresh, lower_bound, upper_bound,7) 
+
+
 
     if False:
         print("is white: {}".format(white_or_gray))
@@ -94,6 +124,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
     minVal = 100000000
     dex = 0
     if largest is not None and len(largest) > 0 and largest[0] and largest[1] is not None:
+        
         for i, contour in enumerate(largest):
             perc = contour[0]/img_area
             actual_perc = contour[2]/img_area
@@ -125,7 +156,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
 
  
     #orig contours are returned for display/testing
-
+    print("found a target: {}".format(target_contour))
     return target_contour, cnts[1]
 
 #calculation to see if its a smooth, compact contour - like a quarter
@@ -236,19 +267,25 @@ def get_big_square_target_contour(input_image, size_place):
 
 
 
-def get_target_contour(input_image, template_contour, is_square_ref_object, is_abalone, isWhiteOrGray, fishery_type):
+def get_target_contour(clipped_image,original_image, template_contour, is_square_ref_object, is_abalone, isWhiteOrGray, fishery_type):
 
     lower_perc_bounds = 0.1
     if(constants.isScallop(fishery_type)):
         lower_perc_bounds = 0.05
-    target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, False, is_square_ref_object, fishery_type)
+    target_contour, orig_contours = get_target_oval_contour(clipped_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, False, is_square_ref_object, fishery_type)
     if target_contour is None:
         if(constants.isScallop(fishery_type)):
             lower_perc_bounds = 0.01
-        target_contour, orig_contours = get_target_oval_contour(input_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, True, is_square_ref_object, fishery_type)
-
-    ncols = len(input_image[0]) 
-    nrows = len(input_image)
+        target_contour, orig_contours = get_target_oval_contour(clipped_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, True, is_square_ref_object, fishery_type)
+        if target_contour is None:
+            if(constants.isScallop(fishery_type)):
+                lower_perc_bounds = 0.01
+            #in case the main abalone/scallop is cut off
+            target_contour, orig_contours = get_target_oval_contour(original_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, True, is_square_ref_object, fishery_type)
+            
+    print("target: {}".format(target_contour))
+    ncols = len(clipped_image[0]) 
+    nrows = len(clipped_image)
     img_area = nrows*ncols
 
     cx, cy = utils.get_centroid(target_contour)   
@@ -281,9 +318,9 @@ def showResults(img1, img2):
     plt.show()
 
 def get_quarter_image(input_image, use_opposite, isWhiteOrGray, use_thresh, low_bounds=100):
-
-
-    if not isWhiteOrGray and not use_opposite:
+    print("getting quarter image, isWhite or Gray::: {}".format(isWhiteOrGray))
+    if not isWhiteOrGray:
+        '''
         thresh_val = 30
         blur_window = 5
         first_pass = True
@@ -297,9 +334,12 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray, use_thresh, low_
             gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
         else:
             gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
-
-        
-        scale_img = cv2.Canny(thresh, lower_bound, upper_bound,7) 
+        '''
+        hsv = cv2.cvtColor(input_image.copy(), cv2.COLOR_BGR2HSV)
+        hue_layer = hsv[:,:,0]
+        ret, thresh = cv2.threshold(hue_layer, 30, 100, 0)
+        scale_img = cv2.Canny(thresh, 0, 99,7) 
+        #utils.show_img("color quarter", scale_img)
     else:
         print("going to denoise now...")
         if use_thresh:
@@ -348,7 +388,7 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
     ncols = len(input_image[0]) 
     nrows = len(input_image)
     img_area = nrows*ncols
-
+    
     scale_img = get_quarter_image(input_image, use_opposite, isWhiteOrGray,use_thresh,low_bounds=low_bounds)
     
     kernel = np.ones((3,3), np.uint8)
@@ -448,7 +488,7 @@ def get_target_quarter_contours(input_image, use_opposite, too_close_to_abalone=
     for at in accum_thresholds:
         print("trying threshold {}".format(at))
         circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=20,param2=at,minRadius=10,maxRadius=40)
-        if True:
+        if False:
             if circles is not None:
                 circles = np.uint16(np.around(circles))
                 for i in circles[0,:]:
@@ -540,13 +580,14 @@ def get_filtered_quarter_contours(scale_contours, target_contour, img_area, chec
 def get_quarter_results(clippedImages, target_contour, quarter_template_contour, look_for_shapes, 
                         origCellCount, isWhiteOrGray,original_size=None, use_thresh=False,low_bounds=100,lastPass=False):
     results = []
+    print("get qr iswg: {}".format(isWhiteOrGray))
     for i, ciData in enumerate(clippedImages):
         ci = ciData[0]
         xOffset = ciData[1]
         yOffset = ciData[2]
-        
+
         refObjectCenterX, refObjectCenterY, refRadius, matches, score = get_quarter_dimensions(ci, target_contour, 
-                                                                 quarter_template_contour, look_for_shapes, origCellCount, 
+                                                                 quarter_template_contour, look_for_shapes, origCellCount, 0,0,
                                                                  isWhiteOrGray,original_size=original_size, 
                                                                  use_thresh=use_thresh,low_bounds=low_bounds,
                                                                  lastPass=lastPass)
@@ -585,14 +626,18 @@ def get_best_quarter_dimensions(clippedImages, originalImage, target_contour, qu
                     whichOne = "Thresh-160-{}".format(lastPass)
                     #do we need to keep going?
                     if results is None or len(results) == 0:
-
+                        print("try low low")
                         low_bounds=75
                         results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=True,low_bounds=low_bounds,lastPass=lastPass)
                         whichOne = "Thresh-{}-{}".format(low_bounds, lastPass)
                         if results is None or len(results) == 0:
-                            print("trying color pics")
+                            print("trying no thresh 75")
                             results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, isWhiteOrGray,original_size=original_size, use_thresh=False,low_bounds=75,lastPass=lastPass)
                             whichOne = "NoThresh-75-{}".format(lastPass)
+                            if results is None or len(results) == 0:
+                                print("trying color pics")
+                                results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray,original_size=original_size, use_thresh=False,low_bounds=75,lastPass=lastPass)
+                                whichOne = "Color-{}".format(lastPass)
 
         if results is not None and len(results) > 0:
             break
@@ -623,12 +668,13 @@ def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_te
     matching_contours = []
     okComp = []
 
-    radiusMax = 70
+    radiusMax = 82
     radiusMin = 17
     
     for i,match_contour in enumerate(scale_contours):
         try:
             (x,y),circleRadius = cv2.minEnclosingCircle(match_contour)
+           
             circleRadius = int(circleRadius)
             matchPerimeter = cv2.arcLength(match_contour,True)
             matchArea = cv2.contourArea(match_contour)
@@ -695,7 +741,7 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
     ncols = len(input_image[0]) 
     nrows = len(input_image)
     img_area = nrows*ncols
-
+    
     cx = 0
     cy = 0
     radius = 0
@@ -734,7 +780,7 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
                
                 circle_image = cv2.cvtColor(circle_image, cv2.COLOR_BGR2GRAY)
             
-                circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=60,param2=30,minRadius=20,maxRadius=40)
+                circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=60,param2=30,minRadius=20,maxRadius=70)
                 
                 if circles is not None and circles.any():
                     break
@@ -812,7 +858,7 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
                 #for small images, set the radius max lower. for example:
                 #feb_2017/IMG_3.36_36.JPG, which is 480x640
                 if origCellCount < 1228800:
-                    radiusMax = 75
+                    radiusMax = 80
                     radiusMin = 30
                 else:
                     radiusMax = 60
@@ -1451,13 +1497,18 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
     '''
     #hmmmm...maybe I don't need the get_canny, this works fine?
     if not final_try:
+
+        hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
+        value_layer = hsv_image[:,:,2]
         #some of the really light/blurry images fail complete with the canny call, using this instead...
         ret, thresh = cv2.threshold(clipped_image.copy(), 100,255,0)
         edged_img = get_canny(thresh,canny_range)
     else:
-        denoised = cv2.fastNlMeansDenoisingColored(clipped_image,None,7,21,13,10)
-        gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
-        edged_img = get_canny(clipped_image,canny_range)
+        hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
+        value_layer = hsv_image[:,:,2]
+        #denoised = cv2.fastNlMeansDenoisingColored(value_layer,None,7,21,13,10)
+        #gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+        edged_img = get_canny(value_layer,canny_range)
     
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,kernel_size)
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,7))
@@ -1467,7 +1518,15 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
     iters=1
     edged_img = cv2.dilate(edged_img, dilate_kernel, iterations=iters)
     if False:
-        utils.show_img("dilated", edged_img)
+        hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
+        value_layer = hsv_image[:,:,2]
+        gray = cv2.cvtColor(clipped_image.copy(), cv2.COLOR_BGR2GRAY)
+        cv2.imshow("hue", hsv_image[:,:,0])
+        cv2.imshow("sat", hsv_image[:,:,1])
+        cv2.imshow("val", hsv_image[:,:,2])
+        cv2.imshow("gray", hsv_image[:,:,1])
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     '''
     edged_img = cv2.erode(edged_img, erode_kernel, iterations=1)
@@ -1476,7 +1535,7 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
     
     '''
     edged_img = cv2.morphologyEx(edged_img, cv2.MORPH_CLOSE, dilate_kernel)
-    if False and final_try:
+    if False:
         utils.show_img("edged", edged_img)
     ret, thresh = cv2.threshold(edged_img.copy(), 127,255,0)
 

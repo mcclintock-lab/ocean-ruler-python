@@ -414,7 +414,7 @@ def is_white_or_gray(input_image, imageIsClipped):
     else:
         offset = 100
     mean_color = get_mean_background_color(input_image, offset)
-
+    print("mean color: {}".format(mean_color))
     #low saturation and high value -- white or really light gray
     return mean_color[1] < 75 and mean_color[2] > 175
 
@@ -444,6 +444,8 @@ def is_background_similar_color(input_image):
 
 def get_mean_background_color(input_image,offset=0):
     image = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
+    img_median = np.median(image)
+    print("img median: {}".format(img_median))
     h_vals = []
     s_vals = []
     v_vals = []

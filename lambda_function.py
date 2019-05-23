@@ -114,7 +114,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         #if is_deployed:
         
         #print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        if True:
+        if False:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
@@ -397,7 +397,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             ret, thresh = cv2.threshold(gray, 100, 255, 0)
             #clippedThreshImage = getClippingBoundsFromMask(thresh, rescaled_image, orig_cols, orig_rows)
  
-            target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, 
+            target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, rescaled_image.copy(), small_abalone_template_contour, 
                                                                                 is_square_ref, (constants.isAbalone(fishery_type)), True, fishery_type)
             target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
             
@@ -411,7 +411,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             #threshed_scallop = ci.get_scallop_image(clippedImage)
             #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
             small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-            target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, small_abalone_template_contour, 
+            target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, rescaled_image.copy(), small_abalone_template_contour, 
                                                                                 is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
             target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
             
@@ -485,7 +485,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         utils.print_time("done getting template: ", _start_time)
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         print("is white or gray: {}".format(isWhiteOrGray))
-        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), small_abalone_template_contour, 
+        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), rescaled_image.copy(), small_abalone_template_contour, 
                                                                             is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
         if False:
             rect = cv2.minAreaRect(target_contour)

@@ -181,7 +181,7 @@ def read_args():
         ref_object = "quarter"
         ref_object_units = "inches"
         ref_object_size = 0.955
-        fishery_type = "california_finfish"
+        fishery_type = "abalone"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
