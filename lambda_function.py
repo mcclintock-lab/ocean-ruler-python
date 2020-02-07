@@ -95,13 +95,13 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
             full_mask_image = cv2.imread(fullMaskName)
         else:
             full_mask_image = None
-            
+        print("about to start executing.....")
         rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point, whichTechnique = execute(imageName, 
                         image_full, mask_image, full_mask_image, 
                         showResults, is_deployed, 
                         fishery_type, ref_object, ref_object_size, ref_object_units, extra_mask_image)
 
-        
+        print("execute is done...")
         if False:
             file_utils.read_write_simple_csv("data_finfish_516.csv", imageName, targetLength, ref_object_units, "mm", whichTechnique)
 
@@ -118,7 +118,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
-            presigned_url = uploads.upload_worker(rescaled_image, thumb, img_data, username, email, uuid, locCode, picDate, targetLength, rating, notes,
+            presigned_url = uploads.upload_worker(username, email, uuid, locCode, picDate, targetLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
                 left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object, ref_object_size, ref_object_units, 
                 orig_cols, orig_rows, dynamo_name, s3_bucket_name, original_filename, original_size, targetWidth, width_left_point[0], width_left_point[1], width_right_point[0], width_right_point[1])
@@ -205,11 +205,12 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, 
     if useCircle:
         gray = cv2.cvtColor(mask_image, cv2.COLOR_BGR2GRAY)
         ret, thresh = cv2.threshold(gray, 127, 255, 0)
-
+        print("getting contours")
         im2, target_shapes, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         target_shapes = sorted(target_shapes, key=lambda shape: cv2.contourArea(shape), reverse=True)
         target_contour = target_shapes[0]
 
+        print("getting circle")
         #add enclosing envelope and *and* them together
         (x,y),radius = cv2.minEnclosingCircle(target_contour)
 
@@ -225,7 +226,7 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, 
         rescaled_mask = 255 * rescaled_mask # Now scale by 255
 
         rescaled_mask = rescaled_mask.astype(np.uint8)
-
+        print("finding second contours")
         im2, target_shapes, hierarchy = cv2.findContours(rescaled_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         
         target_shapes = sorted(target_shapes, key=lambda shape: cv2.contourArea(shape), reverse=True)
@@ -236,7 +237,7 @@ def getClippingBoundsFromMask(mask_image, rescaled_image, orig_cols, orig_rows, 
         rescaled_mask = templates.rescale(orig_cols, orig_rows, mask_image)
         gray = cv2.cvtColor(rescaled_mask, cv2.COLOR_BGR2GRAY)
         ret, thresh = cv2.threshold(gray, 127, 255, 0)
-
+        print("finding non circle contours")
         im2, target_shapes, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         target_shapes = sorted(target_shapes, key=lambda shape: cv2.contourArea(shape), reverse=True)
         target_contour = target_shapes[0]
@@ -323,12 +324,12 @@ def get_clipped_quarter_image(input_image,full_mask_image, target_contour):
         
         cv2.fillPoly(clippedMaskImage, [clippingShape], 0)
  
-        ca = 2
+        ca = 0
         cols = len(input_image[0]) 
         rows = len(input_image)
         scaled_image = clippedMaskImage[ca:rows-ca,ca:cols-ca]
     else:
-        ca = 2
+        ca = 0
         cols = len(input_image[0]) 
         rows = len(input_image)
         scaled_image = input_image[ca:rows-ca,ca:cols-ca]
@@ -365,6 +366,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         full_mask_image = rotate_img(full_mask_image)
         ro_mask_image = rotate_img(ro_mask_image)
 
+    print("getting scaled image...")
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)    
     clipped_image = None
 
@@ -378,16 +380,18 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             mlFullMask = getClippingBoundsFromMask(full_mask_image, rescaled_image, orig_cols, orig_rows, allShapes=False, useCircle=False)
             clippedFullImage, xFullOffset, yFullOffset = getClippedImage(rescaled_image, mlFullMask, None, fishery_type)
         else:
+            print("getting clipping mask...")
             mlMask = getClippingBoundsFromMask(mask_image, rescaled_image, scaled_cols, scaled_rows,allShapes=False, useCircle=False)
+            print("now getting clipped image")
+            
             clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask, None, fishery_type)
             
-            #utils.show_img("clipped", clippedImage)
     edge_contour = contour_utils.offset_contour(mlMask, -xOffset, -yOffset)
     #get the arget contour for the appropriate fishery
     ref_object_contour = None
     all_square_contours = None
     is_square_ref = (ref_object == constants.SQUARE)
-
+    
     if (constants.isAbalone(fishery_type) or constants.isScallop(fishery_type)) and mask_image is not None:
         if(constants.isScallop(fishery_type)):
             isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
@@ -498,11 +502,10 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     utils.print_time("done getting {} contours".format(fishery_type), _start_time)
 
     if ref_object == constants.QUARTER:
-        if ref_object_units is None or ref_object_units == constants.INCHES:
-            ref_object_size = constants.QUARTER_SIZE_IN
-        else:
-            ref_object_size = constants.QUARTER_SIZE_MM
+        
+        ref_object_size = constants.QUARTER_SIZE_CM
 
+        print("ref object size: ", ref_object_size)
         if False:
             print("using ref object mask...")
             roMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_image, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
@@ -554,7 +557,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
     new_drawing = rescaled_image.copy()
     if ref_object == constants.QUARTER:
-        print("drawing quarter contour...")
+        print("drawing quarter contour with size: ", ref_object_size)
         pixelsPerMetric, quarterSize, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
             target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, (refRadius*2)-1, ref_object_size)
     else:

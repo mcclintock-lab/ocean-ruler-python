@@ -24,7 +24,6 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
         upper_bound = 100
 
         edged_img = cv2.Canny(blur, lower_bound, upper_bound,9)
-        utils.show_img("edged ", edged_img)
         #edged_img = get_canny(blur, 0.50)
         '''
         cv2.imshow("original, auto canny", np.hstack([edged_img, new_edged_img]))
@@ -422,7 +421,7 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
         scale_cnts = cv2.findContours(contour_image, cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
         scale_contours = np.array(scale_cnts[1])
         circle_image = thresh.copy()
-
+    print("iswg:{}, use thresh: {}, low_bounds:{}".format(isWhiteOrGray, use_thresh, low_bounds))
     if False:
         d = input_image.copy()
         cv2.drawContours(d, scale_contours, -1,(255,0,0),3)
@@ -437,10 +436,13 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
     matches, matching_contours, okComp = get_filtered_quarter_contours_by_radius(scale_contours, img_area, 
                                                                                  quarter_template_contour, showOutput,
                                                                                  lastPass=lastPass)
-    if False:
+    
+    if showOutput:
         d = input_image.copy()
-        cv2.drawContours(d, matching_contours, -1,(250,150,150),3)
-        utils.show_img("ones that match, {}:{}".format(use_thresh, low_bounds), d)
+        for ok in okComp:
+            n = 0
+            cv2.drawContours(d, [ok], 0,(n,n+75,n),3)
+        utils.show_img("lighter are later, {}:{}".format(use_thresh, low_bounds), d)
 
     return matches, matching_contours, okComp, circle_image
 
@@ -636,7 +638,7 @@ def get_best_quarter_dimensions(clippedImages, originalImage, target_contour, qu
                             whichOne = "NoThresh-75-{}".format(lastPass)
                             if results is None or len(results) == 0:
                                 print("trying color pics")
-                                results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, not isWhiteOrGray,original_size=original_size, use_thresh=False,low_bounds=75,lastPass=lastPass)
+                                results = get_quarter_results(imageToUse, target_contour, quarter_template_contour, look_for_shapes, origCellCount, (not isWhiteOrGray),original_size=original_size, use_thresh=False,low_bounds=75,lastPass=lastPass)
                                 whichOne = "Color-{}".format(lastPass)
 
         if results is not None and len(results) > 0:
@@ -676,35 +678,51 @@ def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_te
             (x,y),circleRadius = cv2.minEnclosingCircle(match_contour)
            
             circleRadius = int(circleRadius)
-            matchPerimeter = cv2.arcLength(match_contour,True)
+            matchPerimeter = cv2.arcLength(match_contour,False)
             matchArea = cv2.contourArea(match_contour)
+            '''
+            hull = cv2.convexHull(contour, returnPoints=Tre)
+            hullArea = cv2.contourArea(hull) 
+            '''
             if matchArea > 0:
                 compactness = (matchPerimeter*matchPerimeter)/(4*matchArea*math.pi)
+                circularity = 4*math.pi*(matchArea/(matchPerimeter*matchPerimeter))
+                
                 compactnessLimit = 1.5
+
+                
+                if False:
+                    print("compactness: {}, circularity: {}".format(compactness, circularity))
+                
                 if lastPass:
                     #images where quarter is slightly cut off for heavy shadows or edges
                     compactnessLimit = 2.5
                     #for the zoomed out images
                     radiusMin=12
-                if compactness < compactnessLimit and (utils.is_really_round(match_contour) or lastPass):
+                if (0.5 <= circularity <= 1.5) or lastPass:
                     if circleRadius >= radiusMin and circleRadius <= radiusMax:
                         val = cv2.matchShapes(match_contour, quarter_template_contour, cv2.CONTOURS_MATCH_I3, 0.0)
                         score = compactness*val
                         matches.append([match_contour, circleRadius, (x, y), compactness,  val, score])
                         #for drawing while debugging
                         matching_contours.append(match_contour)
+                        print("matching perimeter: {}, matching area: {}".format(matchPerimeter, matchArea))
+                    if False:
+                        print("ok circularity, radius is outside range")
 
                 else:
                     if showOutput and (circleRadius >= radiusMin and circleRadius <= radiusMax):
-                        print("{}. radius: {}, compactness:{}".format(i, circleRadius, compactness))
-                    okComp.append(match_contour)
+                        if circleRadius < 50 and matchArea > 20:
+                             
+                            print("{}. radius: {}, circularity {}, compactness:{},  area:{}, perimeter: {}".format(i, circleRadius,circularity, compactness,matchArea, matchPerimeter))
+                            okComp.append(match_contour)
 
 
         except Exception as e:
             print("blew up while filtereing: {}".format(e))
             continue
 
-        
+
     return matches, matching_contours, okComp
 
 def get_bounds(c, offset, nrows, ncols):
@@ -779,7 +797,7 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
                 circle_image = circle_image[top:bottom,left:right]
                
                 circle_image = cv2.cvtColor(circle_image, cv2.COLOR_BGR2GRAY)
-            
+              
                 circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=60,param2=30,minRadius=20,maxRadius=70)
                 
                 if circles is not None and circles.any():

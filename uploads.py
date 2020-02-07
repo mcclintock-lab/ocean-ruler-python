@@ -104,8 +104,7 @@ def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
     s3.Bucket(bucket_name).put_object(Key="public/thumbs/"+uuid+".png", Body=final_thumb)
     return presigned_url
 
-def upload_worker(rescaled_image, thumb, img_data, 
-    name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
+def upload_worker(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
     as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
     ref_object_units, original_width, original_height, dynamo_table_name, bucket_name, original_filename, original_size,
     targetWidth, asw_x, asw_y, aew_x, aew_y):

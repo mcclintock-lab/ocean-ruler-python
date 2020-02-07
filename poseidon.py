@@ -11,6 +11,7 @@ from fastai.conv_learner import *
 from fastai.model import *
 from fastai.dataset import *
 from fastai.sgdr import *
+from PIL import Image
 import lambda_function
 import uploads
 
@@ -101,16 +102,16 @@ def setupQuarterSquareModel():
     learn = ConvLearner.from_model_data(m, data)
     learn.load(QUARTER_MODEL)
 
-
     return m, tfms, data,learn
 
 def loadData(imgName, targetPath, tfms, learn):
     ds = FilesIndexArrayDataset([imgName], np.array([0]), tfms[1], targetPath)
     dl = DataLoader(ds)
+
     preds = learn.predict_dl(dl)
     preds = np.argmax(preds)
     
-    return dl, preds
+    return dl
 
 class SaveFeatures():
     features=None
@@ -179,9 +180,9 @@ def read_args():
         #for running it locally
         print(" batch -- falling back to abalone & quarter")
         ref_object = "quarter"
-        ref_object_units = "inches"
-        ref_object_size = 0.955
-        fishery_type = "abalone"
+        ref_object_units = "cm"
+        ref_object_size = 2.426
+        fishery_type = "california_finfish"
         uuid = str(time.time()*1000)
         username = "dytest"
         email = "none given"
@@ -206,7 +207,7 @@ def read_args():
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code, showResults
 
 def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare,fullPrefix=""):
-    dl, predictions = loadData(imgName, targetPath, tfms, learn)
+    dl = loadData(imgName, targetPath, tfms, learn)
 
     x,y = next(iter(dl))
     x = x[None,0]
@@ -230,7 +231,10 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
     f2/=f2.max()
 
     #f2F = np.ma.masked_where(f2 <= 0.50, f2)
-    filter = scipy.misc.imresize(f2, dx.shape,mode="L")
+    #filter = scipy.misc.imresize(f2, dx.shape,mode="L")
+    print(" dx shape: {}".format(dx.shape))
+    new_shape = (dx.shape[0],dx.shape[1])
+    filter = np.array(Image.fromarray(f2).resize(new_shape))
     maxVal = filter.max()*multiplier
     
     rMaxVal = filter.max()*restrictedMultiplier
@@ -264,7 +268,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     writeMask(zeroMask, outMaskName, False)
 
-    if show:
+    if False:
         showResults(zeroMask, dx)
 
     return rZeroMask, outMaskName
@@ -362,7 +366,9 @@ def execute():
             refObjectMask, refObjectMaskName = runModel(m, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
         '''
 
-        print("done with ml")
+        print("done with ml, ref object is ", ref_object_size )
+        print("ref object units:: ", ref_object_units)
+        print("ref object: ", ref_object)
         #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
         jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
             locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults)

@@ -25,8 +25,8 @@ def read_args():
         help="file to read/write results from")
     ap.add_argument("--fishery_type", required=False, help="fishery type, e.g. abalone, lobster, etc.")
     ap.add_argument("--ref_object", required=False, help="reference object type: quarter or square")
-    ap.add_argument("--ref_object_size", required=False, help="reference object size, 0.955 for quarter (default), squares of 2 or 3")
-    ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to inches")
+    ap.add_argument("--ref_object_size", required=False, help="reference object size, 2.426 for quarter (default), squares of 2 or 3")
+    ap.add_argument("--ref_object_units", required=False, help="reference object units, inches or mm, defaults to cm")
 
     try:
 
@@ -74,11 +74,11 @@ def read_args():
         if constants.isLobster(fishery_type):
             ref_object = constants.SQUARE
             ref_object_size = constants.DEF_SQUARE_SIZE_IN
-            ref_object_units = constants.INCHES
+            ref_object_units = constants.CM
         else:
             ref_object = constants.QUARTER
             ref_object_size = constants.QUARTER_SIZE_IN
-            ref_object_units = constants.INCHES
+            ref_object_units = constants.CM
 
     return imageName, showResults, out_file, fishery_type, ref_object, ref_object_size, ref_object_units
 
