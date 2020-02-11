@@ -412,7 +412,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
                                                                                 is_square_ref, (constants.isAbalone(fishery_type)), True, fishery_type)
             target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
             
-            if True:
+            if False:
                 cv2.drawContours(rescaled_image.copy(), [target_contour], 0, (255,0,0),5)
                 #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
                 utils.show_img("clipped Image from thresholding...", rescaled_image.copy())
