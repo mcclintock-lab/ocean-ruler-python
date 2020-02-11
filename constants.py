@@ -46,5 +46,5 @@ def isScallop(fishery_type):
 
 def isAbalone(fishery_type):
     isAb = ABALONE in fishery_type
-    print("is abalone: {}".format(isAb))
+    
     return isAb

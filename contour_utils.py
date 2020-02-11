@@ -269,15 +269,15 @@ def get_big_square_target_contour(input_image, size_place):
 def get_target_contour(clipped_image,original_image, template_contour, is_square_ref_object, is_abalone, isWhiteOrGray, fishery_type):
 
     lower_perc_bounds = 0.1
-    if(constants.isScallop(fishery_type)):
+    if(not constants.isAbalone(fishery_type)):
         lower_perc_bounds = 0.05
     target_contour, orig_contours = get_target_oval_contour(clipped_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, False, is_square_ref_object, fishery_type)
     if target_contour is None:
-        if(constants.isScallop(fishery_type)):
+        if(not constants.isAbalone(fishery_type)):
             lower_perc_bounds = 0.01
         target_contour, orig_contours = get_target_oval_contour(clipped_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, True, is_square_ref_object, fishery_type)
         if target_contour is None:
-            if(constants.isScallop(fishery_type)):
+            if(not constants.isAbalone(fishery_type)):
                 lower_perc_bounds = 0.01
             #in case the main abalone/scallop is cut off
             target_contour, orig_contours = get_target_oval_contour(original_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, True, is_square_ref_object, fishery_type)

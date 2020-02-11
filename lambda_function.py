@@ -412,7 +412,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
                                                                                 is_square_ref, (constants.isAbalone(fishery_type)), True, fishery_type)
             target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
             
-            if False:
+            if True:
                 cv2.drawContours(rescaled_image.copy(), [target_contour], 0, (255,0,0),5)
                 #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
                 utils.show_img("clipped Image from thresholding...", rescaled_image.copy())
@@ -496,8 +496,18 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
         
-        target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), rescaled_image.copy(), small_abalone_template_contour, 
-                                                                            is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
+        #target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), rescaled_image.copy(), small_abalone_template_contour, 
+        #                                                                    is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
+        target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, rescaled_image.copy(), small_abalone_template_contour, 
+                                                                                is_square_ref, (constants.isAbalone(fishery_type)), True, fishery_type)
+        if target_contour is None:
+            print("could not find a contour with the clipped image...")
+            target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), 
+                                            rescaled_image.copy(), small_abalone_template_contour, 
+                                            is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
+        else:
+            target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
+
         if False:
             rect = cv2.minAreaRect(target_contour)
             box = cv2.boxPoints(rect)
@@ -606,14 +616,14 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
 
     utils.print_time("done drawing target contours", _start_time)
 
-    if not is_deployed and showResults:
+    if not is_deployed and False:
         utils.show_img("Final Measurements for {}".format(imageName), new_drawing)
         write_new_image(imageName, new_drawing)
     else:
         if not is_deployed:
             write_new_image(imageName, new_drawing)
 
-    print("almost done.......")
+
     return rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ref_object_point, right_ref_object_point, whichTechnique
     
 def write_new_image(imageName, image):
