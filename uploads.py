@@ -19,7 +19,7 @@ class DecimalEncoder(json.JSONEncoder):
 def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, notes, 
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
         ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size,
-        targetWidth, asw_x, asw_y, aew_x, aew_y):
+        targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(dynamo_table_name)
     try:
@@ -85,7 +85,8 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
                 "target_width_new_start_y":decimal.Decimal('{}'.format(asw_y)),
                 "target_width_new_end_x":decimal.Decimal('{}'.format(aew_x)),
                 "target_width_new_end_y":decimal.Decimal('{}'.format(aew_y)),
-                "newwidth":decimal.Decimal('{}'.format(widthfloat))
+                "newwidth":decimal.Decimal('{}'.format(widthfloat)),
+                "measurement_direction":str(measurementDirection)
             }
         )
 
@@ -107,14 +108,14 @@ def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
 def upload_worker(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
     as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
     ref_object_units, original_width, original_height, dynamo_table_name, bucket_name, original_filename, original_size,
-    targetWidth, asw_x, asw_y, aew_x, aew_y):
+    targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection):
     s3 = boto3.resource('s3')
     s3Client = boto3.client('s3')
     bucket_name = 'ocean-ruler-test';
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                  as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, 
                  ref_object_size, ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size,
-                 targetWidth, asw_x, asw_y, aew_x, aew_y)
+                 targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection)
     presigned_url = s3Client.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': uuid}, ExpiresIn = 3600)
     return presigned_url
 

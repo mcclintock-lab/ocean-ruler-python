@@ -155,7 +155,7 @@ def get_target_oval_contour(input_image, abalone_template_contour, lower_percent
 
  
     #orig contours are returned for display/testing
-    print("found a target: {}".format(target_contour))
+    
     return target_contour, cnts[1]
 
 #calculation to see if its a smooth, compact contour - like a quarter

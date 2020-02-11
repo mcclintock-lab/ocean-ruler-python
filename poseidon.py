@@ -146,6 +146,7 @@ def read_args():
             help="")
         ap.add_argument("--show", required=False,
             help="")
+        ap.add_argument('--measurement_direction', required=True,help="")
 
         args = vars(ap.parse_args())
     except SystemExit as e:
@@ -189,6 +190,7 @@ def read_args():
         original_filename = "none given"
         original_size = None
         loc_code = "Fake Place"
+        measurement_direction = "length"
     else:
 
         ref_object = args["ref_object"]
@@ -202,9 +204,10 @@ def read_args():
         original_size = args["original_size"]
         loc_code = args["loc_code"]
         showResults = args["show"]
+        measurement_direction = args["measurement_direction"]
     
     print("show: {}".format(showResults))
-    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code, showResults
+    return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code, showResults, measurement_direction
 
 def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare,fullPrefix=""):
     dl = loadData(imgName, targetPath, tfms, learn)
@@ -294,7 +297,7 @@ def writeMask(zeroMask, outMaskName, show=False):
 
 
 def execute():
-    imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults = read_args()
+    imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults, measurementDirection = read_args()
     m, tfms, data, learn = setup(fishery_type);
     print("fishery type: {}".format(fishery_type))
 
@@ -371,7 +374,7 @@ def execute():
         print("ref object: ", ref_object)
         #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
         jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-            locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults)
+            locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults, measurementDirection)
         print(">>>>><<<<<")
         print(jsonVals)
         return jsonVals

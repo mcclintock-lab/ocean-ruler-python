@@ -73,7 +73,8 @@ def trim_quarter(quarter_contour):
 
 
 def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref_object, 
-              ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size, extraMaskName,showResults=False):
+              ref_object_units, ref_object_size, locCode, fishery_type, original_filename, 
+              original_size, extraMaskName,showResults=False, measurementDirection="length"):
     try: 
         #original_filename = imageName
 
@@ -99,7 +100,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ruler_point, right_ruler_point, whichTechnique = execute(imageName, 
                         image_full, mask_image, full_mask_image, 
                         showResults, is_deployed, 
-                        fishery_type, ref_object, ref_object_size, ref_object_units, extra_mask_image)
+                        fishery_type, ref_object, ref_object_size, ref_object_units, 
+                        extra_mask_image, measurementDirection)
 
         print("execute is done...")
         if False:
@@ -114,14 +116,16 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         #if is_deployed:
         
         #print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        if False:
+        if True:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
             presigned_url = uploads.upload_worker(username, email, uuid, locCode, picDate, targetLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
                 left_ruler_point[0], left_ruler_point[1], right_ruler_point[0],right_ruler_point[1], fishery_type, ref_object, ref_object_size, ref_object_units, 
-                orig_cols, orig_rows, dynamo_name, s3_bucket_name, original_filename, original_size, targetWidth, width_left_point[0], width_left_point[1], width_right_point[0], width_right_point[1])
+                orig_cols, orig_rows, dynamo_name, s3_bucket_name, original_filename, 
+                original_size, targetWidth, width_left_point[0], width_left_point[1], 
+                width_right_point[0], width_right_point[1], measurementDirection)
 
 
         rval =  {
@@ -147,6 +151,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
                     "target_width_new_start_y":str(width_left_point[1]),
                     "target_width_new_end_x":str(width_right_point[0]),
                     "target_width_new_end_y":str(width_right_point[1]),
+                    "measurement_direction":str(measurementDirection)
                 }
 
 
@@ -337,7 +342,9 @@ def get_clipped_quarter_image(input_image,full_mask_image, target_contour):
 
     return [[scaled_image,ca,ca]]
 
-def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, ro_mask_image=None):
+def execute(imageName, image_full, mask_image, full_mask_image, showResults, 
+            is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, 
+            ro_mask_image=None,measurementDirection="length"):
     mlPath = os.environ['ML_PATH']+"/../"
     #width of US quarter in inches
     orig_cols = len(image_full[0]) 
@@ -392,8 +399,8 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     all_square_contours = None
     is_square_ref = (ref_object == constants.SQUARE)
     
-    if (constants.isAbalone(fishery_type) or constants.isScallop(fishery_type)) and mask_image is not None:
-        if(constants.isScallop(fishery_type)):
+    if (constants.isAbalone(fishery_type) or constants.isScallop(fishery_type)) or measurementDirection == constants.WIDTH_MEASUREMENT and mask_image is not None:
+        if(constants.isScallop(fishery_type) or measurementDirection == constants.WIDTH_MEASUREMENT):
             isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
          
             small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
@@ -484,11 +491,11 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
             #utils.show_img("clipped Image from thresholding...", draw)
     else:
+        
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-        utils.print_time("done getting template: ", _start_time)
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
-        print("is white or gray: {}".format(isWhiteOrGray))
+        
         target_contour, orig_contours = contour_utils.get_target_contour(rescaled_image.copy(), rescaled_image.copy(), small_abalone_template_contour, 
                                                                             is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
         if False:
@@ -557,7 +564,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
 
     new_drawing = rescaled_image.copy()
     if ref_object == constants.QUARTER:
-        print("drawing quarter contour with size: ", ref_object_size)
+        
         pixelsPerMetric, quarterSize, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
             target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, (refRadius*2)-1, ref_object_size)
     else:
@@ -565,15 +572,25 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
             ref_object_contour, None, True, flipDrawing, float(ref_object_size), ref_object_units, fishery_type)
 
 
+    drawWidth = False
+    print("measurement direction passed in is {}".format(measurementDirection))
+    if measurementDirection is None:
+        drawWidth = constants.isScallop(fishery_type)
+    else:
+        drawWidth = (measurementDirection == constants.WIDTH_MEASUREMENT)
+    
+    print("draw width? {}".format(drawWidth))
     if constants.isLobster(fishery_type):
         targetLength, left_point, right_point = drawing.draw_target_lobster_contour(new_drawing, target_contour, pixelsPerMetric, True, left_offset, top_offset, target_full_contour)
 
         targetWidth = 0
         width_left_point = (0,0)
         width_right_point = (0,0)
-    elif constants.isScallop(fishery_type):
+    elif drawWidth:
+        
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
             target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)  
+
     elif constants.isFinfish(fishery_type):
         targetLength, left_point, right_point = drawing.draw_target_finfish_contour(new_drawing, 
             target_contour, pixelsPerMetric, showText, 0, 0) 
@@ -582,7 +599,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
         width_left_point = (0,0)
         width_right_point = (0,0)
     else:
-        print("falling back to default")
+        print("falling back to default: {}".format(target_contour))
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour(new_drawing, 
             target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type) 
                 
@@ -590,15 +607,13 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults, is_
     utils.print_time("done drawing target contours", _start_time)
 
     if not is_deployed and showResults:
-        #cv2.circle(new_drawing,(quarterCenterX, quarterCenterY),quarterRadius,(0,255,0),4)
-        
         utils.show_img("Final Measurements for {}".format(imageName), new_drawing)
         write_new_image(imageName, new_drawing)
     else:
         if not is_deployed:
             write_new_image(imageName, new_drawing)
 
-
+    print("almost done.......")
     return rescaled_image, targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point, left_ref_object_point, right_ref_object_point, whichTechnique
     
 def write_new_image(imageName, image):
