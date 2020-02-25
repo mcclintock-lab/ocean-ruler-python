@@ -115,7 +115,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         presigned_url = ""
         #if is_deployed:
         
-        #print("NO UPLOADING!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
         if True:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
