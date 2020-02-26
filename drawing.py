@@ -3,6 +3,7 @@ import utils
 import numpy as np
 import math
 from scipy.spatial import distance
+from imutils import perspective
 import constants
 
 def midpoint(ptA, ptB):
@@ -35,6 +36,19 @@ def get_corner_points(pre, contour):
     else:
         return get_bounding_corner_points(contour)
    
+def get_square_points(c):
+
+    extLeft = tuple(c[c[:, :, 0].argmin()][0])
+    extRight = tuple(c[c[:, :, 0].argmax()][0])
+    extTop = tuple(c[c[:, :, 1].argmin()][0])
+    extBot = tuple(c[c[:, :, 1].argmax()][0])
+
+    tl = (extLeft[0], extTop[1])
+    tr = (extRight[0],extTop[1])
+    bl = (extLeft[0],extBot[1])
+    br = (extRight[0],extBot[1])
+   
+    return tl, tr, bl, br
 
 def get_bounding_corner_points(contour):
     brect = cv2.boundingRect(contour)
@@ -88,19 +102,6 @@ def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
     br = (quarterCenterX+quarterRadius, quarterCenterY+quarterRadius)
     return tl, tr, bl, br
 
-def get_square_points(c):
-
-    extLeft = tuple(c[c[:, :, 0].argmin()][0])
-    extRight = tuple(c[c[:, :, 0].argmax()][0])
-    extTop = tuple(c[c[:, :, 1].argmin()][0])
-    extBot = tuple(c[c[:, :, 1].argmax()][0])
-
-    tl = (extLeft[0], extTop[1])
-    tr = (extRight[0],extTop[1])
-    bl = (extLeft[0],extBot[1])
-    br = (extRight[0],extBot[1])
-   
-    return tl, tr, bl, br
 
 def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
     
@@ -336,19 +337,33 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
 def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, refObjectUnits, 
         fishery_type):
-    tl, tr, bl, br = get_bounding_corner_points(contour)
+    #tl, tr, bl, br = get_bounding_corner_points(contour)
+    #print("tl: {}".format(tl))
     #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
+    #tl, tr, bl, br = get_square_points(contour)
+    minRect = cv2.minAreaRect(contour)
+    box = cv2.boxPoints(minRect)
+    
+    box = np.array(box, dtype="int")
+    
+    cv2.drawContours(base_img, [box],0,(125,0,0),3)
+    box = perspective.order_points(box)
 
+    tl = tuple(box[0])
+    tr = tuple(box[1])
+    br = tuple(box[2])
+    bl = tuple(box[3])
+    
     startLinePoint = midpoint(tl, bl)
     startLinePoint = (int(startLinePoint[0])+2, int(startLinePoint[1]))
     endLinePoint = midpoint(tr, br)
     endLinePoint = (int(endLinePoint[0])-2, int(endLinePoint[1]))
-    cornerPoints = get_square_corners(base_img, contour)
+    #cornerPoints = get_square_corners(base_img, contour)
 
     dBX = abs(startLinePoint[0] - endLinePoint[0])
     dBY =  abs(startLinePoint[1] - endLinePoint[1])
     dB = get_distance(dBX, dBY)
-
+    print("dB: {}".format(dB))
     #compensating for distance between abalone and quarter on board
     # the farther away it is (smaller the quarter) the less it compensates,
     # since the percentage diff between quarter distance and abalone edge (from camera)
@@ -357,17 +372,20 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     #TODO: probably need to change this depending on fishery...
     if(constants.isScallop(fishery_type)):
         multiplier = 1.03
-    elif fishery_type == "square_test":
-        multiplier = 1.0
     else:
         multiplier = 1.10
-
+        #heuristic (aka fudge factor) for closeness to object
+        #the bigger the ref object, the more zoomed in its assumed to be
         if dB < 60:
             multiplier = 1.05
         elif 60 <= dB <= 65:
             multiplier = 1.08
-        elif dB > 80:
+        elif 80 <= dB <= 150:
             multiplier = 1.12
+        elif 150 <= dB <= 170:
+            multiplier = 1.02
+        elif dB > 170:
+            multiplier = 1.04
 
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
    
@@ -376,10 +394,10 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     
     if True:
         cv2.drawContours(base_img, [contour],0,(125,0,0),1)
-        cv2.circle(base_img, tl, 1, (255, 0, 0), -1)
-        cv2.circle(base_img, tr, 1, (255, 0, 0), -1)
-        cv2.circle(base_img, bl, 1, (255, 0, 0), -1)
-        cv2.circle(base_img, br, 1, (255, 0, 0), -1)
+        cv2.circle(base_img, tl, 4, (255, 0, 0), -1)
+        cv2.circle(base_img, tr, 4, (255, 0, 0), -1)
+        cv2.circle(base_img, bl, 4, (255, 0, 0), -1)
+        cv2.circle(base_img, br, 4, (255, 0, 0), -1)
 
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 1, (255, 0, 0), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 1, (255, 0, 0), -1)
@@ -576,13 +594,12 @@ def get_contour_rect_intersection(base_img, contour):
     imgI = np.logical_and(img1, img2)
     locations = np.argwhere(imgI)
 
-    print("locations: {}".format(locations))
     '''
     if len(locations) > 2:
         locations = remove_duplicates(locations)
     '''
     if locations is not None and len(locations) >= 2:
-        print("locations after removing dupes: {}".format(locations))
+        
         if True:
             for i, loc in enumerate(locations):
                 cX = loc[1]
@@ -591,10 +608,10 @@ def get_contour_rect_intersection(base_img, contour):
                 cv2.circle(base_img, (cX, cY), 12, (125,125,125), -1)
         width = rect[1][0]
         height = rect[1][1]
-        print("xlocations: {}".format(locations[:,1:]))
+        
         xMinDex = np.argmin(locations[:,1:])
         xMaxDex = np.argmax(locations[:,1:])
-        print('xmin: {}, xmax: {}'.format(xMinDex, xMaxDex))
+        
         if width >= height:
             leftMost = locations[xMinDex]
             rightMost = locations[xMaxDex]

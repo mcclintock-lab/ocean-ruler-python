@@ -103,7 +103,7 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
                         fishery_type, ref_object, ref_object_size, ref_object_units, 
                         extra_mask_image, measurementDirection)
 
-        print("execute is done...")
+
         if False:
             file_utils.read_write_simple_csv("data_finfish_516.csv", imageName, targetLength, ref_object_units, "mm", whichTechnique)
 
@@ -609,7 +609,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
         width_left_point = (0,0)
         width_right_point = (0,0)
     else:
-        print("falling back to default: {}".format(target_contour))
+        
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour(new_drawing, 
             target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type) 
                 
@@ -629,9 +629,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
 def write_new_image(imageName, image):
     basename = os.path.basename(imageName)
     path = os.path.dirname(imageName)
-    
-    print("image name: {}".format(basename))
-    print("path: {}".format(path))
+ 
     out_path = os.path.join(path, "output")
     if not os.path.exists(out_path):
         os.mkdir(out_path)

@@ -282,7 +282,7 @@ def get_target_contour(clipped_image,original_image, template_contour, is_square
             #in case the main abalone/scallop is cut off
             target_contour, orig_contours = get_target_oval_contour(original_image.copy(), template_contour, lower_perc_bounds, isWhiteOrGray, True, is_square_ref_object, fishery_type)
             
-    print("target: {}".format(target_contour))
+            
     ncols = len(clipped_image[0]) 
     nrows = len(clipped_image)
     img_area = nrows*ncols

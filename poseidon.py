@@ -331,7 +331,9 @@ def execute():
             #going higher than 0.32 starts to chop off fish edges...
             multiplier = 0.32
             rMultiplier = 0.5
-
+        else:
+            multiplier = 0.4
+            rMultiplier = 0.5
         print("running model for ablob...: {}".format(fishery_type))
         print("multiplier: {}".format(multiplier))
 

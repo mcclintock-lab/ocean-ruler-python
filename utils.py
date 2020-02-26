@@ -414,7 +414,7 @@ def is_white_or_gray(input_image, imageIsClipped):
     else:
         offset = 100
     mean_color = get_mean_background_color(input_image, offset)
-    print("mean color: {}".format(mean_color))
+
     #low saturation and high value -- white or really light gray
     return mean_color[1] < 75 and mean_color[2] > 175
 
