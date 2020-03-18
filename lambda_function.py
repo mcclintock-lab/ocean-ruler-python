@@ -562,7 +562,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
             ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
             
             if False:
-                cv2.drawContours(tmpimg, all_square_contours, -1, (255,200,200),5)
+                cv2.drawContours(tmpimg, [ref_object_contour], -1, (255,200,200),5)
                 #cv2.drawContours(tmpimg, [ref_object_contour],-1,(0,0,255),10)
                 #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
                 utils.show_img("ref object", tmpimg)

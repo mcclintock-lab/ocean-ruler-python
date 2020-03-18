@@ -1235,7 +1235,9 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     target_contour = None
     white_or_gray = True
 
+    '''
     if not white_or_gray:
+        print("its white or gray?")
         thresh_val = 30
         blur_window = 5
         first_pass = True
@@ -1243,10 +1245,23 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         use_adaptive = False
         color_image, threshold_bw, color_img, mid_row = ci.get_image_with_color_mask(input_image, thresh_val, 
             blur_window, False, first_pass, is_ruler, use_adaptive)
-        gray = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
+        current_best = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
     else:
-        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
-        gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+    '''
+
+    print ('its white or gray')
+    '''
+    this approach didn't seem to work as well
+    denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
+    gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+    '''
+
+    blur = cv2.medianBlur(input_image,5)
+    gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+    bilateralGray = cv2.bilateralFilter(gray, 11, 17, 17)
+    _,current_best = cv2.threshold(bilateralGray,90,255,cv2.THRESH_BINARY)
+    if False:
+        utils.show_img("current best ", current_best)
     
 
 
@@ -1262,7 +1277,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         thresh_lower = 127
         thresh_upper = 250
 
-    scale_img = cv2.Canny(gray, lower_bound, upper_bound,7) 
+    scale_img = cv2.Canny(current_best, lower_bound, upper_bound,7) 
     
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,17))
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
@@ -1297,6 +1312,9 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     minVal = 100000000
     dex = 0
     tcontours = []
+    if False:
+        cv2.drawContours(input_image, contours, -1, (0,255,255),4)
+        utils.show_img("square contours", input_image)
 
     for i, contour in enumerate(contours):
         try:
@@ -1347,9 +1365,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
 
     utils.print_time("finished finding target square", start_time)
     #orig contours are returned for display/testing
-    if False:
-        cv2.drawContours(input_image, [target_contour], 0, (0,255,255),4)
-        utils.show_img("square contours", input_image)
+
     
     return target_contour, tcontours
 

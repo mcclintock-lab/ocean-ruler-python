@@ -271,7 +271,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     writeMask(zeroMask, outMaskName, False)
 
-    if False:
+    if show:
         showResults(zeroMask, dx)
 
     return rZeroMask, outMaskName
@@ -357,23 +357,19 @@ def execute():
             refObjectMask = zeroMask
 
         if not utils.isQuarter(ref_object):
-            print("getting square mask")
-            refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+            if fishery_type == "mussels":
+                print("using unmasked for mussels")
+                refObjectMaskName = imageName
+            else:
+                print("getting square mask")
+                refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.2, 0, True, refObjectMask, True)
         
         else:
             print("getting quarter masks...")
             #refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
             refObjectMaskName = imageName
-        '''
-        if utils.isFinfish(fishery_type):
-            refObjectMask, refObjectMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.05, 0, False, refObjectMask, True)
-        else:    
-            refObjectMask, refObjectMaskName = runModel(m, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
-        '''
 
-        print("done with ml, ref object is ", ref_object_size )
-        print("ref object units:: ", ref_object_units)
-        print("ref object: ", ref_object)
+
         #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
         jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
             locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults, measurementDirection)
