@@ -23,7 +23,8 @@ import uploads
 import contour_utils
 import constants
 import csv
-
+import targets
+import ast
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -342,6 +343,7 @@ def get_clipped_quarter_image(input_image,full_mask_image, target_contour):
 
     return [[scaled_image,ca,ca]]
 
+
 def execute(imageName, image_full, mask_image, full_mask_image, showResults, 
             is_deployed, fishery_type, ref_object, ref_object_size, ref_object_units, 
             ro_mask_image=None,measurementDirection="length"):
@@ -379,6 +381,11 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
 
     mlFullMask = None
     clippedFullImage = None
+    xFullOffset = None
+    yFullOffset = None
+    xOffset = 0
+    yOffset = 0
+    clippedImage = None
     if mask_image is not None:
         if constants.isLobster(fishery_type):
             orig_cols = len(rescaled_image[0]) 
@@ -394,104 +401,30 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
             clippedImage, xOffset, yOffset = getClippedImage(rescaled_image, mlMask, None, fishery_type)
             
     edge_contour = contour_utils.offset_contour(mlMask, -xOffset, -yOffset)
+    if constants.isLobster(fishery_type) and xFullOffset is not None:
+        xOffset = xFullOffset
+        yOffset = yFullOffset
+
     #get the arget contour for the appropriate fishery
     ref_object_contour = None
     all_square_contours = None
     is_square_ref = (ref_object == constants.SQUARE)
-    
-    if (constants.isAbalone(fishery_type) or constants.isScallop(fishery_type)) or measurementDirection == constants.WIDTH_MEASUREMENT and mask_image is not None:
-        if(constants.isScallop(fishery_type) or measurementDirection == constants.WIDTH_MEASUREMENT):
-            isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
-         
-            small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-            gray = cv2.cvtColor(rescaled_image, cv2.COLOR_BGR2GRAY)
-            ret, thresh = cv2.threshold(gray, 100, 255, 0)
-            #clippedThreshImage = getClippingBoundsFromMask(thresh, rescaled_image, orig_cols, orig_rows)
- 
-            target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, rescaled_image.copy(), small_abalone_template_contour, 
-                                                                                is_square_ref, (constants.isAbalone(fishery_type)), True, fishery_type)
-            target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
-            
-            if False:
-                cv2.drawContours(rescaled_image.copy(), [target_contour], 0, (255,0,0),5)
-                #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-                utils.show_img("clipped Image from thresholding...", rescaled_image.copy())
-        else:
-            isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
-            print("------->>>>>>>>>>>> is it white or gray??", isWhiteOrGray)
-            #threshed_scallop = ci.get_scallop_image(clippedImage)
-            #abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows,"images/big_abalone_only_2x.png")
-            small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
-            target_contour, orig_contours = contour_utils.get_target_contour(clippedImage, rescaled_image.copy(), small_abalone_template_contour, 
-                                                                                is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
-            target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
-            
-            if False:
-                cv2.drawContours(clippedImage, [target_contour], 0, (255,0,0),5)
-                #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-                utils.show_img("clipped Image with contours", clippedImage)
-            
-    elif constants.isLobster(fishery_type):
-
-        if mlMask is not None and mlMask.any():
-            target_contour = mlMask
-
-            full_lobster_contour, orig_full_contours = contour_utils.get_target_full_lobster_contour(clippedFullImage)
-            full_lobster_contour = contour_utils.offset_contour(full_lobster_contour, xFullOffset, yFullOffset)
-            
-            target_full_contour = full_lobster_contour
-            if False:
-
-                tmpimg = rescaled_image.copy()
-                cv2.drawContours(tmpimg, [full_lobster_contour], -1,(0,0,255),2)
-                cv2.drawContours(tmpimg, [target_full_contour], -1, (100,100,200),4)
-
-                utils.show_img("lobster full", tmpimg)
-
-            top_offset = left_offset = 0
-            
-        else:
-            small_lobster_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"lobster_templates/full_lobster_right.png")
-            target_contour, orig_contours, top_offset, left_offset = contour_utils.get_lobster_contour(rescaled_image.copy(), small_lobster_template_contour)
-    elif fishery_type == "square_test":
-    
-        tmpimg =rescaled_image.copy()
-        is_white_or_gray = True 
-
-        target_contour, orig_contours = contour_utils.get_big_square_target_contour(rescaled_image.copy(),0)
-        if False:
-            cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
-            utils.show_img("ref object", tmpimg)
-    elif utils.isFinfish(fishery_type):
-        isWhiteOrGray = utils.is_white_or_gray(clippedImage, False) 
-        print("is white or gray: {}".format(isWhiteOrGray))
-        finfish_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/finfish.png")
-        if False:
-            draw = rescaled_image.copy()
-            cv2.drawContours(draw, [finfish_template_contour], 0, (255,0,0),5)
-            #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-            utils.show_img("finfish template contour", draw)
-        gray = cv2.cvtColor(rescaled_image, cv2.COLOR_BGR2GRAY)
-        ret, thresh = cv2.threshold(gray, 100, 255, 0)
-        print("fishery type finfish....")
-        target_contour, orig_contours = contour_utils.get_target_finfish_contour(rescaled_image.copy(), clippedImage, finfish_template_contour, 
-                                                                            is_square_ref_object=is_square_ref,isWhiteOrGray=True, edge_of_mask=edge_contour)
+    target_file = targets.get_target_file(fishery_type)
+   
+    if target_file is not None and mask_image is not None:
+        print("target file: {}".format(target_file))
         
-        if target_contour is None:
-            print("target contour is NONE!!")
-        target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
-        left_offset = xOffset
-        top_offset = yOffset
-        if False:
-            rect = cv2.minAreaRect(target_contour)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            cv2.drawContours(rescaled_image,[box],0,(0,191,255),8)
-            #cv2.drawContours(rescaled_image, [target_contour], 0, (255,0,0),5)
-            #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-            #utils.show_img("clipped Image from thresholding...", draw)
+        import_expr = 'import {} as targ'.format(target_file)
+
+        exec(import_expr)
+        target_method = 'targ.get_dynamic_target_contour'
+        #only the lobster returns the full contour for now...
+        target_contour, target_full_contour, top_offset, left_offset = eval(target_method)(rescaled_image.copy(), clippedImage, 
+                                                    fishery_type, orig_cols, orig_rows, mlPath, is_square_ref, xOffset, yOffset, ml_mask=mlMask, 
+                                                    clipped_full_image=clippedFullImage, edge_contour=edge_contour)
+
     else:
-        
+        print("couldn't find the fishery type, using default")
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 
@@ -507,14 +440,6 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
                                             is_square_ref, (constants.isAbalone(fishery_type)), isWhiteOrGray, fishery_type)
         else:
             target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
-
-        if False:
-            rect = cv2.minAreaRect(target_contour)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            cv2.drawContours(tmpimg,[box],0,(0,191,255),8)
-            #cv2.drawContours(tmpimg, [target_contour], -1, (100,100,100),8)
-            utils.show_img("ref object", tmpimg)
 
     utils.print_time("done getting {} contours".format(fishery_type), _start_time)
 
@@ -616,7 +541,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
 
     utils.print_time("done drawing target contours", _start_time)
 
-    if not is_deployed and False:
+    if not is_deployed and showResults:
         utils.show_img("Final Measurements for {}".format(imageName), new_drawing)
         write_new_image(imageName, new_drawing)
     else:

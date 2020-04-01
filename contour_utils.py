@@ -372,13 +372,21 @@ def get_quarter_image(input_image, use_opposite, isWhiteOrGray, use_thresh, low_
             #print("------>>> image type: {}".format(gray.dtype))
             scale_img = gray
         else:
-            denoised = cv2.fastNlMeansDenoisingColored(input_image,None,7,21,5,9)
-            gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
-            scale_img = get_canny(input_image,0.35)
+            print("not doing thresh...")
+            #denoised = cv2.fastNlMeansDenoisingColored(input_image,None,7,21,5,9)
+            #gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+            #scale_img = get_canny(input_image,0.35)
         
-    
-    if False:
-        utils.show_img("quarter scale img: ", scale_img)
+            #changed this on 3/23/20 - seems like bilateral gray works best on white background...
+            blur = cv2.medianBlur(input_image,3)
+            gray2 = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+            bilateralGray = cv2.bilateralFilter(gray2, 9, 5, 5)
+            scale_img = get_canny(bilateralGray)
+
+            if False:
+                utils.show_img("quarter default ", scale_img)
+                utils.show_img("bilateral gray ", scale_img2)
+
     return scale_img
 
 def get_target_quarter_contours2(input_image, quarter_template_contour, use_opposite,  too_close_to_abalone=False, 
@@ -446,82 +454,6 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
 
     return matches, matching_contours, okComp, circle_image
 
-def get_target_quarter_contours(input_image, use_opposite, too_close_to_abalone=False, isWhiteOrGray=True, use_thresh=False, low_bounds=100, target_contour=None,original_size=None):
-    ncols = len(input_image[0]) 
-    nrows = len(input_image)
-    img_area = nrows*ncols
-
-    scale_img = get_quarter_image(input_image, use_opposite, isWhiteOrGray,use_thresh,low_bounds=low_bounds)
-    #utils.show_img("scale img", scale_img)
-    kernel = np.ones((3,3), np.uint8)
-    if not use_thresh:
-        if not too_close_to_abalone:
-            print("not too close")
-            scale_img = cv2.dilate(scale_img, kernel, iterations=1)
-        else:
-            print("too close")
-            scale_img = cv2.erode(scale_img, kernel, iterations=1)
-        
-
-    #ret, thresh = cv2.threshold(scale_img.copy(), 50,140,0)
-    
-    contour_image = scale_img.copy()
-    if use_thresh:
-        scale_cnts = cv2.findContours(scale_img, cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-        scale_contours = np.array(scale_cnts[1])
-        #add the contours to make sure circles are found
-        cv2.drawContours(contour_image, scale_contours, -1, (100,100,100),2)
-        circle_image = contour_image.copy()
-    else:
-        print("not thresh")
-        ret, thresh = cv2.threshold(contour_image, 50,140,0)
-        scale_cnts = cv2.findContours(contour_image, cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-        scale_contours = np.array(scale_cnts[1])
-        circle_image = thresh.copy()
-
-    if False:
-        utils.show_img("quarter contour image", contour_image)
-
-
-    if False:
-        utils.show_img("threshed contour image", thresh)
-
-    accum_thresholds = [35, 28, 20]
-    for at in accum_thresholds:
-        print("trying threshold {}".format(at))
-        circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=20,param2=at,minRadius=10,maxRadius=40)
-        if False:
-            if circles is not None:
-                circles = np.uint16(np.around(circles))
-                for i in circles[0,:]:
-                    # draw the outer circle
-                    cv2.circle(circle_image,(i[0],i[1]),i[2],(0,255,0),2)
-                    # draw the center of the circle
-                    cv2.circle(circle_image,(i[0],i[1]),2,(0,0,255),3)
-                utils.show_img("--->>>>>>circles", circle_image)
-
-        matches = get_filtered_quarter_contours(scale_contours, target_contour, img_area, True,original_size=original_size)
-        circle_matches = get_matches(circles, matches)
-        print("num matches: {} from {} contours".format(len(matches), len(scale_contours)))
-        #utils.show_img("matching contours", input_image)
-        print("len circle matches: {}".format(len(circle_matches)))
-
-        if len(circle_matches) > 0:
-            print("found some matches, breaking..")
-            if True:
-                drawing = input_image.copy()
-                cv2.drawContours(drawing, matches, -1, (0,0,255),4)
-                #cv2.drawContours(drawing, scale_contours, -1, (255,255,0),6)
-                #cv2.drawContours(input_image, [abalone_contour], 0, (0,255,0),4)
-                for cm in circles_matches:
-                    circle = cm[0]
-                    print('circle: {}'.format(circle))
-                    # draw the outer circle
-                    cv2.circle(drawing,(circle[0],circle[1]),circle[2],(0,255,120),4)
-                utils.show_img("quarter contours", drawing)
-            break
-
-    return circles, scale_contours, matches, circle_matches
 
 def is_point_in_circle(point, circle):
     circleCenter = (circle[0], circle[1])
@@ -767,209 +699,78 @@ def get_quarter_dimensions(input_image, target_contour, quarter_template_contour
 
     #1. use white or color
 
-    if True:
+    filtered_contours, just_conts, okComp, circle_image = get_target_quarter_contours2(input_image.copy(), 
+        quarter_template_contour, False, False, isWhiteOrGray, use_thresh, low_bounds=low_bounds, 
+        target_contour=target_contour,original_size=None,lastPass=lastPass)
 
-        filtered_contours, just_conts, okComp, circle_image = get_target_quarter_contours2(input_image.copy(), 
-            quarter_template_contour, False, False, isWhiteOrGray, use_thresh, low_bounds=low_bounds, 
-            target_contour=target_contour,original_size=None,lastPass=lastPass)
+    if filtered_contours is not None and len(filtered_contours) > 0:
+        if False:
+            d = input_image.copy()
+            cv2.drawContours(d, just_conts, -1,(150,150,150),3)
+            utils.show_img("filtered contours", d)
 
-        if filtered_contours is not None and len(filtered_contours) > 0:
-            if False:
-                d = input_image.copy()
-                cv2.drawContours(d, just_conts, -1,(150,150,150),3)
-                utils.show_img("filtered contours", d)
+        #sort by score
+        filtered_contours = sorted(filtered_contours, key=lambda shape: shape[4], reverse=False)
+        for x, fc in enumerate(filtered_contours):
+            print("{}. fc val: score: {}, compact: {}, radius: {}".format(x, fc[4], fc[3], fc[1]))
+        #if there are multiple contours, ditch ones that don't get circles...
+        for target in filtered_contours:
 
-            #sort by score
-            filtered_contours = sorted(filtered_contours, key=lambda shape: shape[4], reverse=False)
-            for x, fc in enumerate(filtered_contours):
-                print("{}. fc val: score: {}, compact: {}, radius: {}".format(x, fc[4], fc[3], fc[1]))
-            #if there are multiple contours, ditch ones that don't get circles...
-            for target in filtered_contours:
-
-                target_contour = target[0]
-            
-                if lastPass:
-                    quarterBuffer = 3
-                else:
-                    quarterBuffer = 1
-                left, right, top, bottom, left_offset, top_offset = get_bounds(target_contour, quarterBuffer, nrows, ncols)
-                circle_image = input_image.copy()
-                circle_image = circle_image[top:bottom,left:right]
-               
-                circle_image = cv2.cvtColor(circle_image, cv2.COLOR_BGR2GRAY)
-              
-                circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=60,param2=30,minRadius=20,maxRadius=70)
-                
-                if circles is not None and circles.any():
-                    break
-                
-
-            if circles is not None and circles.any():
-                if False:
-                    
-                    for i in circles[0,:]:
-                        # draw the outer circle
-                        cv2.circle(circle_image,(i[0],i[1]),i[2],(0,200,0),1)
-                    
-                    utils.show_img("--->>>>>>circles", circle_image)
-                
-                contourWidth = int(abs(left-right)/2)
-                print("all circles: {}".format(circles))
-                circles = circles[0,:,:]
-                circles = sorted(circles, key=lambda circle: circle[2], reverse=True)
-                
-                target_circle = circles[0]
-                print('target circle: {}'.format(target_circle))
-                #add a check for big diff in hough circles?
-                radius = target_circle[2]
-                (cx,cy) = (target_circle[0]+left_offset,target_circle[1]+top_offset)
-                score = target[3]
-                print("-----_>>>>>>>>>>>>radius: {}, contour width:{}".format(radius, contourWidth))
-
-                return cx,cy,radius, [], score
+            target_contour = target[0]
+        
+            if lastPass:
+                quarterBuffer = 3
             else:
-                if lastPass:
-                    print("no hough circles, but desperate times...")
-                    radius = target[1]
-                    (cx, cy) = target[2]
-                    score = target[3]
-                    return cx, cy, radius, [], score
-                else:
-                    print("no hough circles found...")
-                    return 0,0,0,[],10000000
-                
+                quarterBuffer = 1
+            left, right, top, bottom, left_offset, top_offset = get_bounds(target_contour, quarterBuffer, nrows, ncols)
+            circle_image = input_image.copy()
+            circle_image = circle_image[top:bottom,left:right]
+            
+            circle_image = cv2.cvtColor(circle_image, cv2.COLOR_BGR2GRAY)
+            
+            circles = cv2.HoughCircles(circle_image,cv2.HOUGH_GRADIENT,1,20,param1=60,param2=30,minRadius=20,maxRadius=70)
+            
+            if circles is not None and circles.any():
+                break
+            
 
+        if circles is not None and circles.any():
+            if False:
+                
+                for i in circles[0,:]:
+                    # draw the outer circle
+                    cv2.circle(circle_image,(i[0],i[1]),i[2],(0,200,0),1)
+                
+                utils.show_img("--->>>>>>circles", circle_image)
+            
+            contourWidth = int(abs(left-right)/2)
+            print("all circles: {}".format(circles))
+            circles = circles[0,:,:]
+            circles = sorted(circles, key=lambda circle: circle[2], reverse=True)
+            
+            target_circle = circles[0]
+            print('target circle: {}'.format(target_circle))
+            #add a check for big diff in hough circles?
+            radius = target_circle[2]
+            (cx,cy) = (target_circle[0]+left_offset,target_circle[1]+top_offset)
+            score = target[3]
+            print("-----_>>>>>>>>>>>>radius: {}, contour width:{}".format(radius, contourWidth))
+
+            return cx,cy,radius, [], score
         else:
-            return 0,0,0,[],10000000
+            if lastPass:
+                print("no hough circles, but desperate times...")
+                radius = target[1]
+                (cx, cy) = target[2]
+                score = target[3]
+                return cx, cy, radius, [], score
+            else:
+                print("no hough circles found...")
+                return 0,0,0,[],10000000
+            
 
     else:
-        circles, scale_contours, matches, circle_matches = get_target_quarter_contours(input_image.copy(), False, False, isWhiteOrGray, use_thresh, low_bounds=low_bounds, target_contour=target_contour,original_size=None)
-        
-
-        dex = 0
-        minVal = score = 1000000000
-        rows = len(input_image)
-        cols = len(input_image[0])
-        matched = False
-        if(len(circle_matches)) >= 1:
-            compactness_values = []
-            for i, match_data in enumerate(circle_matches):
-                print("working on {}".format(i))
-                circle = match_data[0]
-                match_contour = match_data[1]
-                match_hull = match_data[2]
-
-                (x,y),radius = cv2.minEnclosingCircle(match_contour)
-                circleRadius = circle[2]
-                print("getting stuff")
-                matchPerimeter = cv2.arcLength(match_contour,True)
-                matchArea = cv2.contourArea(match_contour)
-                compactness = (matchPerimeter*matchPerimeter)/(4*matchArea*math.pi)
-                cX, cY = utils.get_centroid(match_contour)
-                compactness_values.append([radius, compactness, (cX, cY),10000000])
-
-                if False:
-                    cv2.drawContours(input_image, [match_contour], 0, (0,0,255),12)
-                    utils.show_img("hull and match "+str(i), input_image)
-                
-
-                #for small images, set the radius max lower. for example:
-                #feb_2017/IMG_3.36_36.JPG, which is 480x640
-                if origCellCount < 1228800:
-                    radiusMax = 80
-                    radiusMin = 30
-                else:
-                    radiusMax = 60
-                    radiusMin = 14
-
-                print("now...")
-                #its outside the key range, so set value to big
-                if radius < radiusMin or radius > radiusMax:
-                    #print("too big or small")
-                    compactness_values[i] = [radius, 10000000, (cX, cY),10000000]
-                
-                else:
-                    print("radius is ok for {}".format(i))
-                
-
-                #make sure the radius is within a certain size and not at the edges - gets rid of little areas/squiggles
-                if radius < radiusMin or radius > radiusMax or compactness > 1.5:
-                    #print("radius: {}, c:{}, ditching {}".format(radius, compactness, i))
-                    continue
-                '''
-                else:
-                    print("its ok: radius: {}, c:{}, ditching {}".format(radius, compactness, i))
-                '''
-                val = cv2.matchShapes(match_contour, quarter_template_contour, cv2.CONTOURS_MATCH_I3, 0.0)
-
-                hull = cv2.convexHull(match_contour,returnPoints = False)
-                #update the compactness values to have new matching value
-                print("setting compactness values for {}".format(i))
-                compactness_values[i] = [radius, compactness, (cX, cY),val]
-                
-                modVal = val*compactness
-                #print("modVal: {}, minVal: {}".format(modVal, minVal))
-                if modVal < minVal:
-                    dex = i
-                    minVal = modVal
-                    matched=True
-                    #print("{} matched".format(i))
-                '''
-                else:
-                    print("{} had too high of a modVal".format(i))
-                '''
-                #tcx, tcy, tradius = get_circle_info(circle_matches[i][0])
-            #cx, cy, radius = get_quarter_contour_info(circle_matches[dex][1])
-            if not matched:
-                #if none of them meet criteria (bad compactness, e.g.),
-                #loosen and try again
-                for k,vals in enumerate(compactness_values):
-                    r = vals[0]
-                    c = vals[1]
-                    if r > 20 and r < 70 and c < 2.2:
-                        dex = k
-            '''
-            else:
-                print("it matched....")
-            '''
-            print("getting circle info for {}".format(dex))
-            cx, cy, radius = get_circle_info(circle_matches[dex][0])
-            
-            orig_radius = compactness_values[dex][0]
-            
-            #the circles don't match, and the hough ciradiusMin
-            if(orig_radius >= radiusMin and radius >= radiusMin):
-                
-                #xperiment - try the circle not the contour
-                #radius = orig_radius
-                #cx = compactness_values[dex][2][0]
-                #cy = compactness_values[dex][2][1]
-                target_circle = circle_matches[dex][0]
-                target_quarter_contour = circle_matches[dex][1]
-                print("found results, compactness: {}, radius: {}".format(orig_radius, cx))
-                cval = compactness_values[dex][1]
-                vval = compactness_values[dex][3]
-                score = cval*vval
-            else:
-                print("here:::: circle radius: {}, contour radius: {}".format(orig_radius, radius))
-                return 0,0,0,[],10000000
-
-        else:
-            return 0,0,0,[],10000000
-
-            print("here...")
-            if target_quarter_contour is not None:
-                #cv2.drawContours(input_image, [target_quarter_contour], -1, (255,0,0),4)
-                print("found a match...")
-                #draw the circle 
-                #cv2.circle(input_image,(target_circle[0],target_circle[1]),target_circle[2],(0,255,0),2)
-                ellipse = cv2.fitEllipse(target_quarter_contour)
-                eX = ellipse[1][0]
-                eY = ellipse[1][1]
-                eDiff = abs(eX*2-eY*2)
-        
-        #print("results: {}, {}, {}".format(cx, cy, radius))
-        return cx, cy, radius, matches, score*eDiff
+        return 0,0,0,[],10000000
 
 def atEdges(x,y, rows,cols):
     if int(x) < 90 or int(x) > cols-90:

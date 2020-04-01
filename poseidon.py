@@ -271,7 +271,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     writeMask(zeroMask, outMaskName, False)
 
-    if show:
+    if False:
         showResults(zeroMask, dx)
 
     return rZeroMask, outMaskName
@@ -334,8 +334,8 @@ def execute():
         else:
             multiplier = 0.4
             rMultiplier = 0.5
-        print("running model for ablob...: {}".format(fishery_type))
-        print("multiplier: {}".format(multiplier))
+
+ 
 
         if(utils.isLobster(fishery_type)):
             print("doing clipped lobster")
@@ -345,11 +345,8 @@ def execute():
 
         fullMaskName = ""
         if utils.isLobster(fishery_type):
-            fullZeroMask, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
-        '''
-        elif utils.isFinfish(fishery_type):
-            fullZeroMask, fullMaskName = runModel(m, tfms, data, learn, imgName, targetPath, 0.50, rMultiplier, True, None, False, "full_")
-        '''
+            _, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
+
 
         if ref_object == "square":
             refObjectMask = None
