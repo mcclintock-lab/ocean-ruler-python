@@ -1475,7 +1475,7 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
     else:
         target_contour = None
 
-    if True:
+    if False:
         draw = clipped_image.copy()
         cv2.drawContours(draw, [target_contour], -1, (255,255,0),12)
         utils.show_img("target-->>>>", draw)
