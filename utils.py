@@ -371,10 +371,36 @@ def show_img_and_contour(imageName, input_image, contour, template_contour,top_o
     except Exception as err:
         print_time("couldn't draw image...{}".format(err),0)
 
-def show_img(title, img):
+def show_img(title, img, rescale_width=None):
+    if rescale_width:
+        img = scale_img(img, rescale_width)
     cv2.imshow(title, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+def show_all_imgs(titles, imgs, rescale_width=None):
+    for i in range(len(titles)):
+        if rescale_width:
+            img = scale_img(imgs[i], rescale_width)
+        else:
+            img = imgs[i]
+        cv2.imshow(titles[i], img)
+    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+def scale_img(img, width_pixels):
+    orig_cols = len(img[0]) 
+    orig_rows = len(img)
+
+    target_cols = width_pixels
+    
+    target_rows = (float(orig_rows)/(float(orig_cols))*target_cols)
+    fx = float(target_cols)/float(orig_cols)
+    fy = float(target_rows)/float(orig_rows)
+
+    scaled_image = cv2.resize( img, (0,0), fx = fx, fy = fy)
+    return scaled_image
 
 
 def get_centroid(contour):

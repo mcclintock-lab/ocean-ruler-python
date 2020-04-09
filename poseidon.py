@@ -271,7 +271,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     writeMask(zeroMask, outMaskName, False)
 
-    if False:
+    if show:
         showResults(zeroMask, dx)
 
     return rZeroMask, outMaskName
@@ -299,80 +299,76 @@ def writeMask(zeroMask, outMaskName, show=False):
 def execute():
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults, measurementDirection = read_args()
     m, tfms, data, learn = setup(fishery_type);
-    print("fishery type: {}".format(fishery_type))
 
-    if fishery_type == "square_test":
-        jsonVals = lambda_function.runFromML(imageName, None, None, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-            locCode, fishery_type, original_filename, original_size, "", showResults)
-        print(">>>>><<<<<")
-        print(jsonVals)
-        return jsonVals
+    if utils.isLobster(fishery_type):
+        print("setting up full lobster...")
+        fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
+
+    quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
+
+    targetPath, imgName = os.path.split(imageName)
+    
+    if imageName == None:
+        return
+
+    # create a CLAHE object (Arguments are optional).
+    #clahe_name  = apply_clahe(imageName,imgName)
+    #targetPath, imgName = os.path.split(clahe_name)
+
+    multiplier = 0.85
+    rMultiplier = 0.85
+    if(utils.isAbalone(fishery_type)):
+        multiplier = 0.35
+        rMultiplier = 0.5
+    elif(utils.isScallop(fishery_type)):
+        multiplier = 0.30
+        rMultiplier = 0.5
+    elif(utils.isFinfish(fishery_type)):
+        #going higher than 0.32 starts to chop off fish edges...
+        multiplier = 0.32
+        rMultiplier = 0.5
     else:
-        if utils.isLobster(fishery_type):
-            print("setting up full lobster...")
-            fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
-
-        quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
-
-        targetPath, imgName = os.path.split(imageName)
-        
-        if imageName == None:
-            return
-
-        multiplier = 0.85
-        rMultiplier = 0.85
-        if(utils.isAbalone(fishery_type)):
-            multiplier = 0.35
-            rMultiplier = 0.5
-        elif(utils.isScallop(fishery_type)):
-            multiplier = 0.30
-            rMultiplier = 0.5
-        elif(utils.isFinfish(fishery_type)):
-            #going higher than 0.32 starts to chop off fish edges...
-            multiplier = 0.32
-            rMultiplier = 0.5
-        else:
-            multiplier = 0.4
-            rMultiplier = 0.5
-
- 
-
-        if(utils.isLobster(fishery_type)):
-            print("doing clipped lobster")
-            zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
-        else:
-            zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
-
-        fullMaskName = ""
-        if utils.isLobster(fishery_type):
-            _, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
+        multiplier = 0.4
+        rMultiplier = 0.5
 
 
-        if ref_object == "square":
-            refObjectMask = None
-        else:
-            refObjectMask = zeroMask
 
-        if not utils.isQuarter(ref_object):
-            if fishery_type == "mussels":
-                print("using unmasked for mussels")
-                refObjectMaskName = imageName
-            else:
-                print("getting square mask")
-                refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.2, 0, True, refObjectMask, True)
-        
-        else:
-            print("getting quarter masks...")
-            #refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+    if(utils.isLobster(fishery_type)):
+        print("doing clipped lobster")
+        zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
+    else:
+        zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
+
+    fullMaskName = ""
+    if utils.isLobster(fishery_type):
+        _, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
+
+
+    if ref_object == "square":
+        refObjectMask = None
+    else:
+        refObjectMask = zeroMask
+
+    if not utils.isQuarter(ref_object):
+        if fishery_type == "mussels":
+            print("using unmasked for mussels")
             refObjectMaskName = imageName
+        else:
+            print("getting square mask")
+            refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.2, 0, False, refObjectMask, True)
+    
+    else:
+        print("getting quarter masks...")
+        #refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
+        refObjectMaskName = imageName
 
 
-        #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
-        jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
-            locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults, measurementDirection)
-        print(">>>>><<<<<")
-        print(jsonVals)
-        return jsonVals
+    #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
+    jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
+        locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults, measurementDirection)
+    print(">>>>><<<<<")
+    print(jsonVals)
+    return jsonVals
 
 
 execute()

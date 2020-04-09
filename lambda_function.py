@@ -353,13 +353,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
     orig_rows = len(image_full)
     whichTechnique = ""
     divisor = 1.0
-    '''
-    #for calculation and storage, do everything in inches for consistency, then convert on displays
-    if ref_object_units == constants.MM:
-        divisor = constants.INCHES_TO_MM
-    elif ref_object_units == constants.CM:
-        divisor = constants.INCHES_TO_CM
-    '''
+
     ref_object_size = float(ref_object_size)/divisor
 
     image_height, image_width, channels = image_full.shape
@@ -386,6 +380,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
     xOffset = 0
     yOffset = 0
     clippedImage = None
+
     if mask_image is not None:
         if constants.isLobster(fishery_type):
             orig_cols = len(rescaled_image[0]) 
@@ -405,7 +400,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
         xOffset = xFullOffset
         yOffset = yFullOffset
 
-    #get the arget contour for the appropriate fishery
+    #get the contour for the appropriate fishery
     ref_object_contour = None
     all_square_contours = None
     is_square_ref = (ref_object == constants.SQUARE)
@@ -441,58 +436,28 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
         else:
             target_contour = contour_utils.offset_contour(target_contour, xOffset, yOffset)
 
-    utils.print_time("done getting {} contours".format(fishery_type), _start_time)
 
     if ref_object == constants.QUARTER:
-        
         ref_object_size = constants.QUARTER_SIZE_CM
-
-        print("ref object size: ", ref_object_size)
-        if False:
-            print("using ref object mask...")
-            roMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_image, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
-            clippedImages = getAllClippedImages(rescaled_image, roMasks, target_contour, "Quarter")
-
-            rescaled_masked = cv2.drawContours(rescaled_image.copy(),[target_contour],-1,(0,0,0),-1)
-            roMaskedMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_masked, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
-            clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour, "Quarter")
-            
-        else:
-            print("clipping input.....")
-            #experiment with ditching quarter mask and just clipping image
-            clippedImages = get_clipped_quarter_image(rescaled_image.copy(), full_mask_image, target_contour)
-            simpleQuarterImage =  get_clipped_quarter_image(rescaled_image.copy(), None, None)
-            
-            #rescaled_masked = cv2.drawContours(rescaled_image.copy(),[target_contour],-1,(0,0,0),-1)
-            #roMaskedMasks = getClippingBoundsFromMask(ro_mask_image, rescaled_masked, scaled_cols, scaled_rows, allShapes=True,useCircle=False)
-            #clippedMaskedImages = getAllClippedImages(rescaled_masked.copy(), roMaskedMasks, target_contour, "Quarter")
-            #clippedImages = [rescaled_image.copy()]
+        #experiment with ditching quarter mask and just clipping image
+        clippedImages = get_clipped_quarter_image(rescaled_image.copy(), full_mask_image, target_contour)
+        simpleQuarterImage =  get_clipped_quarter_image(rescaled_image.copy(), None, None)
 
         ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/quarter_template_1280.png")
-        
-        #isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False)   
+         
         isWhiteOrGray = True
         original_size = scaled_rows*scaled_cols
         print("trying to get quarter dimension...")
         refObjectCenterX, refObjectCenterY, refRadius, matches, whichTechnique = contour_utils.get_best_quarter_dimensions(clippedImages, simpleQuarterImage,
                                                                      target_contour, ref_object_template_contour, False, origCellCount, isWhiteOrGray, original_size=original_size)    
     else:
-        if fishery_type == "square_test":
-            ref_object_contour, all_square_contours = contour_utils.get_big_square_target_contour(rescaled_image.copy(), 1)
-        else:
-            tmpimg =rescaled_image.copy()
-            templatePath = mlPath+"lobster_templates/square_templates_2inch.png"
 
-            ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, templatePath)
-            ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
-            
-            if False:
-                cv2.drawContours(tmpimg, [ref_object_contour], -1, (255,200,200),5)
-                #cv2.drawContours(tmpimg, [ref_object_contour],-1,(0,0,255),10)
-                #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
-                utils.show_img("ref object", tmpimg)
+        tmpimg =rescaled_image.copy()
+        templatePath = mlPath+"lobster_templates/square_templates_2inch.png"
 
-    utils.print_time("ref object contours done", _start_time)
+        ref_object_template_contour = templates.get_template_contour(orig_cols, orig_rows, templatePath)
+        ref_object_contour, all_square_contours = contour_utils.get_square_contour(tmpimg, target_contour, ref_object_template_contour, _start_time)
+
 
     showText = showResults and not is_deployed
     flipDrawing = orig_rows/orig_cols > 1.2
@@ -514,7 +479,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
     else:
         drawWidth = (measurementDirection == constants.WIDTH_MEASUREMENT)
     
-    print("draw width? {}".format(drawWidth))
+    
     if constants.isLobster(fishery_type):
         targetLength, left_point, right_point = drawing.draw_target_lobster_contour(new_drawing, target_contour, pixelsPerMetric, True, left_offset, top_offset, target_full_contour)
 
@@ -522,7 +487,6 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
         width_left_point = (0,0)
         width_right_point = (0,0)
     elif drawWidth:
-        
         targetLength, targetWidth, left_point, right_point, width_left_point, width_right_point = drawing.draw_target_contour_with_width(new_drawing, 
             target_contour, showText, flipDrawing, pixelsPerMetric, fishery_type)  
 

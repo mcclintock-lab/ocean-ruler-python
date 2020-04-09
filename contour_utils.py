@@ -1031,6 +1031,21 @@ def get_lobster_contour(input_image, lobster_template_contour):
 
     return contours, orig_contours, left_offset, top_offset
 
+def get_histo_max(img):
+    hist,bins = np.histogram(img.flatten(),256,[0,256])
+    '''
+    cdf = hist.cumsum()
+    cdf_normalized = cdf * float(hist.max()) / cdf.max()
+    plt.plot(cdf_normalized, color = 'b')
+    plt.hist(img.flatten(),256,[0,256], color = 'r')
+    plt.xlim([0,256])
+    plt.legend(('cdf','histogram'), loc = 'upper left')
+    plt.show()
+    '''
+    
+    binmax = np.max(bins)
+    
+    return float(binmax)
 
 def get_target_square_contours(input_image, square_template_contour, white_or_gray, lower_percent_bounds, check_for_square, use_actual_size, start_time):
     target_contour = None
@@ -1056,14 +1071,24 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
     gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
     '''
-
-    blur = cv2.medianBlur(input_image,5)
-    gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-    bilateralGray = cv2.bilateralFilter(gray, 11, 17, 17)
-    _,current_best = cv2.threshold(bilateralGray,90,255,cv2.THRESH_BINARY)
+    gray = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+    max_val = get_histo_max(gray)
+    print("max histo val is {}".format(max_val))
+    alpha = 255/max_val
+    print("alpha is {}".format(alpha))
+    brightened = cv2.multiply(input_image, alpha)
+    #clahe = apply_clahe(input_image, max_contrast=12, grid_size=10)
+    
+    #blur = cv2.medianBlur(input_image,5)
+    
+    #equalized_image = equalize_hist(gray)
+    bilateralGray = cv2.bilateralFilter(brightened, 11, 7, 5)
+    bilateralThresh = 80
+    
+    _,current_best = cv2.threshold(bilateralGray,bilateralThresh,255,cv2.THRESH_BINARY)
     if False:
         utils.show_img("current best ", current_best)
-    
+
 
 
     utils.print_time("denoising image finished", start_time)
@@ -1114,8 +1139,8 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     dex = 0
     tcontours = []
     if False:
-        cv2.drawContours(input_image, contours, -1, (0,255,255),4)
-        utils.show_img("square contours", input_image)
+        cv2.drawContours(bilateralGray, contours, -1, (0,255,255),4)
+        utils.show_img("square contours", bilateralGray)
 
     for i, contour in enumerate(contours):
         try:
@@ -1292,13 +1317,37 @@ def get_image_stats(input_image, sigma=0.33):
     upper = int(min(255, (1.0 + sigma) * img_median))
     return img_median, lower, upper
 
+def equalize_hist(clipped_image):
+    equ = cv2.equalizeHist(clipped_image)
+    return equ
+
+def apply_clahe(clipped_image,max_contrast=8,grid_size=8):
+
+
+    lab = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2LAB)
+
+    lab_planes = cv2.split(lab)
+
+
+    clahe = cv2.createCLAHE(clipLimit=max_contrast,tileGridSize=(grid_size,grid_size))
+
+    lab_planes[0] = clahe.apply(lab_planes[0])
+
+    lab = cv2.merge(lab_planes)
+
+    bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    
+    #utils.show_all_imgs(["orig","clahe"], [clipped_image,bgr], rescale_width=800)
+    return bgr
+
 
 def get_finfish_contour(full_image, clipped_image, template_contour, lower_percent_bounds, white_or_gray, 
                             use_opposite=False, is_square_ref_object=False, edge_of_mask=None, canny_range=0.33,kernel_size=(7,5),erase_size=11,
                             final_try=False):
     
     target_contour = None
-   
+    clahe_image = None
+    print("is white or gray: {}".format(white_or_gray))
     if use_opposite:
         white_or_gray = not white_or_gray
 
@@ -1307,36 +1356,27 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
     if white_or_gray or utils.is_dark_gray(clipped_image):
         lower_bound = 30
         upper_bound = 100
+        is_dark = utils.is_dark_gray(clipped_image)
+        if is_dark:
+            #clahe_image = apply_clahe(clipped_image)
+            gray = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2GRAY)
+            #simple brightening seems to work best...
+            max_val = get_histo_max(gray)
+            alpha = 255/max_val
+            clahe_image = cv2.multiply(clipped_image, alpha)
+
     else:
         lower_bound = 10
         upper_bound = 220
         
-    '''
-    if white_or_gray:
-        #denoised = cv2.fastNlMeansDenoisingColored(clipped_image,None,3,3,5,10)
-        gray = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2GRAY)
-        
-        #blur = cv2.GaussianBlur(gray, (5,5),0)
-        blur = cv2.bilateralFilter(gray,5,75,75)
-        #utils.show_img("blur:: ", blur)
-        edged_img = cv2.Canny(blur, lower_bound, upper_bound,11) 
-        
-    else:
-
-        hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
-        #utils.show_img("hsv", hsv_image)
-    
-        full_hsv_image = cv2.cvtColor(full_image, cv2.COLOR_BGR2HSV)
-        masked_full = mask_non_finfish(full_hsv_image, hsv_image)
-        edged_img = cv2.Canny(masked_full, 0, 150,11) 
-    '''
-    #hmmmm...maybe I don't need the get_canny, this works fine?
     if not final_try:
-
-        hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
-        value_layer = hsv_image[:,:,2]
+    
         #some of the really light/blurry images fail complete with the canny call, using this instead...
-        ret, thresh = cv2.threshold(clipped_image.copy(), 100,255,0)
+        if clahe_image is not None:
+            ret, thresh = cv2.threshold(clahe_image.copy(), 75,255,0)
+        else:
+            ret, thresh = cv2.threshold(clipped_image.copy(), 100,255,0)
+        #edged_img = get_canny(value_layer,canny_range)
         edged_img = get_canny(thresh,canny_range)
     else:
         hsv_image = cv2.cvtColor(clipped_image, cv2.COLOR_BGR2HSV)
@@ -1432,42 +1472,10 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
                 target_contour = current_contour
                 break
 
-        '''
-        perc = contour[0]/img_area
-        actual_perc = contour[2]/img_area
-        
-        print("{}. perc is {}".format(i, perc))
-        if is_square_ref_object and is_square_contour(current_contour):
-            continue
-        
-        if perc > lower_percent_bounds:
-            if(current_contour is None or len(current_contour) == 0):
-                print("skipping because perc is {}".format(perc))
-                continue
-
-            x,y,w,h = cv2.boundingRect(current_contour)
-            compactness = get_compactness(current_contour)
-            print("width:{}, 95:{};h:{},95:{}".format(w, ncols*0.95, h, nrows*0.95))
-            if w >= ncols*0.95 and h >= nrows*0.95:
-                #sanity check for the crazy squiggly contours, like in
-                #Glass_Beach_Memorial_Day_\ -\ 1252_181.jpg
-                matchVal = cv2.matchShapes(current_contour, template_contour, 2, 0.0)
-            else:
-                matchVal = 1
-
-            val=matchVal*compactness*(1/actual_perc)
-
-            if matchVal < minVal:
-                dex = i
-                minVal = matchVal
-    
-                target_contour = current_contour
-        '''
-
     else:
         target_contour = None
 
-    if False:
+    if True:
         draw = clipped_image.copy()
         cv2.drawContours(draw, [target_contour], -1, (255,255,0),12)
         utils.show_img("target-->>>>", draw)
