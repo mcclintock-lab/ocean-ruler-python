@@ -276,6 +276,22 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     return rZeroMask, outMaskName
 
+'''
+def get_orientation_info(imageName):
+    print("image name: {}".format(imageName))
+    img=Image.open(imageName)
+    #for orientation in ExifTags.TAGS.keys():
+        
+    exif = {
+        PIL.ExifTags.TAGS[k]: v
+        for k, v in img._getexif().items()
+        if k in PIL.ExifTags.TAGS
+    }
+    #exif=dict(pil_image._getexif().items())
+    print("EXIF DATA: {}".format(exif))
+    return exif['orientation']
+'''        
+
 def writeMask(zeroMask, outMaskName, show=False):
     #make sure doesn't hit edges
     nrows, ncols = zeroMask.shape
@@ -305,6 +321,7 @@ def execute():
         fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
 
     quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
+
 
     targetPath, imgName = os.path.split(imageName)
     

@@ -25,6 +25,7 @@ import constants
 import csv
 import targets
 import ast
+import PIL
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -56,9 +57,6 @@ def get_scaled_image(image_full):
     rows = int(len(scaled_image))
     cols = int(len(scaled_image[0]))
 
-    #scaled_image = scaled_image[30:rows,50:cols-50]
-
-    #return image_full, orig_rows-30, orig_cols-100
     return scaled_image, rows, cols
 
 
@@ -78,6 +76,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
               original_size, extraMaskName,showResults=False, measurementDirection="length"):
     try: 
         #original_filename = imageName
+
+
 
         image_full = cv2.imread(imageName)
 
@@ -313,10 +313,14 @@ def getClippedImage(rescaled_image, clippingShape, target_contour=None, fishery_
 
 
 def rotate_img(img):
+    print("doing nothing now...")
+    '''
     if img is not None:
+
         img = cv2.transpose(img)
         img = cv2.flip(img, 0)
         img = img.copy()
+    '''
     return img
 
 def get_clipped_quarter_image(input_image,full_mask_image, target_contour):
@@ -358,6 +362,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
 
     image_height, image_width, channels = image_full.shape
     origCellCount = image_height*image_width
+    '''
     if orig_cols < orig_rows:
         #rotate the image. for simplicity, always do landscape
         img = rotate_img(image_full)
@@ -368,9 +373,11 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
         mask_image = rotate_img(mask_image)
         full_mask_image = rotate_img(full_mask_image)
         ro_mask_image = rotate_img(ro_mask_image)
+    '''
 
     print("getting scaled image...")
     rescaled_image, scaled_rows, scaled_cols = get_scaled_image(image_full)    
+
     clipped_image = None
 
     mlFullMask = None
