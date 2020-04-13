@@ -1033,21 +1033,14 @@ def get_lobster_contour(input_image, lobster_template_contour):
 
 def get_histo_max(img):
     hist,bins = np.histogram(img.flatten(),256,[0,256])
-    '''
-    cdf = hist.cumsum()
-    cdf_normalized = cdf * float(hist.max()) / cdf.max()
-    plt.plot(cdf_normalized, color = 'b')
-    plt.hist(img.flatten(),256,[0,256], color = 'r')
-    plt.xlim([0,256])
-    plt.legend(('cdf','histogram'), loc = 'upper left')
-    plt.show()
-    '''
+
     
     binmax = np.max(bins)
-    
+
     return float(binmax)
 
-def get_target_square_contours(input_image, square_template_contour, white_or_gray, lower_percent_bounds, check_for_square, use_actual_size, start_time):
+def get_target_square_contours(input_image, square_template_contour, white_or_gray, lower_percent_bounds, check_for_square, use_actual_size, start_time,
+                                try_bright=False):
     target_contour = None
     white_or_gray = True
 
@@ -1067,31 +1060,34 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
 
     print ('its white or gray')
     '''
-    this approach didn't seem to work as well
+    this approach didn't seem to work asget well
     denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
     gray = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
     '''
-    gray = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
-    max_val = get_histo_max(gray)
-    print("max histo val is {}".format(max_val))
-    alpha = 255/max_val
-    print("alpha is {}".format(alpha))
-    brightened = cv2.multiply(input_image, alpha)
-    #clahe = apply_clahe(input_image, max_contrast=12, grid_size=10)
-    
-    #blur = cv2.medianBlur(input_image,5)
-    
-    #equalized_image = equalize_hist(gray)
-    bilateralGray = cv2.bilateralFilter(brightened, 11, 7, 5)
-    bilateralThresh = 80
-    
-    _,current_best = cv2.threshold(bilateralGray,bilateralThresh,255,cv2.THRESH_BINARY)
-    if False:
-        utils.show_img("current best ", current_best)
+    if try_bright:
+        gray = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+        max_val = get_histo_max(gray)
+        print("max histo val is {}".format(max_val))
+        alpha = 255.0/max_val
+        print("alpha is {}".format(alpha))
+        brightened = cv2.multiply(gray, alpha)
+        #clahe = apply_clahe(input_image, max_contrast=12, grid_size=10)
+        
+        #blur = cv2.medianBlur(input_image,5)
+        
+        #equalized_image = equalize_hist(gray)
+        bilateralGray = cv2.bilateralFilter(brightened, 11, 7, 5)
+        bilateralThresh = 80
+        
+        _,current_best = cv2.threshold(bilateralGray,bilateralThresh,255,cv2.THRESH_BINARY)
+        if False:
+            utils.show_img("current best ", current_best)
 
-
-
-    utils.print_time("denoising image finished", start_time)
+        utils.print_time("denoising image finished", start_time)
+    else:
+        denoised = cv2.fastNlMeansDenoisingColored(input_image,None,10,10,5,9)
+        current_best = cv2.cvtColor(denoised, cv2.COLOR_BGR2GRAY)
+        
     if white_or_gray:
         lower_bound = 0
         upper_bound = 100
@@ -1138,9 +1134,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
     minVal = 100000000
     dex = 0
     tcontours = []
-    if False:
-        cv2.drawContours(bilateralGray, contours, -1, (0,255,255),4)
-        utils.show_img("square contours", bilateralGray)
+
 
     for i, contour in enumerate(contours):
         try:
@@ -1168,6 +1162,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
                 perc_target = hull_perc
 
             if perc_target <= 0.4 and perc_target > lower_percent_bounds:
+                print("hull_area: {}; percent: {}".format(hull_area, hull_perc))
                 if(len(contour) == 0):
                     continue
 
@@ -1184,15 +1179,19 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
                         target_contour = contour
             
         except Exception as e:
-
             continue
+
+    if False:
+        draw = input_image.copy()
+        cv2.drawContours(draw, [target_contour], -1, (0,255,255),4)
+        utils.show_img("square contours", draw)
+
     if target_contour is None and not check_for_square:
+        print("short circuiting...")
         return contours[0], tcontours
 
     utils.print_time("finished finding target square", start_time)
-    #orig contours are returned for display/testing
 
-    
     return target_contour, tcontours
 
 def get_square_contour(input_image, lobster_contour, square_template_contour, start_time):
@@ -1209,19 +1208,23 @@ def get_square_contour(input_image, lobster_contour, square_template_contour, st
     radius = 0
     circle_matches = []
     #1. use white or color
-    utils.print_time("first pass on square with contour time ", start_time)
+    utils.print_time("j------------>>>>>>> first pass on square with contour time ", start_time)
     white_or_gray = utils.is_white_or_gray(input_image, False)
     square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray, 0.005, True, True, start_time)
     
 
     if square_contour is None or len(square_contour) == 0:
-        utils.print_time("nothing on first pass, doing second", start_time)
-        square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,True, False, start_time)
+        utils.print_time("------------------------->>>> nothing on first pass, doing second", start_time)
+        square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0005,True, False, start_time)
 
         if square_contour is None or len(square_contour) == 0:
-            utils.print_time("second failed, doing last one...", start_time)
-            square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,False, False, start_time)            
-              
+            utils.print_time("=============>>>>>>>>>>>>  second failed, doing last one...", start_time)
+            square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0005,True, False, start_time, try_bright=True)            
+
+            if square_contour is None or len(square_contour) == 0:
+                utils.print_time("=============>>>>>>>>>>>>  second failed, doing last one...", start_time)
+                square_contour, scale_contours = get_target_square_contours(input_image, square_template_contour, white_or_gray,0.0001,False, False, start_time,try_bright=False)            
+                        
     return square_contour, scale_contours
 
 

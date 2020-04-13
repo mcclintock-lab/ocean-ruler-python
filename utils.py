@@ -11,7 +11,7 @@ QUARTER = "_quarter"
 def print_time(msg, start_time):
     now = time.time()
     elapsed = now - start_time
-    #print("{} time elapsed: {}".format(msg, elapsed))
+    print("{} time elapsed: {}".format(msg, elapsed))
 
 def isLobster(fishery_type):
     return "lobster" in fishery_type

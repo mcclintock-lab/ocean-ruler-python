@@ -8,7 +8,7 @@ import constants
 def get_dynamic_target_contour(input_image, clipped_image, fishery_type, orig_cols, orig_rows, ml_path, 
                                 is_square_ref, x_offset, y_offset, ml_mask=None,
                                 clipped_full_image=None, edge_contour=None):
-    print("here: {}".format(input_image))
+
     isWhiteOrGray = utils.is_white_or_gray(input_image, False) 
     
 

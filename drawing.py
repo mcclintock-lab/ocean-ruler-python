@@ -337,6 +337,8 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 
 def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, refObjectUnits, 
         fishery_type):
+
+    
     #tl, tr, bl, br = get_bounding_corner_points(contour)
     #print("tl: {}".format(tl))
     #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
@@ -360,6 +362,8 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     endLinePoint = (int(endLinePoint[0])-2, int(endLinePoint[1]))
     #cornerPoints = get_square_corners(base_img, contour)
 
+    startLinePoint, endLinePoint = get_contour_line_intersection(base_img, contour, [startLinePoint, endLinePoint], startLinePoint, endLinePoint)
+
     dBX = abs(startLinePoint[0] - endLinePoint[0])
     dBY =  abs(startLinePoint[1] - endLinePoint[1])
     dB = get_distance(dBX, dBY)
@@ -373,6 +377,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     if(constants.isScallop(fishery_type)):
         multiplier = 1.03
     else:
+        print("dB--->>> ", dB)
         multiplier = 1.10
         #heuristic (aka fudge factor) for closeness to object
         #the bigger the ref object, the more zoomed in its assumed to be
@@ -384,8 +389,12 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
             multiplier = 1.12
         elif 150 <= dB <= 170:
             multiplier = 1.02
-        elif dB > 170:
+        elif 170 > dB >= 300:
             multiplier = 1.04
+        elif dB > 300 and constants.isFinfish(fishery_type):
+
+            #finfish closeups with 10 cm square...
+            multiplier = 1.14
 
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
    
