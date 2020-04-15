@@ -1181,7 +1181,7 @@ def get_target_square_contours(input_image, square_template_contour, white_or_gr
         except Exception as e:
             continue
 
-    if True:
+    if False:
         draw = input_image.copy()
         cv2.drawContours(draw, [target_contour], -1, (0,255,255),4)
         utils.show_img("square contours", draw)
