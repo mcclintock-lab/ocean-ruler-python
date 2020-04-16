@@ -389,7 +389,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
             multiplier = 1.12
         elif 150 <= dB <= 170:
             multiplier = 1.02
-        elif 170 > dB >= 300:
+        elif 170 < dB <= 300:
             multiplier = 1.04
         elif dB > 300 and constants.isFinfish(fishery_type):
 
