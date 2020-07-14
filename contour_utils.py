@@ -1379,7 +1379,7 @@ def get_finfish_contour(full_image, clipped_image, template_contour, lower_perce
             print("its clahe!")
             ret, thresh = cv2.threshold(clahe_image.copy(), 85,255,0)
         else:
-            console.log("its not clahe...")
+            
             ret, thresh = cv2.threshold(clipped_image.copy(), 100,255,0)
         #edged_img = get_canny(value_layer,canny_range)
         edged_img = get_canny(thresh,canny_range)
