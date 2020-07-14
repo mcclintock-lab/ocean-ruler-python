@@ -9,7 +9,7 @@ def get_multiplier(fishery_type, dB):
     if(constants.isScallop(fishery_type)):
         multiplier = 1.03
     elif(fishery_type == constants.LETHRINUS_OLIVACEUS or fishery_type == constants.EPINEPHELUS_POLYPHEKADION):
-        multiplier = 1.0
+        multiplier = 1.01
     else:
         
         #heuristic (aka fudge factor) for closeness to object
