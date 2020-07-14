@@ -28,7 +28,7 @@ def get_dynamic_target_contour(input_image, clipped_image, fishery_type, orig_co
         rect = cv2.minAreaRect(target_contour)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(input_image,[target_contour],0,(0,191,255),8)
+        cv2.drawContours(input_image,[target_contour],0,(0,150,255),8)
         #cv2.drawContours(rescaled_image, [target_contour], 0, (255,0,0),5)
         #cv2.drawContours(tmpimg, [ref_object_template_contour], -1, (0,255,0),10)
         utils.show_img("clipped Image from thresholding...", input_image)

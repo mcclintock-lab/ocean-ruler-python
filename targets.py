@@ -12,4 +12,10 @@ def get_target_file(fishery_type):
         if target in fishery_type:
             return target_file
     
+    if constants.isFinfish(fishery_type):
+        return "finfish_target"
+    elif constants.isScallop(fishery_type):
+        return "abalone_target"
+    elif constants.isAbalone(fishery_type):
+        return "abalone_target"
     return None

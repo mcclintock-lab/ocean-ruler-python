@@ -5,6 +5,7 @@ import math
 from scipy.spatial import distance
 from imutils import perspective
 import constants
+import depth_adjuster
 
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
@@ -373,28 +374,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     # since the percentage diff between quarter distance and abalone edge (from camera)
     # is smaller...    
 
-    #TODO: probably need to change this depending on fishery...
-    if(constants.isScallop(fishery_type)):
-        multiplier = 1.03
-    else:
-        print("dB--->>> ", dB)
-        multiplier = 1.10
-        #heuristic (aka fudge factor) for closeness to object
-        #the bigger the ref object, the more zoomed in its assumed to be
-        if dB < 60:
-            multiplier = 1.05
-        elif 60 <= dB <= 65:
-            multiplier = 1.08
-        elif 80 <= dB <= 150:
-            multiplier = 1.12
-        elif 150 <= dB <= 170:
-            multiplier = 1.02
-        elif 170 < dB <= 300:
-            multiplier = 1.04
-        elif dB > 300 and constants.isFinfish(fishery_type):
-
-            #finfish closeups with 10 cm square...
-            multiplier = 1.14
+    multiplier = depth_adjuster.get_multiplier(fishery_type, dB)
 
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
    

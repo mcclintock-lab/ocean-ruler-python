@@ -116,8 +116,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         presigned_url = ""
         #if is_deployed:
         
-        
-        if True:
+        print("WARNING: NOT UPLOADING!!!!!!!")
+        if False:
             dynamo_name = 'ocean-ruler-test';
             s3_bucket_name = 'ocean-ruler-test';
           
@@ -414,7 +414,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
     target_file = targets.get_target_file(fishery_type)
    
     if target_file is not None and mask_image is not None:
-        print("target file: {}".format(target_file))
+        print("-->>>>>>>> target file: {}".format(target_file))
         
         import_expr = 'import {} as targ'.format(target_file)
 

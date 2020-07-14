@@ -2,6 +2,8 @@ ABALONE = "abalone"
 LOBSTER = "lobster"
 FINFISH = "finfish"
 SCALLOP = "scallop"
+EPINEPHELUS_POLYPHEKADION = "epinephelus_polyphekadion_finfish"
+LETHRINUS_OLIVACEUS = "lethrinus_olivaceus_finfish"
 
 QUARTER = "quarter"
 SQUARE = "square"
