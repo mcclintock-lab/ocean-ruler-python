@@ -35,8 +35,9 @@ def get_multiplier_from_db(fishery_type, dB):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ocean-ruler-depth-adjustment')
     try:
-        response = table.get_item(Key={'fishery_type': fishery_type})]
-        depth_adjustment = response['Item']['depth_adjustment']\
+        response = table.get_item(Key={'fishery_type': fishery_type})
+        depth_adjustment = response['Item']['depth_adjustment']
+        print("da: {}".format(depth_adjustment))
         return float(depth_adjustment)
     except Exception as e:
         print(e)
