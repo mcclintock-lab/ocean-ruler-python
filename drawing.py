@@ -316,7 +316,7 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
     # the farther away it is (smaller the quarter) the less it compensates,
     # since the percentage diff between quarter distance and abalone edge (from camera)
     # is smaller...    
-    multiplier = depth_adjuster.get_multiplier(fishery_type, dB)
+    multiplier = depth_adjuster.get_multiplier_from_db(fishery_type, dB)
 
     pixelsPerMetric = get_width_from_ruler(refWidth, refObjectSize)
     pixelsPerMetric = pixelsPerMetric*multiplier
@@ -368,7 +368,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     # since the percentage diff between quarter distance and abalone edge (from camera)
     # is smaller...    
 
-    multiplier = depth_adjuster.get_multiplier(fishery_type, dB)
+    multiplier = depth_adjuster.get_multiplier_from_db(fishery_type, dB)
 
     pixelsPerMetric = get_width_from_ruler(dB, refObjectSize)
    

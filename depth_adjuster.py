@@ -1,5 +1,5 @@
 import constants 
-
+import boto3
 
 def get_multiplier(fishery_type, dB):
     #TODO: probably need to change this depending on fishery...
@@ -30,3 +30,16 @@ def get_multiplier(fishery_type, dB):
             multiplier = 1.14
             
     return multiplier
+
+def get_multiplier_from_db(fishery_type, dB):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('ocean-ruler-depth-adjustment')
+    try:
+        response = table.get_item(Key={'fishery_type': fishery_type})]
+        depth_adjustment = response['Item']['depth_adjustment']\
+        return float(depth_adjustment)
+    except Exception as e:
+        print(e)
+    
+    return 1.1
+
