@@ -117,8 +117,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         #if is_deployed:
         
         if True:
-            dynamo_name = 'ocean-ruler-test';
-            s3_bucket_name = 'ocean-ruler-test';
+            dynamo_name = 'ocean-ruler-main';
+            s3_bucket_name = 'oceanruler-tnc-images';
           
             presigned_url = uploads.upload_worker(username, email, uuid, locCode, picDate, targetLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 

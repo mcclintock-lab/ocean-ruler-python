@@ -20,8 +20,41 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
         ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size,
         targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection):
-    dynamodb = boto3.resource('dynamodb')
+    print("now doing dynamo put into::: {}".format(dynamo_table_name))
+    # Call the assume_role method of the STSConnection object and pass the role
+    # ARN and a role session name.
+    try:
+        sts_client = boto3.client('sts')
+        identity = sts_client.get_caller_identity()
+        if not identity.get('Arn').startswith("arn:aws:sts::719729260530:assumed-role/poseidon"):
+            print("identity in dynamo put: ", identity)
+            assumed_role_object=sts_client.assume_role(
+                RoleArn="arn:aws:iam::719729260530:role/poseidon",
+                RoleSessionName="AssumeRoleSession1"
+            )
+
+            # From the response that contains the assumed role, get the temporary 
+            # credentials that can be used to make subsequent API calls
+            credentials=assumed_role_object['Credentials']
+
+            # Use the temporary credentials that AssumeRole returns to make a 
+            # connection to Amazon S3  
+            dynamodb=boto3.resource(
+                'dynamodb',
+                aws_access_key_id=credentials['AccessKeyId'],
+                aws_secret_access_key=credentials['SecretAccessKey'],
+                aws_session_token=credentials['SessionToken'],
+            )
+        else:
+            print("using dynamo db, already has role")
+            dynamodb = boto3.resource('dynamodb')
+    except Exception as e:
+        print("error assuming role...", e)
+        dynamodb = boto3.resource('dynamodb')
+
     table = dynamodb.Table(dynamo_table_name)
+    
+   
     try:
         lenfloat = round(float(len_in_inches),2)
     except StandardError:
@@ -91,13 +124,14 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         )
 
     except Exception as e:
-        print("error uploading: {}".format(e))
+        print("error uploading item to table:-> {}".format(e))
 
 
 def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
     s3 = boto3.resource('s3')
 
     s3Client = boto3.client('s3')
+    
     presigned_uuid = "public/full_size/"+uuid+".png"
     s3.Bucket(bucket_name).put_object(Key="public/full_size/"+uuid+".png", Body=image_data)
     presigned_url = s3Client.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': presigned_uuid}, ExpiresIn = 3600)
@@ -109,14 +143,17 @@ def upload_worker(name, email, uuid, locCode, picDate, abaloneLength, rating, no
     as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
     ref_object_units, original_width, original_height, dynamo_table_name, bucket_name, original_filename, original_size,
     targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection):
+    
     s3 = boto3.resource('s3')
     s3Client = boto3.client('s3')
-    bucket_name = 'ocean-ruler-test';
+    bucket_name = 'oceanruler-tnc-images';
+    
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                  as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, 
                  ref_object_size, ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size,
                  targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection)
     presigned_url = s3Client.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': uuid}, ExpiresIn = 3600)
+    
     return presigned_url
 
 
