@@ -32,13 +32,18 @@ def showResults(f2Filtered, dx):
 
 
 def setup(fishery_type, loadFull=False):
+    """ Load the correct model based on tthe fishery type
+        fishery_type is one of the options defined in constants.py
+        loadFull is for lobsters only to get the entire image
+        Note: there won't be models for new fisheries, so by default it falls back to
+        a shellfish (abalone) model
+    """
     maxZoom=1.1
     tform = transforms_side_on
-    print("--->>>fishery type: {}".format(fishery_type))
+
     numTypes = 2
 
     if "scallop" in fishery_type:
-        print("looking for scallops...")
         mlPath = os.environ['ML_PATH']+"/ml_data/scallop/"
         sz = 320
         model_name = SCALLOP_MODEL
@@ -50,21 +55,19 @@ def setup(fishery_type, loadFull=False):
         maxZoom = 1.1
     elif "finfish" in fishery_type:
         numTypes = 2
-        print("--->>>>>finfish")
         mlPath = os.environ['ML_PATH']+"/ml_data/finfish_multi/"
         sz = 320
         model_name = FINFISH_MODEL
         maxZoom = 1.0
     else:    
-        print('--->>>looking for abalone')
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
         tform = transforms_top_down
         sz = 320
         model_name = AB_MODEL
         maxZoom = 1.1
 
-    #PATH = "machine_learning/ml_data/ablob/"
     
+    #the fastai model loading and application
     arch = resnet34
     bs = 64    
 
@@ -75,14 +78,20 @@ def setup(fishery_type, loadFull=False):
                       nn.AdaptiveAvgPool2d(1), Flatten(), 
                       nn.LogSoftmax())
 
+    #load the model from the transforms
     tfms = tfms_from_model(arch, sz, crop_type=CropType.NO, aug_tfms=tform, max_zoom=maxZoom)
     data = ImageClassifierData.from_paths(mlPath, tfms=tfms, bs=bs)
+    #and run the model on the new data
     learn = ConvLearner.from_model_data(m, data)
     learn.load(model_name)
 
     return m, tfms, data,learn
 
+
 def setupQuarterSquareModel():
+    """Set up the fastai model for the quarter or square (the reference object)
+
+    """
     mlPath = os.environ['ML_PATH']+"/ml_data/quarter_square/"
     #PATH = "machine_learning/ml_data/ablob/"
     sz = 480
@@ -104,7 +113,9 @@ def setupQuarterSquareModel():
 
     return m, tfms, data,learn
 
+
 def loadData(imgName, targetPath, tfms, learn):
+    """load image and run fastai predict"""
     ds = FilesIndexArrayDataset([imgName], np.array([0]), tfms[1], targetPath)
     dl = DataLoader(ds)
 
@@ -114,6 +125,7 @@ def loadData(imgName, targetPath, tfms, learn):
     return dl
 
 class SaveFeatures():
+    """Hooks for inserting into the model so that the probability data is saved out"""
     features=None
     def __init__(self, m): self.hook = m.register_forward_hook(self.hook_fn)
     def hook_fn(self, module, input, output): self.features = output
@@ -167,7 +179,7 @@ def read_args():
     except KeyError as ke:
         showResults=False
 
-    print("args-->>{}".format(args))
+
     try:
         hasRefObject = True
         ref_object = args["ref_object"]
@@ -178,7 +190,7 @@ def read_args():
 
     
     if not hasRefObject:
-        #for running it locally
+        #for running it locally, not through the server. these are all deefaults
         print(" batch -- falling back to abalone & quarter")
         ref_object = "quarter"
         ref_object_units = "cm"
@@ -192,7 +204,6 @@ def read_args():
         loc_code = "Fake Place"
         measurement_direction = "length"
     else:
-
         ref_object = args["ref_object"]
         ref_object_units = args["ref_object_units"]
         ref_object_size = args["ref_object_size"]
@@ -210,6 +221,10 @@ def read_args():
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code, showResults, measurement_direction
 
 def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare,fullPrefix=""):
+    """ Run the fastai model for a fishery 
+
+
+    """
     dl = loadData(imgName, targetPath, tfms, learn)
 
     x,y = next(iter(dl))
@@ -233,9 +248,6 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
     f2-=f2.min()
     f2/=f2.max()
 
-    #f2F = np.ma.masked_where(f2 <= 0.50, f2)
-    #filter = scipy.misc.imresize(f2, dx.shape,mode="L")
-    print(" dx shape: {}".format(dx.shape))
     new_shape = (dx.shape[0],dx.shape[1])
     filter = np.array(Image.fromarray(f2).resize(new_shape))
     maxVal = filter.max()*multiplier
@@ -248,7 +260,6 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     rZeroMask = None
     if restrictedMultiplier > 0:
-        print("writing restriction mask for quarters/squares")
 
         rF2Filtered = np.ma.masked_where(filter <= rMaxVal, filter)
         rZeroMask = np.ma.filled(rF2Filtered, 0)
@@ -313,11 +324,14 @@ def writeMask(zeroMask, outMaskName, show=False):
 
 
 def execute():
+    """ Main look called from ocean-ruler server.
+        It loads the model object and processes the data based on the fishery type and reference type specified
+
+    """
     imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, locCode, showResults, measurementDirection = read_args()
-    m, tfms, data, learn = setup(fishery_type);
+    m, tfms, data, learn = setup(fishery_type)
 
     if utils.isLobster(fishery_type):
-        print("setting up full lobster...")
         fullM, fullTfms, fullData, fullLearn = setup(fishery_type, True)
 
     quarterSquareModel, qsTfms, qsData, qsLearn = setupQuarterSquareModel()
@@ -328,10 +342,10 @@ def execute():
     if imageName == None:
         return
 
-    # create a CLAHE object (Arguments are optional).
-    #clahe_name  = apply_clahe(imageName,imgName)
-    #targetPath, imgName = os.path.split(clahe_name)
-
+    #the multiplier is used to determine how much to 'trust' the model output
+    #the higher the number, the more precise the model is expected to be, and the 
+    #output will be clipped more precisely
+    #if ends of the input is getting chopped off (nose and tail of fish, e.g., drop the number)
     multiplier = 0.85
     rMultiplier = 0.85
     if(utils.isAbalone(fishery_type)):
@@ -349,14 +363,14 @@ def execute():
         rMultiplier = 0.5
 
 
-
+    #lobster is so very special, run it differently
     if(utils.isLobster(fishery_type)):
-        print("doing clipped lobster")
         zeroMask, outMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.92, rMultiplier, False, None, False)
     else:
         zeroMask, outMaskName = runModel(m, tfms, data, learn, imgName, targetPath, multiplier, rMultiplier, False, None, False)
 
     fullMaskName = ""
+    #lobster also has a mask of the whole image and the carapace
     if utils.isLobster(fishery_type):
         _, fullMaskName = runModel(fullM, fullTfms, fullData, fullLearn, imgName, targetPath, 0.45, rMultiplier, False, None, False, "full_")
 
@@ -368,21 +382,23 @@ def execute():
 
     if not utils.isQuarter(ref_object):
         if fishery_type == "mussels":
-            print("using unmasked for mussels")
+            #don't mask the mussels ref object - a lot of them are too close to the target so it breaks things...
+            #this decreases accuracy, but allows it to work...
             refObjectMaskName = imageName
         else:
-            print("getting square mask")
             refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.2, 0, False, refObjectMask, True)
     
     else:
         print("getting quarter masks...")
+        #same with quarter. too many cases where its right next to the target (abalone)
         #refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.20, 0, False, refObjectMask, True)
         refObjectMaskName = imageName
 
-
-    #imageName, username, email, uuid, ref_object, ref_object_units, ref_object_size, locCode, fishery_type, original_filename, original_size
+    #run the computer visions steps after the machine learning is done
     jsonVals = lambda_function.runFromML(imageName, outMaskName, fullMaskName, username, email, uuid, ref_object, ref_object_units, ref_object_size,
         locCode, fishery_type, original_filename, original_size, refObjectMaskName, showResults, measurementDirection)
+    #the web client is looking for this to split the resultant json from the cruft that AWS adds to the ends of the json
+    #this may not be necessary now that API Gateway isn't being used, but I haven't had time to go check
     print(">>>>><<<<<")
     print(jsonVals)
     return jsonVals

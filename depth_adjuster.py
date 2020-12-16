@@ -2,10 +2,9 @@ import constants
 import boto3
 
 def get_multiplier(fishery_type, dB):
-    #TODO: probably need to change this depending on fishery...
+    #old method of getting them based on pixel size
     
     multiplier = 1.1
-
     if(constants.isScallop(fishery_type)):
         multiplier = 1.03
     elif(fishery_type == constants.LETHRINUS_OLIVACEUS or fishery_type == constants.EPINEPHELUS_POLYPHEKADION):
@@ -32,12 +31,14 @@ def get_multiplier(fishery_type, dB):
     return multiplier
 
 def get_multiplier_from_db(fishery_type, dB):
+    """ Actual code that loads the adjusters from the dynamodb 
+
+    """
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('ocean-ruler-depth-adjustment')
     try:
         response = table.get_item(Key={'fishery_type': fishery_type})
         depth_adjustment = response['Item']['depth_adjustment']
-        print("da: {}".format(depth_adjustment))
         return float(depth_adjustment)
     except Exception as e:
         print(e)

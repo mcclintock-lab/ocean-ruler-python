@@ -6,15 +6,22 @@ from scipy.spatial import distance
 from imutils import perspective
 import constants
 import depth_adjuster
+""" Drawing routines for calculating sizes and drawing on the images
+
+"""
+
 
 def midpoint(ptA, ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
 def get_width_from_ruler(dB, rulerWidth):
+    
     return (dB)/float(rulerWidth)
 
 def get_corner_points(pre, contour):
+    """ Calculate the corner points for a quarter/square
 
+    """
     if pre == "Ruler":
 
         (cX, cY),radius = cv2.minEnclosingCircle(contour)
@@ -37,30 +44,12 @@ def get_corner_points(pre, contour):
     else:
         return get_bounding_corner_points(contour)
    
-def get_square_points(c):
-
-    extLeft = tuple(c[c[:, :, 0].argmin()][0])
-    extRight = tuple(c[c[:, :, 0].argmax()][0])
-    extTop = tuple(c[c[:, :, 1].argmin()][0])
-    extBot = tuple(c[c[:, :, 1].argmax()][0])
-
-    tl = (extLeft[0], extTop[1])
-    tr = (extRight[0],extTop[1])
-    bl = (extLeft[0],extBot[1])
-    br = (extRight[0],extBot[1])
-   
-    return tl, tr, bl, br
 
 def get_bounding_corner_points(contour):
-    brect = cv2.boundingRect(contour)
-    #brect = cv2.boxPoints(rect)
-    #brect = np.int0(box)
-    #print("box: {}".format(brect))
-    
     # unpack the ordered bounding box, then compute the midpoint
     # between the top-left and top-right coordinates, followed by
     # the midpoint between bottom-left and bottom-right coordinates
-    
+    brect = cv2.boundingRect(contour)
     x = brect[0]
     y=brect[1]
     y = brect[1]
@@ -71,10 +60,12 @@ def get_bounding_corner_points(contour):
     bl = (x,y)
     br = (x+width, y)
     
-    
     return tl, tr, bl, br
 
 def drawLines(base_img, flipDrawing, startLinePoint, endLinePoint, drawHatches):
+    """ Draw the linees on the image
+        hatches are the whiskers on the end of the lines
+    """
     cv2.line(base_img, startLinePoint, endLinePoint,
             (255, 0, 255), 1)
     if drawHatches:
@@ -96,7 +87,6 @@ def drawLines(base_img, flipDrawing, startLinePoint, endLinePoint, drawHatches):
             (255, 0, 255), 1)
 
 def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
-
     tl = (quarterCenterX-quarterRadius, quarterCenterY-quarterRadius)
     tr = (quarterCenterX+quarterRadius, quarterCenterY-quarterRadius)
     bl = (quarterCenterX-quarterRadius, quarterCenterY+quarterRadius)
@@ -105,7 +95,8 @@ def get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius):
 
 
 def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
-    
+    """ Draw the lines and text on the image. 
+    """
 
     extLeft = tuple(c[c[:, :, 0].argmin()][0])
     extRight = tuple(c[c[:, :, 0].argmax()][0])
@@ -148,23 +139,12 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
         dBWidth = get_distance(dBWidthX, dBWidthY)
 
     drawLines(base_img, not flipDrawing, startLinePoint, endLinePoint, False)
-    if True:
-        cv2.circle(base_img, widthStartLinePoint, 8, (0, 0, 255), -1)
-        cv2.circle(base_img, widthEndLinePoint, 8, (0, 255, 0), -1)
-        cv2.drawContours(base_img,[c],0,(255,0,0),2)
-        drawLines(base_img, not flipDrawing, widthStartLinePoint, widthEndLinePoint, False)
     
-    #this is the rotated box
-    if False:
-        rect = cv2.minAreaRect(c)
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-        cv2.drawContours(base_img,[box],0,(0,191,255),8)
-    
-    '''
-    ellipse = cv2.fitEllipse(contour)
-    cv2.ellipse(base_img,ellipse,(0,0,255),4)
-    '''
+    cv2.circle(base_img, widthStartLinePoint, 8, (0, 0, 255), -1)
+    cv2.circle(base_img, widthEndLinePoint, 8, (0, 255, 0), -1)
+    cv2.drawContours(base_img,[c],0,(255,0,0),2)
+    drawLines(base_img, not flipDrawing, widthStartLinePoint, widthEndLinePoint, False)
+
     # if the pixels per metric has not been initialized, then
     # compute it as the ratio of pixels to supplied metric
     # (in this case, inches)
@@ -195,13 +175,15 @@ def draw_target_contour_with_width(base_img, c, draw_text, flipDrawing, pixelsPe
     return dimB, dimBWidth, startLinePoint, endLinePoint, widthStartLinePoint, widthEndLinePoint
 
 def get_distance(xdiff, ydiff):
+    """ Calculate the pixel distance between two points
+
+    """
     distance = math.sqrt(math.pow(float(xdiff),2)+math.pow(float(ydiff),2))
     return distance
 
 def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetric, fisheryType):
     
     tl, tr, bl, br = get_corner_points("Abalone", contour)
-
     #qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, quarterRadius)
     #print("quarter corners: {}, {}, {}, {}: radius: {}".format(qtl, qtr, qbl, qbr, quarterRadius))
     if flipDrawing:
@@ -333,11 +315,6 @@ def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCente
 def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, refObjectSize, refObjectUnits, 
         fishery_type):
 
-    
-    #tl, tr, bl, br = get_bounding_corner_points(contour)
-    #print("tl: {}".format(tl))
-    #TODO: instead of using the bounding box, intersect this line and the contour line, use those points instead
-    #tl, tr, bl, br = get_square_points(contour)
     minRect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(minRect)
     
@@ -362,7 +339,7 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     dBX = abs(startLinePoint[0] - endLinePoint[0])
     dBY =  abs(startLinePoint[1] - endLinePoint[1])
     dB = get_distance(dBX, dBY)
-    print("dB: {}".format(dB))
+  
     #compensating for distance between abalone and quarter on board
     # the farther away it is (smaller the quarter) the less it compensates,
     # since the percentage diff between quarter distance and abalone edge (from camera)
@@ -375,12 +352,12 @@ def draw_square_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawi
     pixelsPerMetric = pixelsPerMetric*multiplier
     dimB = dB / pixelsPerMetric
     
-    if True:
-        cv2.drawContours(base_img, [contour],0,(125,0,0),1)
-        cv2.circle(base_img, tl, 4, (255, 0, 0), -1)
-        cv2.circle(base_img, tr, 4, (255, 0, 0), -1)
-        cv2.circle(base_img, bl, 4, (255, 0, 0), -1)
-        cv2.circle(base_img, br, 4, (255, 0, 0), -1)
+
+    cv2.drawContours(base_img, [contour],0,(125,0,0),1)
+    cv2.circle(base_img, tl, 4, (255, 0, 0), -1)
+    cv2.circle(base_img, tr, 4, (255, 0, 0), -1)
+    cv2.circle(base_img, bl, 4, (255, 0, 0), -1)
+    cv2.circle(base_img, br, 4, (255, 0, 0), -1)
 
     cv2.circle(base_img, (int(startLinePoint[0]), int(startLinePoint[1])), 1, (255, 0, 0), -1)
     cv2.circle(base_img, (int(endLinePoint[0]), int(endLinePoint[1])), 1, (255, 0, 0), -1)
@@ -410,14 +387,11 @@ def draw_target_finfish_contour(base_img, contour, pixelsPerMetric, draw_text, l
 
     dimB = dB / pixelsPerMetric
     if True:
-        #box = np.int0(box)
-        #cv2.drawContours(base_img,[box],0,(125,225,225),4, offset=(left_offset, top_offset))
-        #cv2.drawContours(base_img,[contour],0,(125,125,125),4, offset=(left_offset, top_offset))
+
         cv2.circle(base_img, (startLinePoint[0], startLinePoint[1]), 10, (50, 50, 255), -1)
         cv2.circle(base_img, (endLinePoint[0], endLinePoint[1]), 10, (50, 50, 255), -1)
         cv2.line(base_img,startLinePoint,endLinePoint,(0,255,0),2)
 
-    #utils.show_img("intersection...", img3)
     if draw_text:
             # draw the object sizes on the image
             cv2.putText(base_img, "Finfish",
@@ -448,11 +422,9 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     
 
     rows,cols = base_img.shape[:2]
-    #[vx,vy,x,y] = cv2.fitLine(full_contour, cv2.DIST_L2,0,0.01,0.01)
     ellipse = cv2.fitEllipse(full_contour)
     (ex,ey),(eMA,ema),eAngle = cv2.fitEllipse(full_contour)
-    #trimmed_lobster_contour = contour_utils.trim_lobster_contour(full_contour, (ex,ey), (eMA, ema), eAngle)
-    
+
     isHorizontal = 45.0 <= eAngle <= 135.0
    
     poly = cv2.ellipse2Poly((int(ellipse[0][0]), int(ellipse[0][1])), (int(ellipse[1][0] / 2), int(ellipse[1][1] / 2)), int(ellipse[2]), 0, 360, 5)
@@ -513,6 +485,9 @@ def draw_target_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, l
     return dimB, startLinePoint, endLinePoint
 
 def get_middle_of_min_rect(base_img, contour):
+    """ Get the middle point of a rectangle around a contour
+
+    """
     rect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rect)
     box = np.int0(box)
@@ -553,7 +528,7 @@ def get_far_points(base_img, c):
         return extTop, extBottom
         
 def get_contour_rect_intersection(base_img, contour):
-        #find the union of the fitted line for the entire lobster contour
+    #find the union of the fitted line for the entire lobster contour
     # and the target contour
     rect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rect)
@@ -570,24 +545,17 @@ def get_contour_rect_intersection(base_img, contour):
 
     x,y,w,h = rect
     img2 = cv2.rectangle(base_img,(x,y),(x+w,y+h),(0,255,0),2)
-    #img2 = cv2.drawContours(blank.copy(),[box],0, 5)
-    utils.show_img("bounding", img2)
 
     #and AND them together
     imgI = np.logical_and(img1, img2)
     locations = np.argwhere(imgI)
 
-    '''
-    if len(locations) > 2:
-        locations = remove_duplicates(locations)
-    '''
+
     if locations is not None and len(locations) >= 2:
-        
         if True:
             for i, loc in enumerate(locations):
                 cX = loc[1]
                 cY = loc[0]
-
                 cv2.circle(base_img, (cX, cY), 12, (125,125,125), -1)
         width = rect[1][0]
         height = rect[1][1]
@@ -605,8 +573,7 @@ def get_contour_rect_intersection(base_img, contour):
             if True:
                 cv2.circle(base_img, startLinePoint, 12, (255,0,0), -1)
                 cv2.circle(base_img, endLinePoint, 12, (255,0,0), -1)
-        else:
-            print("its taller")
+
         
         color =  (50, 50, 255)
         for i, loc in enumerate(locations):
@@ -623,7 +590,6 @@ def get_contour_rect_intersection(base_img, contour):
         startLinePoint = (locations[0][1],locations[0][1])
         endLinePoint = (locations[1][1], locations[1][0])
     else:
-        print("no start or end line point")
         startLinePoint = 0
         endLinePoint = 0
 
@@ -634,9 +600,9 @@ def get_contour_rect_intersection(base_img, contour):
 
 
 def get_contour_line_intersection(base_img, contour, line, startLinePoint, endLinePoint):
-        #find the union of the fitted line for the entire lobster contour
-    # and the target contour
-    
+    """ find the union of the fitted line for the entire lobster contour
+        and the target contour
+    """
     # create an image filled with zeros, single-channel, same size as img.
     blank = np.zeros( base_img.shape[0:2] )
 
@@ -679,6 +645,8 @@ def is_blank(location):
     return location[0] == -1 and location[1] == -1
 
 def close_enough(orig_value, new_value):
+    """ Heuristic for removing points really close together
+    """
     if is_blank(new_value):
         return False
     offset = 10
@@ -688,6 +656,8 @@ def close_enough(orig_value, new_value):
         return False
 
 def remove_duplicates(locations):
+    """Cycle through the contours and remove duplicate (or close to duplicate) points
+    """
     for i, loc in enumerate(locations):
         if is_blank(loc):
             continue
@@ -706,6 +676,8 @@ def remove_duplicates(locations):
 
 
 def get_square_corners(base_img, contour):
+    """ Calculate the corners of the square contour
+    """
     rotRect = cv2.minAreaRect(contour)
 
     box = cv2.boxPoints(rotRect)
@@ -721,21 +693,23 @@ def get_square_corners(base_img, contour):
     
 #start in topleft
 def clockwise_points(pts):
-	sortedPts = pts[np.argsort(pts[:, 0]), :]
+    """ Get the points in the right direction for the euclidean calculation
 
-	left = sortedPts[:2, :]
-	right = sortedPts[2:, :]
+    """
+    sortedPts = pts[np.argsort(pts[:, 0]), :]
 
-	left = left[np.argsort(left[:, 1]), :]
-	(tl, bl) = left
-	euclideanDist = distance.cdist(tl[np.newaxis], right, "euclidean")[0]
-	(br, tr) = right[np.argsort(euclideanDist)[::-1], :]
+    left = sortedPts[:2, :]
+    right = sortedPts[2:, :]
 
-	return [tl, tr, br, bl]
+    left = left[np.argsort(left[:, 1]), :]
+    (tl, bl) = left
+    euclideanDist = distance.cdist(tl[np.newaxis], right, "euclidean")[0]
+    (br, tr) = right[np.argsort(euclideanDist)[::-1], :]
+
+    return [tl, tr, br, bl]
 
 def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDrawing, rulerWidth, left_offset, top_offset, full_contour):
-    #center (x,y), (width, height), angle of rotation 
-    
+
     rotRect = cv2.minAreaRect(contour)
     width = rotRect[1][0]
     height = rotRect[1][1]
@@ -754,8 +728,6 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
         bl = verts[0]
 
     centerPoint = rotRect[0]
-
- 
     box = cv2.boxPoints(rotRect)
 
     #convert from floats to int
@@ -831,7 +803,9 @@ def draw_lobster_contour(base_img, contour, pixelsPerMetric, draw_text, flipDraw
     return dimB, startLinePoint, endLinePoint
 
 def draw_contour(base_img, contour, pixelsPerMetric, pre, draw_text, flipDrawing, rulerWidth):
+    """ Draw the given contour on thee underlying image.
 
+    """
     if pre == "Square":
         tl, tr, bl, br = get_bounding_corner_points(contour)
     else:
@@ -891,8 +865,6 @@ def draw_contour(base_img, contour, pixelsPerMetric, pre, draw_text, flipDrawing
     # (in this case, inches)
     if pixelsPerMetric is None:
         pixelsPerMetric = get_width_from_ruler(dB, rulerWidth)
-        
-
 
     dimB = dB / pixelsPerMetric
     

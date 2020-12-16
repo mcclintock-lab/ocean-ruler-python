@@ -38,15 +38,12 @@ def isFinfish(fishery_type):
 
 def isLobster(fishery_type):
     isLob = LOBSTER in fishery_type
-    print("is lobster: {}".format(isLob))
     return isLob
 
 def isScallop(fishery_type):
     isScall = SCALLOP in fishery_type
-    print("is scallop: {}".format(isScall))
     return isScall
 
 def isAbalone(fishery_type):
     isAb = ABALONE in fishery_type
-    
     return isAb

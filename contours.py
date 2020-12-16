@@ -3,6 +3,10 @@ import numpy as np
 
 import utils
 
+""" Load the images for the 'template' shapes for targets. These images are used
+    for getting shapes for matching
+"""
+
 def get_lobster_template_contours():
 
     #by default, using the big abalone template

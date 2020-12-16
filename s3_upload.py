@@ -56,11 +56,11 @@ def do_s3_upload():
         #uuid = "full_size/"+uuid+".png"
         
         presigned_uuid = "public/full_size/"+uuid+".png"
-        s3.Bucket(bucket_name).put_object(Key="public/full_size/"+uuid+".png", Body=image_data)
+        s3.Bucket(bucket_name).put_object(Key="public/full_size/"+uuid+".png", Body=image_data, ACL='public-read')
 
         #s3.Bucket('abalone').put_object(Key="thumbs/"+uuid+".png", Body=thumb)
         #print_time("done with thumb")
-        s3.Bucket(bucket_name).put_object(Key="public/thumbs/"+uuid+".png", Body=final_thumb)
+        s3.Bucket(bucket_name).put_object(Key="public/thumbs/"+uuid+".png", Body=final_thumb, ACL='public-read')
     except Error as e:
         print("error trying to upload: ", e)
 do_s3_upload();
