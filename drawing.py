@@ -252,7 +252,7 @@ def draw_target_contour(base_img, contour, draw_text, flipDrawing, pixelsPerMetr
 
 
 
-def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCenterX, quarterCenterY, refWidth, refObjectSize):
+def draw_quarter_contour(base_img, contour, draw_text, flipDrawing, quarterCenterX, quarterCenterY, refWidth, refObjectSize, fishery_type):
     
     #tl, tr, bl, br = get_corner_points("Abalone", contour)
     qtl, qtr, qbl, qbr = get_quarter_corners(quarterCenterX, quarterCenterY, refWidth/2)

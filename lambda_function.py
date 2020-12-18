@@ -377,7 +377,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
     new_drawing = rescaled_image.copy()
     if ref_object == constants.QUARTER:
         pixelsPerMetric, quarterSize, left_ref_object_point, right_ref_object_point = drawing.draw_quarter_contour(new_drawing, 
-            target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, (refRadius*2)-1, ref_object_size)
+            target_contour,showText, flipDrawing, refObjectCenterX, refObjectCenterY, (refRadius*2)-1, ref_object_size, fishery_type)
     else:
         pixelsPerMetric, squareSize,left_ref_object_point, right_ref_object_point = drawing.draw_square_contour(new_drawing, 
             ref_object_contour, None, True, flipDrawing, float(ref_object_size), ref_object_units, fishery_type)

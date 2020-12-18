@@ -266,8 +266,9 @@ def get_target_quarter_contours2(input_image, quarter_template_contour, use_oppo
         scale_contours = np.array(scale_cnts[1])
         circle_image = thresh.copy()
 
+    check_roundness = not lastPass
     matches, matching_contours, okComp = get_filtered_quarter_contours_by_radius(scale_contours, img_area, 
-                                                                                 quarter_template_contour, showOutput,
+                                                                                 quarter_template_contour,
                                                                                  lastPass=lastPass)
     
     return matches, matching_contours, okComp, circle_image
@@ -284,30 +285,6 @@ def is_point_in_circle(point, circle):
     inY = (point[1] <= circleCenter[1]+radius) and (point[1] >= circleCenter[1]-radius)
     return inX and inY
 
-
-def get_filtered_quarter_contours(scale_contours, target_contour, img_area, check_roundness,original_size=None,lastPass=False):
-    """ Drop contours that are tiny and aren't round enough
-    """
-    matches = []
-    
-    for i, scontour in enumerate(scale_contours):
-        try:
-            carea = cv2.contourArea(scontour)
-            hull = cv2.convexHull(scontour,returnPoints=True)
-            hullArea = cv2.contourArea(hull)
-            perc = hullArea/original_size
-
-            if perc <= 0.05:
-                #if not utils.is_contour_enclosed(scontour, target_contour, False, not check_roundness):
-                if check_roundness:
-                    if utils.is_really_round(scontour):
-                        matches.append(scontour)
-
-                else:
-                    matches.append(scontour)
-
-        except Exception as e:
-            continue
 
     return matches
                         
@@ -398,10 +375,9 @@ def offset_contour(contour, x, y):
             points[1] = points[1]+newY
     return contour
 
-def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_template_contour, showOutput,lastPass=False):
+def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_template_contour,lastPass=False):
     """ Filter quarter contours based on a bunch of heuristics, getting progressively
         looser as it goes...
-
 
     """
     matches = []
@@ -442,10 +418,8 @@ def get_filtered_quarter_contours_by_radius(scale_contours, img_area, quarter_te
                         print("ok circularity, radius is outside range")
 
                 else:
-                    if showOutput and (circleRadius >= radiusMin and circleRadius <= radiusMax):
+                    if (circleRadius >= radiusMin and circleRadius <= radiusMax):
                         if circleRadius < 50 and matchArea > 20:
-                             
-                            print("{}. radius: {}, circularity {}, compactness:{},  area:{}, perimeter: {}".format(i, circleRadius,circularity, compactness,matchArea, matchPerimeter))
                             okComp.append(match_contour)
 
 
