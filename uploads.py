@@ -20,9 +20,10 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         as_x, as_y, ae_x, ae_y,qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, ref_object_size, 
         ref_object_units, original_width, original_height, dynamo_table_name, original_filename, original_size,
         targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection):
-    print("now doing dynamo put into::: {}".format(dynamo_table_name))
+
     # Call the assume_role method of the STSConnection object and pass the role
     # ARN and a role session name.
+    '''
     try:
         sts_client = boto3.client('sts')
         identity = sts_client.get_caller_identity()
@@ -47,14 +48,14 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
             )
         else:
             print("using dynamo db, already has role")
-            dynamodb = boto3.resource('dynamodb')
+            
     except Exception as e:
         print("error assuming role...", e)
         dynamodb = boto3.resource('dynamodb')
-
+    '''
+    dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(dynamo_table_name)
-    
-   
+
     try:
         lenfloat = round(float(len_in_inches),2)
     except StandardError:
@@ -146,7 +147,7 @@ def upload_worker(name, email, uuid, locCode, picDate, abaloneLength, rating, no
     
     s3 = boto3.resource('s3')
     s3Client = boto3.client('s3')
-    bucket_name = 'oceanruler-tnc-images';
+    bucket_name = 'oceanruler-tnc-images-prodops';
     
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,
                  as_x, as_y, ae_x, ae_y, qs_x, qs_y, qe_x, qe_y, fishery_type, ref_object, 

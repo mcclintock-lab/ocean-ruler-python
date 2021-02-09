@@ -333,7 +333,7 @@ def execute(imageName, image_full, mask_image, full_mask_image, showResults,
                                                     clipped_full_image=clippedFullImage, edge_contour=edge_contour)
 
     else:
-        #falling back to the default target contour finding, since so target file was found
+        #falling back to the default target contour finding, since no target file was found
         tmpimg =rescaled_image.copy()
         small_abalone_template_contour = templates.get_template_contour(orig_cols, orig_rows, mlPath+"images/abalone_only_2x.png")
         isWhiteOrGray = utils.is_white_or_gray(rescaled_image.copy(), False) 

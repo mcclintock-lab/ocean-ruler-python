@@ -4,7 +4,7 @@ import boto3
 import argparse
 
 def do_s3_upload():
-    bucket_name = 'oceanruler-tnc-images';
+    bucket_name = 'oceanruler-tnc-images-prodops';
     ap = argparse.ArgumentParser()
     args = ap.parse_known_args()[1]
     
@@ -18,6 +18,8 @@ def do_s3_upload():
     final_thumb = cv2.imencode('.png', thumb)[1].tostring()
     
 
+    '''
+    #Dont need this anymore with the ec2 instance profile
     try:
         sts_client = boto3.client('sts')
         identity = sts_client.get_caller_identity()
@@ -49,9 +51,9 @@ def do_s3_upload():
     except Exception as e:
         print("error assuming identity: ", e)
         s3 = boto3.resource('s3')
-
+    '''
     try:
-        
+        s3 = boto3.resource('s3')
         #s3Client = boto3.client('s3')
         #uuid = "full_size/"+uuid+".png"
         

@@ -35,7 +35,6 @@ def isFinfish(fishery_type):
     isFinfish = FINFISH in fishery_type
     return isFinfish
 
-
 def isLobster(fishery_type):
     isLob = LOBSTER in fishery_type
     return isLob
