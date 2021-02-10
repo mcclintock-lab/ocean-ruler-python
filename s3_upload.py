@@ -53,7 +53,7 @@ def do_s3_upload():
         s3 = boto3.resource('s3')
     '''
     try:
-        s3 = boto3.resource('s3')
+        s3 = boto3.resource('s3', region_name='us-west-2')
         #s3Client = boto3.client('s3')
         #uuid = "full_size/"+uuid+".png"
         

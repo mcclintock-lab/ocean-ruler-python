@@ -53,7 +53,8 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
         print("error assuming role...", e)
         dynamodb = boto3.resource('dynamodb')
     '''
-    dynamodb = boto3.resource('dynamodb')
+
+    dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
     table = dynamodb.Table(dynamo_table_name)
 
     try:
@@ -129,9 +130,9 @@ def do_dynamo_put(name, email, uuid, locCode, picDate, len_in_inches, rating, no
 
 
 def do_s3_upload(image_data, final_thumb, uuid, bucket_name):
-    s3 = boto3.resource('s3')
+    s3 = boto3.resource('s3', region_name='us-west-2')
 
-    s3Client = boto3.client('s3')
+    s3Client = boto3.client('s3', region_name='us-west-2')
     
     presigned_uuid = "public/full_size/"+uuid+".png"
     s3.Bucket(bucket_name).put_object(Key="public/full_size/"+uuid+".png", Body=image_data)
@@ -145,8 +146,8 @@ def upload_worker(name, email, uuid, locCode, picDate, abaloneLength, rating, no
     ref_object_units, original_width, original_height, dynamo_table_name, bucket_name, original_filename, original_size,
     targetWidth, asw_x, asw_y, aew_x, aew_y, measurementDirection):
     
-    s3 = boto3.resource('s3')
-    s3Client = boto3.client('s3')
+    s3 = boto3.resource('s3', region_name='us-west-2')
+    s3Client = boto3.client('s3', region_name='us-west-2')
     bucket_name = 'oceanruler-tnc-images-prodops';
     
     do_dynamo_put(name, email, uuid, locCode, picDate, abaloneLength, rating, notes,

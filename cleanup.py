@@ -4,8 +4,8 @@ import json
 import csv
 
 dynamodb = boto3.resource('dynamodb',region_name='us-west-2')
-s3 = boto3.resource('s3')
-s3Client = boto3.client('s3')
+s3 = boto3.resource('s3', region_name='us-west-2')
+s3Client = boto3.client('s3', region_name='us-west-2')
 bucket_name = 'ocean-ruler-test'
 
 resp = s3Client.list_objects_v2(Bucket=bucket_name)

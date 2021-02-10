@@ -34,7 +34,7 @@ def get_multiplier_from_db(fishery_type, dB):
     """ Actual code that loads the adjusters from the dynamodb 
 
     """
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
     table = dynamodb.Table('ocean-ruler-depth-adjustment')
     try:
         response = table.get_item(Key={'fishery_type': fishery_type})
