@@ -1,0 +1,1760 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+A	../core.py	/^def A(*a):$/;"	kind:function	line:25
+Activation	../utils.py	/^from keras.layers import TimeDistributed, Activation, SimpleRNN, GRU$/;"	kind:namespace	line:30
+Adam	../utils.py	/^from keras.optimizers import SGD, RMSprop, Adam$/;"	kind:namespace	line:34
+AdaptiveConcatPool2d	../layers.py	/^class AdaptiveConcatPool2d(nn.Module):$/;"	kind:class	line:4
+AdaptiveLoss	../adaptive_softmax.py	/^class AdaptiveLoss(nn.Module):$/;"	kind:class	line:54
+AdaptiveSoftmax	../adaptive_softmax.py	/^class AdaptiveSoftmax(nn.Module):$/;"	kind:class	line:3
+AddPadding	../transforms.py	/^class AddPadding(CoordTransform):$/;"	kind:class	line:271
+ArraysDataset	../dataset.py	/^class ArraysDataset(BaseDataset):$/;"	kind:class	line:284
+ArraysIndexDataset	../dataset.py	/^class ArraysIndexDataset(ArraysDataset):$/;"	kind:class	line:295
+ArraysIndexRegressionDataset	../dataset.py	/^class ArraysIndexRegressionDataset(ArraysIndexDataset):$/;"	kind:class	line:300
+ArraysNhotDataset	../dataset.py	/^class ArraysNhotDataset(ArraysDataset):$/;"	kind:class	line:304
+AverageMeter	../models/cifar10/main_dxy.py	/^from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time$/;"	kind:namespace	line:10
+AverageMeter	../models/cifar10/utils.py	/^class AverageMeter(object):$/;"	kind:class	line:7
+AvgPoolPad	../models/nasnet.py	/^class AvgPoolPad(nn.Module):$/;"	kind:class	line:44
+BOW_Dataset	../nlp.py	/^class BOW_Dataset(Dataset):$/;"	kind:class	line:54
+BOW_Learner	../nlp.py	/^class BOW_Learner(Learner):$/;"	kind:class	line:39
+BaseDataset	../dataset.py	/^class BaseDataset(Dataset):$/;"	kind:class	line:152
+BasicBlock	../models/cifar10/senet.py	/^class BasicBlock(nn.Module):$/;"	kind:class	line:12
+BasicBlock	../models/cifar10/wideresnet.py	/^class BasicBlock(nn.Module):$/;"	kind:class	line:23
+BasicBlock	../models/fa_resnet.py	/^class BasicBlock(nn.Module):$/;"	kind:class	line:33
+BasicBlock	../models/resnet.py	/^class BasicBlock(nn.Module):$/;"	kind:class	line:29
+BasicBlock	../models/wideresnet.py	/^class BasicBlock(nn.Module):$/;"	kind:class	line:9
+BasicConv2d	../models/inceptionresnetv2.py	/^class BasicConv2d(nn.Module):$/;"	kind:class	line:12
+BasicConv2d	../models/inceptionv4.py	/^class BasicConv2d(nn.Module):$/;"	kind:class	line:11
+BasicModel	../core.py	/^class BasicModel():$/;"	kind:class	line:132
+BatchNormalization	../utils.py	/^from keras.layers.normalization import BatchNormalization$/;"	kind:namespace	line:33
+BatchSampler	../dataloader.py	/^from torch.utils.data.sampler import SequentialSampler, RandomSampler, BatchSampler$/;"	kind:namespace	line:2
+Bidirectional	../utils.py	/^from keras.layers import Input, Embedding, Reshape, merge, LSTM, Bidirectional$/;"	kind:namespace	line:29
+Block17	../models/inceptionresnetv2.py	/^class Block17(nn.Module):$/;"	kind:class	line:121
+Block35	../models/inceptionresnetv2.py	/^class Block35(nn.Module):$/;"	kind:class	line:64
+Block8	../models/inceptionresnetv2.py	/^class Block8(nn.Module):$/;"	kind:class	line:181
+Bottleneck	../models/fa_resnet.py	/^class Bottleneck(nn.Module):$/;"	kind:class	line:132
+Bottleneck	../models/resnet.py	/^class Bottleneck(nn.Module):$/;"	kind:class	line:127
+Bottleneck	../models/senet.py	/^class Bottleneck(nn.Module):$/;"	kind:class	line:110
+BottleneckFinal	../models/fa_resnet.py	/^class BottleneckFinal(nn.Module):$/;"	kind:class	line:62
+BottleneckFinal	../models/resnet.py	/^class BottleneckFinal(nn.Module):$/;"	kind:class	line:59
+BottleneckZero	../models/fa_resnet.py	/^class BottleneckZero(nn.Module):$/;"	kind:class	line:96
+BottleneckZero	../models/resnet.py	/^class BottleneckZero(nn.Module):$/;"	kind:class	line:92
+BranchSeparables	../models/nasnet.py	/^class BranchSeparables(nn.Module):$/;"	kind:class	line:75
+BranchSeparablesReduction	../models/nasnet.py	/^class BranchSeparablesReduction(BranchSeparables):$/;"	kind:class	line:117
+BranchSeparablesStem	../models/nasnet.py	/^class BranchSeparablesStem(nn.Module):$/;"	kind:class	line:96
+CENTER	../transforms.py	/^    CENTER = 2$/;"	kind:variable	line:624
+CLASS	../transforms.py	/^    CLASS = 4$/;"	kind:variable	line:144
+COORD	../transforms.py	/^    COORD = 3$/;"	kind:variable	line:143
+COSINE	../sgdr.py	/^    COSINE = 3$/;"	kind:variable	line:453
+CPUForgetMult	../torchqrnn/forget_mult.py	/^class CPUForgetMult(torch.nn.Module):$/;"	kind:class	line:76
+Callback	../sgdr.py	/^class Callback:$/;"	kind:class	line:9
+CellStem0	../models/nasnet.py	/^class CellStem0(nn.Module):$/;"	kind:class	line:135
+CellStem1	../models/nasnet.py	/^class CellStem1(nn.Module):$/;"	kind:class	line:184
+CenterCrop	../transforms.py	/^class CenterCrop(CoordTransform):$/;"	kind:class	line:289
+ChannelOrder	../transforms.py	/^class ChannelOrder():$/;"	kind:class	line:168
+CifarResNeXt	../models/cifar10/resnext.py	/^class CifarResNeXt(nn.Module):$/;"	kind:class	line:41
+CircularLR	../sgdr.py	/^class CircularLR(LR_Updater):$/;"	kind:class	line:259
+CircularLR_beta	../sgdr.py	/^class CircularLR_beta(LR_Updater):$/;"	kind:class	line:295
+CollabFilterDataset	../column_data.py	/^class CollabFilterDataset(Dataset):$/;"	kind:class	line:157
+CollabFilterLearner	../column_data.py	/^class CollabFilterLearner(Learner):$/;"	kind:class	line:215
+CollabFilterModel	../column_data.py	/^class CollabFilterModel(BasicModel):$/;"	kind:class	line:224
+ColumnarDataset	../column_data.py	/^class ColumnarDataset(Dataset):$/;"	kind:class	line:23
+ColumnarModelData	../column_data.py	/^class ColumnarModelData(ModelData):$/;"	kind:class	line:50
+Compose	../torch_imports.py	/^from torchvision.transforms import Compose$/;"	kind:namespace	line:9
+ConcatTextDataset	../nlp.py	/^class ConcatTextDataset(torchtext.data.Dataset):$/;"	kind:class	line:169
+ConcatTextDatasetFromDataFrames	../nlp.py	/^class ConcatTextDatasetFromDataFrames(torchtext.data.Dataset):$/;"	kind:class	line:183
+ConvBN	../models/darknet.py	/^class ConvBN(nn.Module):$/;"	kind:class	line:6
+ConvLearner	../conv_learner.py	/^class ConvLearner(Learner):$/;"	kind:class	line:86
+ConvnetBuilder	../conv_learner.py	/^class ConvnetBuilder():$/;"	kind:class	line:15
+CoordTransform	../transforms.py	/^class CoordTransform(Transform):$/;"	kind:class	line:248
+CosAnneal	../sgdr.py	/^class CosAnneal(LR_Updater):$/;"	kind:class	line:234
+CountVectorizer	../nlp.py	/^from sklearn.feature_extraction.text import CountVectorizer$/;"	kind:namespace	line:10
+Counter	../imports.py	/^from collections import Iterable, Counter, OrderedDict$/;"	kind:namespace	line:12
+CropType	../transforms.py	/^class CropType(IntEnum):$/;"	kind:class	line:621
+Cutout	../transforms.py	/^class Cutout(Transform):$/;"	kind:class	line:555
+Cutout	../transforms_pil.py	/^class Cutout(object):$/;"	kind:class	line:5
+Darknet	../models/darknet.py	/^class Darknet(nn.Module):$/;"	kind:class	line:26
+DarknetBlock	../models/darknet.py	/^class DarknetBlock(nn.Module):$/;"	kind:class	line:17
+DataFrameMapper	../structured.py	/^from sklearn_pandas import DataFrameMapper$/;"	kind:namespace	line:3
+DataFrameSummary	../imports.py	/^from pandas_summary import DataFrameSummary$/;"	kind:namespace	line:14
+DataLoader	../dataloader.py	/^class DataLoader(object):$/;"	kind:class	line:24
+DataLoader	../dataset.py	/^from .dataloader import DataLoader$/;"	kind:namespace	line:8
+Dataset	../torch_imports.py	/^from torch.utils.data import Dataset, TensorDataset$/;"	kind:namespace	line:7
+DecayScheduler	../sgdr.py	/^class DecayScheduler():$/;"	kind:class	line:457
+DecayType	../sgdr.py	/^class DecayType(IntEnum):$/;"	kind:class	line:449
+Denormalize	../transforms.py	/^class Denormalize():$/;"	kind:class	line:147
+Dense	../utils.py	/^from keras.layers import Flatten, Dense, Dropout, Lambda$/;"	kind:namespace	line:31
+DotProdNB	../nlp.py	/^class DotProdNB(nn.Module):$/;"	kind:class	line:14
+Dropout	../utils.py	/^from keras.layers import Flatten, Dense, Dropout, Lambda$/;"	kind:namespace	line:31
+DynamicUnet	../models/unet.py	/^class DynamicUnet(nn.Module):$/;"	kind:class	line:53
+EXPONENTIAL	../sgdr.py	/^    EXPONENTIAL = 4$/;"	kind:variable	line:454
+Embedding	../utils.py	/^from keras.layers import Input, Embedding, Reshape, merge, LSTM, Bidirectional$/;"	kind:namespace	line:29
+EmbeddingDotBias	../column_data.py	/^class EmbeddingDotBias(nn.Module):$/;"	kind:class	line:201
+EmbeddingDropout	../lm_rnn.py	/^from .rnn_reg import LockedDropout,WeightDrop,EmbeddingDropout$/;"	kind:namespace	line:4
+EmbeddingDropout	../rnn_reg.py	/^class EmbeddingDropout(nn.Module):$/;"	kind:class	line:126
+F	../models/cifar10/main_kuangliu.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:7
+F	../models/cifar10/preact_resnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:9
+F	../models/cifar10/resnext.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:2
+F	../models/cifar10/senet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:7
+F	../models/cifar10/wideresnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:6
+F	../models/convert_torch.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:5
+F	../models/darknet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+F	../models/nasnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+F	../models/unet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+F	../models/wideresnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:6
+F	../rnn_reg.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:4
+F	../torch_imports.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:5
+FP16	../fp16.py	/^class FP16(nn.Module):$/;"	kind:class	line:8
+FileLink	../imports.py	/^from IPython.lib.display import FileLink$/;"	kind:namespace	line:15
+FileLink	../utils.py	/^from IPython.lib.display import FileLink$/;"	kind:namespace	line:21
+FilesArrayDataset	../dataset.py	/^class FilesArrayDataset(FilesDataset):$/;"	kind:class	line:263
+FilesDataset	../dataset.py	/^class FilesDataset(BaseDataset):$/;"	kind:class	line:240
+FilesIndexArrayDataset	../dataset.py	/^class FilesIndexArrayDataset(FilesArrayDataset):$/;"	kind:class	line:272
+FilesIndexArrayRegressionDataset	../dataset.py	/^class FilesIndexArrayRegressionDataset(FilesArrayDataset):$/;"	kind:class	line:281
+FilesNhotArrayDataset	../dataset.py	/^class FilesNhotArrayDataset(FilesArrayDataset):$/;"	kind:class	line:276
+FirstCell	../models/nasnet.py	/^class FirstCell(nn.Module):$/;"	kind:class	line:255
+Flatten	../layers.py	/^class Flatten(nn.Module):$/;"	kind:class	line:16
+Flatten	../utils.py	/^from keras.layers import Flatten, Dense, Dropout, Lambda$/;"	kind:namespace	line:31
+FloatTensor	../torch_imports.py	/^from torch import nn, cuda, backends, FloatTensor, LongTensor, optim$/;"	kind:namespace	line:4
+ForgetMult	../torchqrnn/forget_mult.py	/^class ForgetMult(torch.nn.Module):$/;"	kind:class	line:158
+ForgetMult	../torchqrnn/qrnn.py	/^from .forget_mult import ForgetMult$/;"	kind:namespace	line:4
+GOOGLENET	../transforms.py	/^    GOOGLENET = 4$/;"	kind:variable	line:626
+GPUForgetMult	../torchqrnn/forget_mult.py	/^class GPUForgetMult(torch.autograd.Function):$/;"	kind:class	line:96
+GRU	../utils.py	/^from keras.layers import TimeDistributed, Activation, SimpleRNN, GRU$/;"	kind:namespace	line:30
+GoogleNetResize	../transforms.py	/^class GoogleNetResize(CoordTransform):$/;"	kind:class	line:575
+IPKernelApp	../imports.py	/^from ipykernel.kernelapp import IPKernelApp$/;"	kind:namespace	line:27
+IPython	../imports.py	/^import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb$/;"	kind:namespace	line:5
+IS_TORCH_04	../core.py	/^IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')$/;"	kind:variable	line:73
+IS_TORCH_04	../fp16.py	/^IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')$/;"	kind:variable	line:6
+IS_TORCH_04	../lm_rnn.py	/^IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')$/;"	kind:variable	line:8
+IS_TORCH_04	../model.py	/^IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')$/;"	kind:variable	line:8
+IS_TORCH_04	../rnn_reg.py	/^IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')$/;"	kind:variable	line:7
+IS_TORCH_04	../torch_imports.py	/^IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')$/;"	kind:variable	line:26
+Image	../imports.py	/^from PIL import Image, ImageEnhance, ImageOps$/;"	kind:namespace	line:16
+Image	../utils.py	/^from PIL import Image$/;"	kind:namespace	line:2
+ImageClassifierData	../dataset.py	/^class ImageClassifierData(ImageData):$/;"	kind:class	line:396
+ImageData	../dataset.py	/^class ImageData(ModelData):$/;"	kind:class	line:337
+ImageEnhance	../imports.py	/^from PIL import Image, ImageEnhance, ImageOps$/;"	kind:namespace	line:16
+ImageModelResults	../plots.py	/^class ImageModelResults():$/;"	kind:class	line:77
+ImageOps	../imports.py	/^from PIL import Image, ImageEnhance, ImageOps$/;"	kind:namespace	line:16
+Imputer	../structured.py	/^from sklearn.preprocessing import LabelEncoder, Imputer, StandardScaler$/;"	kind:namespace	line:4
+InceptionResnetV2	../models/inceptionresnetv2.py	/^class InceptionResnetV2(nn.Module):$/;"	kind:class	line:212
+InceptionResnetV2	../torch_imports.py	/^from .models.inceptionresnetv2 import InceptionResnetV2$/;"	kind:namespace	line:18
+InceptionV4	../models/inceptionv4.py	/^class InceptionV4(nn.Module):$/;"	kind:class	line:225
+Inception_A	../models/inceptionv4.py	/^class Inception_A(nn.Module):$/;"	kind:class	line:74
+Inception_B	../models/inceptionv4.py	/^class Inception_B(nn.Module):$/;"	kind:class	line:125
+Inception_C	../models/inceptionv4.py	/^class Inception_C(nn.Module):$/;"	kind:class	line:184
+Input	../utils.py	/^from keras.layers import Input, Embedding, Reshape, merge, LSTM, Bidirectional$/;"	kind:namespace	line:29
+IntEnum	../sgdr.py	/^from enum import IntEnum$/;"	kind:namespace	line:3
+IntEnum	../transforms.py	/^from enum import IntEnum$/;"	kind:namespace	line:3
+IterBatch	../model.py	/^class IterBatch():$/;"	kind:class	line:199
+Iterable	../imports.py	/^from collections import Iterable, Counter, OrderedDict$/;"	kind:namespace	line:12
+K	../utils.py	/^from keras import backend as K$/;"	kind:namespace	line:24
+LINEAR	../sgdr.py	/^    LINEAR = 2$/;"	kind:variable	line:452
+LR_Finder	../sgdr.py	/^class LR_Finder(LR_Updater):$/;"	kind:class	line:164
+LR_Finder2	../sgdr.py	/^class LR_Finder2(LR_Finder):$/;"	kind:class	line:199
+LR_Updater	../sgdr.py	/^class LR_Updater(LossRecorder):$/;"	kind:class	line:130
+LSTM	../utils.py	/^from keras.layers import Input, Embedding, Reshape, merge, LSTM, Bidirectional$/;"	kind:namespace	line:29
+LabelEncoder	../structured.py	/^from sklearn.preprocessing import LabelEncoder, Imputer, StandardScaler$/;"	kind:namespace	line:4
+Lambda	../layers.py	/^class Lambda(nn.Module):$/;"	kind:class	line:12
+Lambda	../models/convert_torch.py	/^class Lambda(LambdaBase):$/;"	kind:class	line:26
+Lambda	../models/resnext_101_32x4d.py	/^class Lambda(LambdaBase):$/;"	kind:class	line:18
+Lambda	../models/resnext_101_64x4d.py	/^class Lambda(LambdaBase):$/;"	kind:class	line:18
+Lambda	../models/resnext_50_32x4d.py	/^class Lambda(LambdaBase):$/;"	kind:class	line:18
+Lambda	../models/wrn_50_2f.py	/^class Lambda(LambdaBase):$/;"	kind:class	line:18
+Lambda	../utils.py	/^from keras.layers import Flatten, Dense, Dropout, Lambda$/;"	kind:namespace	line:31
+LambdaBase	../models/convert_torch.py	/^class LambdaBase(nn.Sequential):$/;"	kind:class	line:15
+LambdaBase	../models/resnext_101_32x4d.py	/^class LambdaBase(nn.Sequential):$/;"	kind:class	line:7
+LambdaBase	../models/resnext_101_64x4d.py	/^class LambdaBase(nn.Sequential):$/;"	kind:class	line:7
+LambdaBase	../models/resnext_50_32x4d.py	/^class LambdaBase(nn.Sequential):$/;"	kind:class	line:7
+LambdaBase	../models/wrn_50_2f.py	/^class LambdaBase(nn.Sequential):$/;"	kind:class	line:7
+LambdaMap	../models/convert_torch.py	/^class LambdaMap(LambdaBase):$/;"	kind:class	line:30
+LambdaMap	../models/resnext_101_32x4d.py	/^class LambdaMap(LambdaBase):$/;"	kind:class	line:22
+LambdaMap	../models/resnext_101_64x4d.py	/^class LambdaMap(LambdaBase):$/;"	kind:class	line:22
+LambdaMap	../models/resnext_50_32x4d.py	/^class LambdaMap(LambdaBase):$/;"	kind:class	line:22
+LambdaMap	../models/wrn_50_2f.py	/^class LambdaMap(LambdaBase):$/;"	kind:class	line:22
+LambdaReduce	../models/convert_torch.py	/^class LambdaReduce(LambdaBase):$/;"	kind:class	line:35
+LambdaReduce	../models/resnext_101_32x4d.py	/^class LambdaReduce(LambdaBase):$/;"	kind:class	line:26
+LambdaReduce	../models/resnext_101_64x4d.py	/^class LambdaReduce(LambdaBase):$/;"	kind:class	line:26
+LambdaReduce	../models/resnext_50_32x4d.py	/^class LambdaReduce(LambdaBase):$/;"	kind:class	line:26
+LambdaReduce	../models/wrn_50_2f.py	/^class LambdaReduce(LambdaBase):$/;"	kind:class	line:26
+LanguageModel	../text.py	/^class LanguageModel(BasicModel):$/;"	kind:class	line:189
+LanguageModelData	../nlp.py	/^class LanguageModelData():$/;"	kind:class	line:204
+LanguageModelData	../text.py	/^class LanguageModelData():$/;"	kind:class	line:195
+LanguageModelLoader	../nlp.py	/^class LanguageModelLoader():$/;"	kind:class	line:119
+LanguageModelLoader	../text.py	/^class LanguageModelLoader():$/;"	kind:class	line:150
+LayerOptimizer	../layer_optimizer.py	/^class LayerOptimizer():$/;"	kind:class	line:8
+LazyThreadPoolExecutor	../executors.py	/^class LazyThreadPoolExecutor(ThreadPoolExecutor):$/;"	kind:class	line:6
+Learner	../learner.py	/^class Learner():$/;"	kind:class	line:18
+LinearBlock	../lm_rnn.py	/^class LinearBlock(nn.Module):$/;"	kind:class	line:165
+LinearDecoder	../lm_rnn.py	/^class LinearDecoder(nn.Module):$/;"	kind:class	line:147
+LockedDropout	../lm_rnn.py	/^from .rnn_reg import LockedDropout,WeightDrop,EmbeddingDropout$/;"	kind:namespace	line:4
+LockedDropout	../rnn_reg.py	/^class LockedDropout(nn.Module):$/;"	kind:class	line:50
+LoggingCallback	../sgdr.py	/^class LoggingCallback(Callback):$/;"	kind:class	line:26
+LongTensor	../torch_imports.py	/^from torch import nn, cuda, backends, FloatTensor, LongTensor, optim$/;"	kind:namespace	line:4
+LooseVersion	../imports.py	/^from distutils.version import LooseVersion$/;"	kind:namespace	line:20
+LooseVersion	../torch_imports.py	/^from distutils.version import LooseVersion$/;"	kind:namespace	line:2
+LossRecorder	../sgdr.py	/^class LossRecorder(Callback):$/;"	kind:class	line:59
+MaxPoolPad	../models/nasnet.py	/^class MaxPoolPad(nn.Module):$/;"	kind:class	line:30
+MixIterator	../utils.py	/^class MixIterator(object):$/;"	kind:class	line:101
+MixedInputModel	../column_data.py	/^class MixedInputModel(nn.Module):$/;"	kind:class	line:88
+Mixed_3a	../models/inceptionv4.py	/^class Mixed_3a(nn.Module):$/;"	kind:class	line:25
+Mixed_4a	../models/inceptionv4.py	/^class Mixed_4a(nn.Module):$/;"	kind:class	line:38
+Mixed_5a	../models/inceptionv4.py	/^class Mixed_5a(nn.Module):$/;"	kind:class	line:61
+Mixed_5b	../models/inceptionresnetv2.py	/^class Mixed_5b(nn.Module):$/;"	kind:class	line:32
+Mixed_6a	../models/inceptionresnetv2.py	/^class Mixed_6a(nn.Module):$/;"	kind:class	line:98
+Mixed_7a	../models/inceptionresnetv2.py	/^class Mixed_7a(nn.Module):$/;"	kind:class	line:149
+Model	../utils.py	/^from keras.models import Sequential, Model$/;"	kind:namespace	line:28
+ModelData	../dataset.py	/^class ModelData():$/;"	kind:class	line:310
+MultiBatchRNN	../lm_rnn.py	/^class MultiBatchRNN(RNN_Encoder):$/;"	kind:class	line:127
+NASNetALarge	../models/nasnet.py	/^class NASNetALarge(nn.Module):$/;"	kind:class	line:487
+NO	../sgdr.py	/^    NO = 1$/;"	kind:variable	line:451
+NO	../transforms.py	/^    NO = 1$/;"	kind:variable	line:141
+NO	../transforms.py	/^    NO = 3$/;"	kind:variable	line:625
+NetworkBlock	../models/wideresnet.py	/^class NetworkBlock(nn.Module):$/;"	kind:class	line:33
+NoCrop	../transforms.py	/^class NoCrop(CoordTransform):$/;"	kind:class	line:335
+NormalCell	../models/nasnet.py	/^class NormalCell(nn.Module):$/;"	kind:class	line:324
+Normalize	../transforms.py	/^class Normalize():$/;"	kind:class	line:156
+ORTH	../text.py	/^from spacy.symbols import ORTH$/;"	kind:namespace	line:6
+OneHotEncoder	../utils.py	/^from sklearn.preprocessing import OneHotEncoder$/;"	kind:namespace	line:17
+OptimScheduler	../sgdr.py	/^class OptimScheduler(LossRecorder):$/;"	kind:class	line:532
+OrderedDict	../imports.py	/^from collections import Iterable, Counter, OrderedDict$/;"	kind:namespace	line:12
+OrderedDict	../models/senet.py	/^from collections import OrderedDict$/;"	kind:namespace	line:8
+OrderedDict	../utils.py	/^from collections import OrderedDict$/;"	kind:namespace	line:6
+PIL	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+PIL	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+PIXEL	../transforms.py	/^    PIXEL = 2$/;"	kind:variable	line:142
+POLYNOMIAL	../sgdr.py	/^    POLYNOMIAL = 5$/;"	kind:variable	line:455
+PassThru	../transforms.py	/^class PassThru(CoordTransform):$/;"	kind:class	line:528
+PassthruDataset	../column_data.py	/^class PassthruDataset(Dataset):$/;"	kind:class	line:7
+Path	../imports.py	/^from pathlib import Path$/;"	kind:namespace	line:19
+PoolingLinearClassifier	../lm_rnn.py	/^class PoolingLinearClassifier(nn.Module):$/;"	kind:class	line:175
+PreActBlock	../models/cifar10/preact_resnet.py	/^class PreActBlock(nn.Module):$/;"	kind:class	line:14
+PreActBlock	../models/cifar10/senet.py	/^class PreActBlock(nn.Module):$/;"	kind:class	line:47
+PreActBottleneck	../models/cifar10/preact_resnet.py	/^class PreActBottleneck(nn.Module):$/;"	kind:class	line:39
+PreActResNet	../models/cifar10/preact_resnet.py	/^class PreActResNet(nn.Module):$/;"	kind:class	line:67
+PreActResNet101	../models/cifar10/preact_resnet.py	/^def PreActResNet101(): return PreActResNet(PreActBottleneck, [3,4,23,3])$/;"	kind:function	line:100
+PreActResNet152	../models/cifar10/preact_resnet.py	/^def PreActResNet152(): return PreActResNet(PreActBottleneck, [3,8,36,3])$/;"	kind:function	line:101
+PreActResNet18	../models/cifar10/preact_resnet.py	/^def PreActResNet18(): return PreActResNet(PreActBlock, [2,2,2,2])$/;"	kind:function	line:97
+PreActResNet34	../models/cifar10/preact_resnet.py	/^def PreActResNet34(): return PreActResNet(PreActBlock, [3,4,6,3])$/;"	kind:function	line:98
+PreActResNet50	../models/cifar10/preact_resnet.py	/^def PreActResNet50(): return PreActResNet(PreActBottleneck, [3,4,6,3])$/;"	kind:function	line:99
+ProcessPoolExecutor	../imports.py	/^from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor$/;"	kind:namespace	line:9
+QRNN	../torchqrnn/qrnn.py	/^class QRNN(torch.nn.Module):$/;"	kind:class	line:114
+QRNNLayer	../lm_rnn.py	/^            from .torchqrnn.qrnn import QRNNLayer$/;"	kind:namespace	line:67
+QRNNLayer	../torchqrnn/qrnn.py	/^class QRNNLayer(nn.Module):$/;"	kind:class	line:11
+RANDOM	../transforms.py	/^    RANDOM = 1$/;"	kind:variable	line:623
+RMSprop	../utils.py	/^from keras.optimizers import SGD, RMSprop, Adam$/;"	kind:namespace	line:34
+RNN_Encoder	../lm_rnn.py	/^class RNN_Encoder(nn.Module):$/;"	kind:class	line:26
+RNN_Learner	../nlp.py	/^class RNN_Learner(Learner):$/;"	kind:class	line:158
+RNN_Learner	../text.py	/^class RNN_Learner(Learner):$/;"	kind:class	line:206
+RandomBlur	../transforms.py	/^class RandomBlur(Transform):$/;"	kind:class	line:532
+RandomCrop	../transforms.py	/^class RandomCrop(CoordTransform):$/;"	kind:class	line:308
+RandomDihedral	../transforms.py	/^class RandomDihedral(CoordTransform):$/;"	kind:class	line:434
+RandomFlip	../transforms.py	/^class RandomFlip(CoordTransform):$/;"	kind:class	line:448
+RandomLighting	../transforms.py	/^class RandomLighting(Transform):$/;"	kind:class	line:457
+RandomRotate	../transforms.py	/^class RandomRotate(CoordTransform):$/;"	kind:class	line:404
+RandomRotateZoom	../transforms.py	/^class RandomRotateZoom(CoordTransform):$/;"	kind:class	line:474
+RandomSampler	../dataloader.py	/^from torch.utils.data.sampler import SequentialSampler, RandomSampler, BatchSampler$/;"	kind:namespace	line:2
+RandomScale	../transforms.py	/^class RandomScale(CoordTransform):$/;"	kind:class	line:371
+RandomStretch	../transforms.py	/^class RandomStretch(CoordTransform):$/;"	kind:class	line:514
+RandomZoom	../transforms.py	/^class RandomZoom(CoordTransform):$/;"	kind:class	line:503
+RecorderMeter	../models/cifar10/main_dxy.py	/^from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time$/;"	kind:namespace	line:10
+RecorderMeter	../models/cifar10/utils.py	/^class RecorderMeter(object):$/;"	kind:class	line:25
+ReductionCell0	../models/nasnet.py	/^class ReductionCell0(nn.Module):$/;"	kind:class	line:377
+ReductionCell1	../models/nasnet.py	/^class ReductionCell1(nn.Module):$/;"	kind:class	line:432
+Reduction_A	../models/inceptionv4.py	/^class Reduction_A(nn.Module):$/;"	kind:class	line:104
+Reduction_B	../models/inceptionv4.py	/^class Reduction_B(nn.Module):$/;"	kind:class	line:158
+ResNeXtBottleneck	../models/cifar10/resnext.py	/^class ResNeXtBottleneck(nn.Module):$/;"	kind:class	line:6
+ResNet	../models/fa_resnet.py	/^class ResNet(nn.Module):$/;"	kind:class	line:168
+ResNet	../models/resnet.py	/^class ResNet(nn.Module):$/;"	kind:class	line:163
+Reshape	../utils.py	/^from keras.layers import Input, Embedding, Reshape, merge, LSTM, Bidirectional$/;"	kind:namespace	line:29
+SEBottleneck	../models/senet.py	/^class SEBottleneck(Bottleneck):$/;"	kind:class	line:137
+SEModule	../models/senet.py	/^class SEModule(nn.Module):$/;"	kind:class	line:88
+SENet	../models/cifar10/senet.py	/^class SENet(nn.Module):$/;"	kind:class	line:81
+SENet	../models/senet.py	/^class SENet(nn.Module):$/;"	kind:class	line:210
+SENet18	../models/cifar10/senet.py	/^def SENet18(): return SENet(PreActBlock, [2,2,2,2])$/;"	kind:function	line:114
+SENet34	../models/cifar10/senet.py	/^def SENet34(): return SENet(PreActBlock, [3,4,6,3])$/;"	kind:function	line:115
+SEResNeXtBottleneck	../models/senet.py	/^class SEResNeXtBottleneck(Bottleneck):$/;"	kind:class	line:186
+SEResNetBottleneck	../models/senet.py	/^class SEResNetBottleneck(Bottleneck):$/;"	kind:class	line:161
+SGD	../utils.py	/^from keras.optimizers import SGD, RMSprop, Adam$/;"	kind:namespace	line:34
+SGD_Momentum	../core.py	/^def SGD_Momentum(momentum):$/;"	kind:function	line:113
+SWA	../swa.py	/^class SWA(Callback):$/;"	kind:class	line:16
+Sampler	../text.py	/^from torch.utils.data.sampler import Sampler$/;"	kind:namespace	line:4
+SaveBestModel	../sgdr.py	/^class SaveBestModel(LossRecorder):$/;"	kind:class	line:336
+SaveFeatures	../models/unet.py	/^class SaveFeatures():$/;"	kind:class	line:45
+Scale	../transforms.py	/^class Scale(CoordTransform):$/;"	kind:class	line:353
+SeparableConv2d	../models/nasnet.py	/^class SeparableConv2d(nn.Module):$/;"	kind:class	line:58
+Sequential	../utils.py	/^from keras.models import Sequential, Model$/;"	kind:namespace	line:28
+SequentialRNN	../lm_rnn.py	/^class SequentialRNN(nn.Sequential):$/;"	kind:class	line:198
+SequentialSampler	../dataloader.py	/^from torch.utils.data.sampler import SequentialSampler, RandomSampler, BatchSampler$/;"	kind:namespace	line:2
+SimpleNB	../nlp.py	/^class SimpleNB(nn.Module):$/;"	kind:class	line:28
+SimpleNet	../core.py	/^class SimpleNet(nn.Module):$/;"	kind:class	line:139
+SimpleRNN	../utils.py	/^from keras.layers import TimeDistributed, Activation, SimpleRNN, GRU$/;"	kind:namespace	line:30
+SingleModel	../core.py	/^class SingleModel(BasicModel):$/;"	kind:class	line:136
+SortSampler	../text.py	/^class SortSampler(Sampler):$/;"	kind:class	line:118
+SortishSampler	../text.py	/^class SortishSampler(Sampler):$/;"	kind:class	line:125
+StandardScaler	../structured.py	/^from sklearn.preprocessing import LabelEncoder, Imputer, StandardScaler$/;"	kind:namespace	line:4
+Stepper	../lm_rnn.py	/^from .model import Stepper$/;"	kind:namespace	line:5
+Stepper	../model.py	/^class Stepper():$/;"	kind:class	line:33
+StructuredLearner	../column_data.py	/^class StructuredLearner(Learner):$/;"	kind:class	line:140
+StructuredModel	../column_data.py	/^class StructuredModel(BasicModel):$/;"	kind:class	line:151
+T	../core.py	/^def T(a, half=False, cuda=True):$/;"	kind:function	line:29
+TOTAL_BAR_LENGTH	../models/cifar10/utils_kuangliu.py	/^TOTAL_BAR_LENGTH = 65.$/;"	kind:variable	line:48
+TSNE	../utils.py	/^from sklearn.manifold import TSNE$/;"	kind:namespace	line:18
+TTA	../learner.py	/^    def TTA(self, n_aug=4, is_test=False):$/;"	kind:member	line:387
+TensorDataset	../torch_imports.py	/^from torch.utils.data import Dataset, TensorDataset$/;"	kind:namespace	line:7
+TextClassifierData	../nlp.py	/^class TextClassifierData(ModelData):$/;"	kind:class	line:83
+TextData	../nlp.py	/^class TextData(ModelData):$/;"	kind:class	line:335
+TextDataLoader	../nlp.py	/^class TextDataLoader():$/;"	kind:class	line:316
+TextDataset	../text.py	/^class TextDataset(Dataset):$/;"	kind:class	line:104
+TextModel	../nlp.py	/^class TextModel(BasicModel):$/;"	kind:class	line:329
+TextModel	../text.py	/^class TextModel(BasicModel):$/;"	kind:class	line:217
+TfmType	../transforms.py	/^class TfmType(IntEnum):$/;"	kind:class	line:131
+ThreadPoolExecutor	../executors.py	/^from concurrent.futures import ThreadPoolExecutor$/;"	kind:namespace	line:3
+ThreadPoolExecutor	../imports.py	/^from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor$/;"	kind:namespace	line:9
+TimeDistributed	../utils.py	/^from keras.layers import TimeDistributed, Activation, SimpleRNN, GRU$/;"	kind:namespace	line:30
+Tokenizer	../text.py	/^class Tokenizer():$/;"	kind:class	line:43
+Tokenizer	../utils.py	/^from keras.preprocessing.text import Tokenizer$/;"	kind:namespace	line:39
+TqdmUpTo	../io.py	/^class TqdmUpTo(tqdm):$/;"	kind:class	line:8
+TrainingPhase	../sgdr.py	/^class TrainingPhase():$/;"	kind:class	line:482
+Transform	../transforms.py	/^class Transform():$/;"	kind:class	line:215
+Transforms	../transforms.py	/^class Transforms():$/;"	kind:class	line:630
+USE_GPU	../core.py	/^USE_GPU = torch.cuda.is_available()$/;"	kind:variable	line:74
+UnetBlock	../models/unet.py	/^class UnetBlock(nn.Module):$/;"	kind:class	line:29
+V	../core.py	/^def V(x, requires_grad=False, volatile=False):$/;"	kind:function	line:53
+VV	../core.py	/^def VV(x):$/;"	kind:function	line:61
+VV_	../core.py	/^def VV_(x): $/;"	kind:function	line:57
+V_	../core.py	/^def V_(x, requires_grad=False, volatile=False):$/;"	kind:function	line:50
+Variable	../models/cifar10/main_kuangliu.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:18
+Variable	../models/cifar10/preact_resnet.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:11
+Variable	../models/cifar10/senet.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:9
+Variable	../models/convert_torch.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:7
+Variable	../models/nasnet.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:5
+Variable	../models/resnext_101_32x4d.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:4
+Variable	../models/resnext_101_64x4d.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:4
+Variable	../models/resnext_50_32x4d.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:4
+Variable	../models/unet.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:4
+Variable	../models/wrn_50_2f.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:4
+Variable	../rnn_reg.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:5
+Variable	../rnn_train.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:3
+Variable	../torch_imports.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:6
+Variable	../torchqrnn/forget_mult.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:3
+Variable	../torchqrnn/qrnn.py	/^from torch.autograd import Variable$/;"	kind:namespace	line:3
+Vgg16	../utils.py	/^from vgg16 import Vgg16$/;"	kind:namespace	line:40
+Week	../imports.py	/^from isoweek import Week$/;"	kind:namespace	line:13
+WeightDecaySchedule	../sgdr.py	/^class WeightDecaySchedule(Callback):$/;"	kind:class	line:387
+WeightDrop	../lm_rnn.py	/^from .rnn_reg import LockedDropout,WeightDrop,EmbeddingDropout$/;"	kind:namespace	line:4
+WeightDrop	../rnn_reg.py	/^class WeightDrop(torch.nn.Module):$/;"	kind:class	line:61
+WideResNet	../models/cifar10/wideresnet.py	/^class WideResNet(nn.Module):$/;"	kind:class	line:44
+WideResNet	../models/wideresnet.py	/^class WideResNet(nn.Module):$/;"	kind:class	line:44
+_NVRTCProgram	../torchqrnn/forget_mult.py	/^from cupy.cuda.compiler import _NVRTCProgram$/;"	kind:namespace	line:5
+__all__	../models/resnet.py	/^__all__ = ['vgg_resnet50']$/;"	kind:variable	line:6
+__all__	../models/senet.py	/^__all__ = ['SENet', 'senet154', 'se_resnet50', 'se_resnet101', 'se_resnet152',$/;"	kind:variable	line:15
+__call__	../transforms.py	/^    def __call__(self, im, y=None): return compose(im, y, self.tfms)$/;"	kind:member	line:641
+__call__	../transforms.py	/^    def __call__(self, x): return x*self.s+self.m$/;"	kind:member	line:153
+__call__	../transforms.py	/^    def __call__(self, x, y):$/;"	kind:member	line:175
+__call__	../transforms.py	/^    def __call__(self, x, y):$/;"	kind:member	line:231
+__call__	../transforms.py	/^    def __call__(self, x, y=None):$/;"	kind:member	line:163
+__call__	../transforms_pil.py	/^    def __call__(self, img):$/;"	kind:member	line:16
+__getitem__	../column_data.py	/^    def __getitem__(self, idx): return [o[idx] for o in self.cols]$/;"	kind:member	line:181
+__getitem__	../column_data.py	/^    def __getitem__(self, idx): return [o[idx] for o in self.xs] + [self.y[idx]]$/;"	kind:member	line:15
+__getitem__	../column_data.py	/^    def __getitem__(self, idx):$/;"	kind:member	line:36
+__getitem__	../dataset.py	/^    def __getitem__(self, idx):$/;"	kind:member	line:164
+__getitem__	../fp16.py	/^    def __getitem__(self, idx):$/;"	kind:member	line:23
+__getitem__	../learner.py	/^    def __getitem__(self,i): return self.children[i]$/;"	kind:member	line:50
+__getitem__	../nlp.py	/^    def __getitem__(self, i):$/;"	kind:member	line:63
+__getitem__	../text.py	/^    def __getitem__(self, idx):$/;"	kind:member	line:108
+__init__	../adaptive_softmax.py	/^    def __init__(self, cutoff):$/;"	kind:member	line:55
+__init__	../adaptive_softmax.py	/^    def __init__(self, input_size, cutoff):$/;"	kind:member	line:4
+__init__	../column_data.py	/^    def __init__(self, cats, conts, y, is_reg, is_multi):$/;"	kind:member	line:24
+__init__	../column_data.py	/^    def __init__(self, data, models, **kwargs):$/;"	kind:member	line:141
+__init__	../column_data.py	/^    def __init__(self, data, models, **kwargs):$/;"	kind:member	line:216
+__init__	../column_data.py	/^    def __init__(self, emb_szs, n_cont, emb_drop, out_sz, szs, drops,$/;"	kind:member	line:89
+__init__	../column_data.py	/^    def __init__(self, n_factors, n_users, n_items, min_score, max_score):$/;"	kind:member	line:202
+__init__	../column_data.py	/^    def __init__(self, path, trn_ds, val_ds, bs, test_ds=None, shuffle=True):$/;"	kind:member	line:51
+__init__	../column_data.py	/^    def __init__(self, path, user_col, item_col, ratings):$/;"	kind:member	line:158
+__init__	../column_data.py	/^    def __init__(self,*args, is_reg=True, is_multi=False):$/;"	kind:member	line:8
+__init__	../conv_learner.py	/^    def __init__(self, data, models, precompute=False, **kwargs):$/;"	kind:member	line:95
+__init__	../conv_learner.py	/^    def __init__(self, f, c, is_multi, is_reg, ps=None, xtra_fc=None, xtra_cut=0, custom_head=None, pretrained=True):$/;"	kind:member	line:31
+__init__	../core.py	/^    def __init__(self, layers):$/;"	kind:member	line:140
+__init__	../core.py	/^    def __init__(self,model,name='unnamed'): self.model,self.name = model,name$/;"	kind:member	line:133
+__init__	../dataloader.py	/^    def __init__(self, dataset, batch_size=1, shuffle=False, sampler=None, batch_sampler=None, pad_idx=0,$/;"	kind:member	line:25
+__init__	../dataset.py	/^    def __init__(self, fnames, transform, path):$/;"	kind:member	line:241
+__init__	../dataset.py	/^    def __init__(self, fnames, y, transform, path):$/;"	kind:member	line:264
+__init__	../dataset.py	/^    def __init__(self, path, datasets, bs, num_workers, classes):$/;"	kind:member	line:338
+__init__	../dataset.py	/^    def __init__(self, path, trn_dl, val_dl, test_dl=None):$/;"	kind:member	line:312
+__init__	../dataset.py	/^    def __init__(self, transform=None):$/;"	kind:member	line:154
+__init__	../dataset.py	/^    def __init__(self, x, y, transform):$/;"	kind:member	line:285
+__init__	../fp16.py	/^    def __init__(self, module): $/;"	kind:member	line:9
+__init__	../layer_optimizer.py	/^    def __init__(self, opt_fn, layer_groups, lrs, wds=None):$/;"	kind:member	line:9
+__init__	../layers.py	/^    def __init__(self): super().__init__()$/;"	kind:member	line:17
+__init__	../layers.py	/^    def __init__(self, f): super().__init__(); self.f=f$/;"	kind:member	line:13
+__init__	../layers.py	/^    def __init__(self, sz=None):$/;"	kind:member	line:5
+__init__	../learner.py	/^    def __init__(self, data, models, opt_fn=None, tmp_name='tmp', models_name='models', metrics=None, clip=None, crit=None):$/;"	kind:member	line:19
+__init__	../lm_rnn.py	/^    def __init__(self, bptt, max_seq, *args, **kwargs):$/;"	kind:member	line:128
+__init__	../lm_rnn.py	/^    def __init__(self, layers, drops):$/;"	kind:member	line:176
+__init__	../lm_rnn.py	/^    def __init__(self, n_out, n_hid, dropout, tie_encoder=None, bias=False):$/;"	kind:member	line:149
+__init__	../lm_rnn.py	/^    def __init__(self, ni, nf, drop):$/;"	kind:member	line:166
+__init__	../lm_rnn.py	/^    def __init__(self, ntoken, emb_sz, n_hid, n_layers, pad_token, bidir=False,$/;"	kind:member	line:40
+__init__	../model.py	/^    def __init__(self, dl):$/;"	kind:member	line:200
+__init__	../model.py	/^    def __init__(self, m, opt, crit, clip=0, reg_fn=None, fp16=False, loss_scale=1):$/;"	kind:member	line:34
+__init__	../models/cifar10/preact_resnet.py	/^    def __init__(self, block, num_blocks, num_classes=10):$/;"	kind:member	line:68
+__init__	../models/cifar10/preact_resnet.py	/^    def __init__(self, in_planes, planes, stride=1):$/;"	kind:member	line:18
+__init__	../models/cifar10/preact_resnet.py	/^    def __init__(self, in_planes, planes, stride=1):$/;"	kind:member	line:43
+__init__	../models/cifar10/resnext.py	/^  def __init__(self, block, depth, cardinality, base_width, num_classes):$/;"	kind:member	line:46
+__init__	../models/cifar10/resnext.py	/^  def __init__(self, inplanes, planes, cardinality, base_width, stride=1, downsample=None):$/;"	kind:member	line:11
+__init__	../models/cifar10/senet.py	/^    def __init__(self, block, num_blocks, num_classes=10):$/;"	kind:member	line:82
+__init__	../models/cifar10/senet.py	/^    def __init__(self, in_planes, planes, stride=1):$/;"	kind:member	line:13
+__init__	../models/cifar10/senet.py	/^    def __init__(self, in_planes, planes, stride=1):$/;"	kind:member	line:48
+__init__	../models/cifar10/utils.py	/^  def __init__(self):$/;"	kind:member	line:9
+__init__	../models/cifar10/utils.py	/^  def __init__(self, total_epoch):$/;"	kind:member	line:27
+__init__	../models/cifar10/wideresnet.py	/^    def __init__(self, ni, nf, stride, drop_p=0.0):$/;"	kind:member	line:24
+__init__	../models/cifar10/wideresnet.py	/^    def __init__(self, num_groups, N, num_classes, k=1, drop_p=0.0, start_nf=16):$/;"	kind:member	line:45
+__init__	../models/convert_torch.py	/^    def __init__(self, fn, *args):$/;"	kind:member	line:16
+__init__	../models/darknet.py	/^    def __init__(self, ch_in):$/;"	kind:member	line:18
+__init__	../models/darknet.py	/^    def __init__(self, ch_in, ch_out, kernel_size = 3, stride=1, padding=0):$/;"	kind:member	line:9
+__init__	../models/darknet.py	/^    def __init__(self, num_blocks, num_classes=1000, start_nf=32):$/;"	kind:member	line:34
+__init__	../models/fa_resnet.py	/^    def __init__(self, block, layers, num_classes=1000, k=1, vgg_head=False):$/;"	kind:member	line:169
+__init__	../models/fa_resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:135
+__init__	../models/fa_resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:36
+__init__	../models/fa_resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:65
+__init__	../models/fa_resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:99
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self):$/;"	kind:member	line:100
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self):$/;"	kind:member	line:151
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self):$/;"	kind:member	line:34
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self, in_planes, out_planes, kernel_size, stride, padding=0):$/;"	kind:member	line:14
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self, num_classes=1001):$/;"	kind:member	line:214
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self, scale=1.0):$/;"	kind:member	line:123
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self, scale=1.0):$/;"	kind:member	line:66
+__init__	../models/inceptionresnetv2.py	/^    def __init__(self, scale=1.0, noReLU=False):$/;"	kind:member	line:183
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:106
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:127
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:160
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:186
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:27
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:40
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:63
+__init__	../models/inceptionv4.py	/^    def __init__(self):$/;"	kind:member	line:76
+__init__	../models/inceptionv4.py	/^    def __init__(self, in_planes, out_planes, kernel_size, stride, padding=0):$/;"	kind:member	line:13
+__init__	../models/inceptionv4.py	/^    def __init__(self, num_classes=1001):$/;"	kind:member	line:227
+__init__	../models/nasnet.py	/^    def __init__(self):$/;"	kind:member	line:137
+__init__	../models/nasnet.py	/^    def __init__(self):$/;"	kind:member	line:186
+__init__	../models/nasnet.py	/^    def __init__(self):$/;"	kind:member	line:32
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels, out_channels, dw_kernel, dw_stride, dw_padding, bias=False):$/;"	kind:member	line:60
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, bias=False):$/;"	kind:member	line:77
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, bias=False):$/;"	kind:member	line:98
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, z_padding=1, bias=False):$/;"	kind:member	line:119
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels_left, out_channels_left, in_channels_right, out_channels_right):$/;"	kind:member	line:257
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels_left, out_channels_left, in_channels_right, out_channels_right):$/;"	kind:member	line:326
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels_left, out_channels_left, in_channels_right, out_channels_right):$/;"	kind:member	line:379
+__init__	../models/nasnet.py	/^    def __init__(self, in_channels_left, out_channels_left, in_channels_right, out_channels_right):$/;"	kind:member	line:434
+__init__	../models/nasnet.py	/^    def __init__(self, stride=2, padding=1):$/;"	kind:member	line:46
+__init__	../models/nasnet.py	/^    def __init__(self, use_classifier=False, num_classes=1001):$/;"	kind:member	line:489
+__init__	../models/resnet.py	/^    def __init__(self, block, layers, num_classes=1000, k=1, vgg_head=False):$/;"	kind:member	line:164
+__init__	../models/resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:130
+__init__	../models/resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:32
+__init__	../models/resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:62
+__init__	../models/resnet.py	/^    def __init__(self, inplanes, planes, stride=1, downsample=None):$/;"	kind:member	line:95
+__init__	../models/resnext_101_32x4d.py	/^    def __init__(self, fn, *args):$/;"	kind:member	line:8
+__init__	../models/resnext_101_64x4d.py	/^    def __init__(self, fn, *args):$/;"	kind:member	line:8
+__init__	../models/resnext_50_32x4d.py	/^    def __init__(self, fn, *args):$/;"	kind:member	line:8
+__init__	../models/senet.py	/^    def __init__(self, block, layers, groups, reduction, dropout_p=0.2,$/;"	kind:member	line:212
+__init__	../models/senet.py	/^    def __init__(self, channels, reduction):$/;"	kind:member	line:90
+__init__	../models/senet.py	/^    def __init__(self, inplanes, planes, groups, reduction, stride=1,$/;"	kind:member	line:143
+__init__	../models/senet.py	/^    def __init__(self, inplanes, planes, groups, reduction, stride=1,$/;"	kind:member	line:169
+__init__	../models/senet.py	/^    def __init__(self, inplanes, planes, groups, reduction, stride=1,$/;"	kind:member	line:192
+__init__	../models/unet.py	/^    def __init__(self, encoder, last=True, n_classes=3):$/;"	kind:member	line:76
+__init__	../models/unet.py	/^    def __init__(self, m): self.hook = m.register_forward_hook(self.hook_fn)$/;"	kind:member	line:48
+__init__	../models/unet.py	/^    def __init__(self, up_in_c, x_in_c):$/;"	kind:member	line:31
+__init__	../models/wideresnet.py	/^    def __init__(self, depth, num_classes, widen_factor=1, dropRate=0.0):$/;"	kind:member	line:45
+__init__	../models/wideresnet.py	/^    def __init__(self, in_planes, out_planes, stride, dropRate=0.0):$/;"	kind:member	line:10
+__init__	../models/wideresnet.py	/^    def __init__(self, nb_layers, in_planes, out_planes, block, stride, dropRate=0.0):$/;"	kind:member	line:34
+__init__	../models/wrn_50_2f.py	/^    def __init__(self, fn, *args):$/;"	kind:member	line:8
+__init__	../nlp.py	/^    def __init__(self, bow, y, max_len):$/;"	kind:member	line:55
+__init__	../nlp.py	/^    def __init__(self, data, models, **kwargs):$/;"	kind:member	line:159
+__init__	../nlp.py	/^    def __init__(self, data, models, **kwargs):$/;"	kind:member	line:40
+__init__	../nlp.py	/^    def __init__(self, df, text_field, col, newline_eos=True, **kwargs):$/;"	kind:member	line:184
+__init__	../nlp.py	/^    def __init__(self, ds, bs, bptt, backwards=False):$/;"	kind:member	line:121
+__init__	../nlp.py	/^    def __init__(self, nf, ny):$/;"	kind:member	line:29
+__init__	../nlp.py	/^    def __init__(self, nf, ny, w_adj=0.4, r_adj=10):$/;"	kind:member	line:15
+__init__	../nlp.py	/^    def __init__(self, path, field, trn_ds, val_ds, test_ds, bs, bptt, backwards=False, **kwargs):$/;"	kind:member	line:231
+__init__	../nlp.py	/^    def __init__(self, path, text_field, newline_eos=True, encoding='utf-8', **kwargs):$/;"	kind:member	line:170
+__init__	../nlp.py	/^    def __init__(self, src, x_fld, y_fld):$/;"	kind:member	line:317
+__init__	../plots.py	/^    def __init__(self, ds, log_preds):$/;"	kind:member	line:87
+__init__	../rnn_reg.py	/^    def __init__(self, embed):$/;"	kind:member	line:164
+__init__	../rnn_reg.py	/^    def __init__(self, module, dropout, weights=['weight_hh_l0']):$/;"	kind:member	line:66
+__init__	../rnn_reg.py	/^    def __init__(self, p=0.5):$/;"	kind:member	line:51
+__init__	../sgdr.py	/^    def __init__(self, dec_type, num_it, start_val, end_val=None, extra=None):$/;"	kind:member	line:460
+__init__	../sgdr.py	/^    def __init__(self, epochs=1, opt_fn=optim.SGD, lr=1e-2, lr_decay=DecayType.NO, momentum=0.9,$/;"	kind:member	line:487
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, batch_per_epoch, cycle_len, cycle_mult, n_cycles, norm_wds=False, wds_sched_mult=None):$/;"	kind:member	line:388
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, nb, div=10, pct=10, on_cycle_end=None, momentums=None):$/;"	kind:member	line:296
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, nb, div=4, cut_div=8, on_cycle_end=None, momentums=None):$/;"	kind:member	line:264
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, nb, end_lr=10, linear=False, metrics = []):$/;"	kind:member	line:169
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, nb, end_lr=10, linear=False, metrics=[], stop_dv=True):$/;"	kind:member	line:205
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, nb, on_cycle_end=None, cycle_mult=1):$/;"	kind:member	line:236
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, phases, nb_batches, stop_div = False):$/;"	kind:member	line:535
+__init__	../sgdr.py	/^    def __init__(self, layer_opt, save_path='', record_mom=False, metrics=[]):$/;"	kind:member	line:64
+__init__	../sgdr.py	/^    def __init__(self, model, layer_opt, metrics, name='best_model'):$/;"	kind:member	line:357
+__init__	../sgdr.py	/^    def __init__(self, save_path):$/;"	kind:member	line:31
+__init__	../swa.py	/^    def __init__(self, model, swa_model, swa_start):$/;"	kind:member	line:17
+__init__	../text.py	/^    def __init__(self, data, models, **kwargs):$/;"	kind:member	line:207
+__init__	../text.py	/^    def __init__(self, data_source, key): self.data_source,self.key = data_source,key$/;"	kind:member	line:119
+__init__	../text.py	/^    def __init__(self, data_source, key, bs):$/;"	kind:member	line:131
+__init__	../text.py	/^    def __init__(self, lang='en'):$/;"	kind:member	line:44
+__init__	../text.py	/^    def __init__(self, nums, bs, bptt, backwards=False):$/;"	kind:member	line:155
+__init__	../text.py	/^    def __init__(self, path, pad_idx, n_tok, trn_dl, val_dl, test_dl=None, **kwargs):$/;"	kind:member	line:196
+__init__	../text.py	/^    def __init__(self, x, y, backwards=False, sos=None, eos=None):$/;"	kind:member	line:105
+__init__	../torchqrnn/forget_mult.py	/^    def __init__(self):$/;"	kind:member	line:171
+__init__	../torchqrnn/forget_mult.py	/^    def __init__(self):$/;"	kind:member	line:77
+__init__	../torchqrnn/forget_mult.py	/^    def __init__(self):$/;"	kind:member	line:99
+__init__	../torchqrnn/qrnn.py	/^    def __init__(self, input_size, hidden_size,$/;"	kind:member	line:137
+__init__	../torchqrnn/qrnn.py	/^    def __init__(self, input_size, hidden_size=None, save_prev_x=False, zoneout=0, window=1, output_gate=True, use_cuda=True):$/;"	kind:member	line:32
+__init__	../transforms.py	/^    def __init__(self, b, c, tfm_y=TfmType.NO):$/;"	kind:member	line:458
+__init__	../transforms.py	/^    def __init__(self, blur_strengths=5, probability=0.5, tfm_y=TfmType.NO):$/;"	kind:member	line:538
+__init__	../transforms.py	/^    def __init__(self, deg, p=0.75, mode=cv2.BORDER_REFLECT, tfm_y=TfmType.NO):$/;"	kind:member	line:415
+__init__	../transforms.py	/^    def __init__(self, deg, zoom, stretch, ps=None, mode=cv2.BORDER_REFLECT, tfm_y=TfmType.NO):$/;"	kind:member	line:483
+__init__	../transforms.py	/^    def __init__(self, m, s):$/;"	kind:member	line:150
+__init__	../transforms.py	/^    def __init__(self, m, s, tfm_y=TfmType.NO):$/;"	kind:member	line:158
+__init__	../transforms.py	/^    def __init__(self, max_stretch, tfm_y=TfmType.NO):$/;"	kind:member	line:515
+__init__	../transforms.py	/^    def __init__(self, n_holes, length, p=0.5, tfm_y=TfmType.NO):$/;"	kind:member	line:565
+__init__	../transforms.py	/^    def __init__(self, pad, mode=cv2.BORDER_REFLECT, tfm_y=TfmType.NO):$/;"	kind:member	line:282
+__init__	../transforms.py	/^    def __init__(self, sz, max_zoom, p=0.75, tfm_y=TfmType.NO, sz_y=None):$/;"	kind:member	line:385
+__init__	../transforms.py	/^    def __init__(self, sz, tfm_y=TfmType.NO, sz_y=None):$/;"	kind:member	line:300
+__init__	../transforms.py	/^    def __init__(self, sz, tfm_y=TfmType.NO, sz_y=None):$/;"	kind:member	line:344
+__init__	../transforms.py	/^    def __init__(self, sz, tfm_y=TfmType.NO, sz_y=None):$/;"	kind:member	line:362
+__init__	../transforms.py	/^    def __init__(self, sz, tfms, normalizer, denorm, crop_type=CropType.CENTER,$/;"	kind:member	line:631
+__init__	../transforms.py	/^    def __init__(self, targ_sz, tfm_y=TfmType.NO, sz_y=None):$/;"	kind:member	line:319
+__init__	../transforms.py	/^    def __init__(self, targ_sz,$/;"	kind:member	line:593
+__init__	../transforms.py	/^    def __init__(self, tfm_y=TfmType.NO): self.tfm_y=tfm_y$/;"	kind:member	line:173
+__init__	../transforms.py	/^    def __init__(self, tfm_y=TfmType.NO):$/;"	kind:member	line:226
+__init__	../transforms.py	/^    def __init__(self, tfm_y=TfmType.NO, p=0.5):$/;"	kind:member	line:449
+__init__	../transforms.py	/^    def __init__(self, zoom_max, zoom_min=0, mode=cv2.BORDER_REFLECT, tfm_y=TfmType.NO):$/;"	kind:member	line:504
+__init__	../transforms_pil.py	/^    def __init__(self, n_holes, length):$/;"	kind:member	line:12
+__init__	../utils.py	/^    def __init__(self, iters):$/;"	kind:member	line:102
+__init__.py	../__init__.py	1;"	kind:file	line:1
+__iter__	../dataloader.py	/^    def __iter__(self):$/;"	kind:member	line:80
+__iter__	../model.py	/^    def __iter__(self): return self$/;"	kind:member	line:205
+__iter__	../nlp.py	/^    def __iter__(self):$/;"	kind:member	line:130
+__iter__	../nlp.py	/^    def __iter__(self):$/;"	kind:member	line:322
+__iter__	../text.py	/^    def __iter__(self):$/;"	kind:member	line:121
+__iter__	../text.py	/^    def __iter__(self):$/;"	kind:member	line:136
+__iter__	../text.py	/^    def __iter__(self):$/;"	kind:member	line:161
+__iter__	../utils.py	/^    def __iter__(self):$/;"	kind:member	line:113
+__len__	../column_data.py	/^    def __len__(self): return len(self.y)$/;"	kind:member	line:14
+__len__	../column_data.py	/^    def __len__(self): return len(self.y)$/;"	kind:member	line:34
+__len__	../column_data.py	/^    def __len__(self): return self.n$/;"	kind:member	line:180
+__len__	../dataloader.py	/^    def __len__(self): return len(self.batch_sampler)$/;"	kind:member	line:51
+__len__	../dataset.py	/^    def __len__(self): return self.n$/;"	kind:member	line:170
+__len__	../nlp.py	/^    def __len__(self): return len(self.bow.indptr)-1$/;"	kind:member	line:80
+__len__	../nlp.py	/^    def __len__(self): return len(self.src)$/;"	kind:member	line:320
+__len__	../nlp.py	/^    def __len__(self): return self.n \/\/ self.bptt - 1$/;"	kind:member	line:134
+__len__	../text.py	/^    def __len__(self): return len(self.data_source)$/;"	kind:member	line:120
+__len__	../text.py	/^    def __len__(self): return len(self.data_source)$/;"	kind:member	line:134
+__len__	../text.py	/^    def __len__(self): return len(self.x)$/;"	kind:member	line:115
+__len__	../text.py	/^    def __len__(self): return self.n \/\/ self.bptt - 1$/;"	kind:member	line:174
+__next__	../nlp.py	/^    def __next__(self):$/;"	kind:member	line:136
+__repr__	../learner.py	/^    def __repr__(self): return self.model.__repr__()$/;"	kind:member	line:63
+__repr__	../transforms.py	/^    def __repr__(self): return str(self.tfms)$/;"	kind:member	line:642
+_fastai_model	../torch_imports.py	/^def _fastai_model(name, paper_title, paper_href):$/;"	kind:function	line:48
+_get_crit	../column_data.py	/^    def _get_crit(self, data): return F.mse_loss if data.is_reg else F.binary_cross_entropy if data.is_multi else F.nll_loss$/;"	kind:member	line:144
+_get_crit	../column_data.py	/^    def _get_crit(self, data): return F.mse_loss$/;"	kind:member	line:219
+_get_crit	../conv_learner.py	/^    def _get_crit(self, data):$/;"	kind:member	line:104
+_get_crit	../learner.py	/^    def _get_crit(self, data): return F.mse_loss$/;"	kind:member	line:463
+_get_crit	../nlp.py	/^    def _get_crit(self, data): return F.cross_entropy$/;"	kind:member	line:162
+_get_crit	../nlp.py	/^    def _get_crit(self, data): return F.l1_loss$/;"	kind:member	line:43
+_get_crit	../text.py	/^    def _get_crit(self, data): return F.cross_entropy$/;"	kind:member	line:210
+_make_group	../models/cifar10/wideresnet.py	/^def _make_group(N, ni, nf, block, stride, drop_p):$/;"	kind:function	line:41
+_make_layer	../models/cifar10/preact_resnet.py	/^    def _make_layer(self, block, planes, num_blocks, stride):$/;"	kind:member	line:79
+_make_layer	../models/cifar10/resnext.py	/^  def _make_layer(self, planes, stride=1):$/;"	kind:member	line:76
+_make_layer	../models/cifar10/senet.py	/^    def _make_layer(self, block, planes, num_blocks, stride):$/;"	kind:member	line:94
+_make_layer	../models/fa_resnet.py	/^    def _make_layer(self, block, planes, blocks, stride=1):$/;"	kind:member	line:195
+_make_layer	../models/resnet.py	/^    def _make_layer(self, block, planes, blocks, stride=1):$/;"	kind:member	line:190
+_make_layer	../models/senet.py	/^    def _make_layer(self, block, planes, blocks, groups, reduction, stride=1,$/;"	kind:member	line:330
+_make_layer	../models/wideresnet.py	/^    def _make_layer(self, block, in_planes, out_planes, nb_layers, stride, dropRate):$/;"	kind:member	line:37
+_setup	../rnn_reg.py	/^    def _setup(self):$/;"	kind:member	line:79
+_setweights	../rnn_reg.py	/^    def _setweights(self):$/;"	kind:member	line:97
+abstractmethod	../imports.py	/^from abc import abstractmethod$/;"	kind:namespace	line:7
+accuracy	../metrics.py	/^def accuracy(preds, targs):$/;"	kind:function	line:9
+accuracy	../models/cifar10/main_dxy.py	/^def accuracy(output, target, topk=(1,)):$/;"	kind:function	line:267
+accuracy_multi	../metrics.py	/^def accuracy_multi(preds, targs, thresh):$/;"	kind:function	line:20
+accuracy_multi_np	../metrics.py	/^def accuracy_multi_np(preds, targs, thresh):$/;"	kind:function	line:23
+accuracy_np	../metrics.py	/^def accuracy_np(preds, targs):$/;"	kind:function	line:13
+accuracy_thresh	../metrics.py	/^def accuracy_thresh(thresh):$/;"	kind:function	line:17
+adaptive_softmax.py	../adaptive_softmax.py	1;"	kind:file	line:1
+add_current_hook	../lsuv_initializer.py	/^def add_current_hook(m):$/;"	kind:function	line:62
+add_datepart	../structured.py	/^def add_datepart(df, fldname, drop=True, time=False):$/;"	kind:function	line:76
+add_docs_wrapper	../torch_imports.py	/^    def add_docs_wrapper(f):$/;"	kind:function	line:49
+add_submodule	../models/convert_torch.py	/^def add_submodule(seq, *args):$/;"	kind:function	line:47
+adjust_learning_rate	../models/cifar10/main_dxy.py	/^def adjust_learning_rate(optimizer, epoch, gammas, schedule):$/;"	kind:function	line:254
+animation	../imports.py	/^from matplotlib import pyplot as plt, rcParams, animation$/;"	kind:namespace	line:22
+append_stats	../model.py	/^def append_stats(ep_vals, epoch, values, decimals=6):$/;"	kind:function	line:183
+apply_cats	../structured.py	/^def apply_cats(df, trn):$/;"	kind:function	line:158
+apply_init	../initializers.py	/^def apply_init(m, init_fn):$/;"	kind:function	line:9
+apply_leaf	../core.py	/^def apply_leaf(m, f):$/;"	kind:function	line:104
+apply_lsuv_init	../learner.py	/^from .lsuv_initializer import apply_lsuv_init$/;"	kind:namespace	line:14
+apply_lsuv_init	../lsuv_initializer.py	/^def apply_lsuv_init(model, data, needed_std=1.0, std_tol=0.1, max_attempts=10, do_orthonorm=True, cuda=True):$/;"	kind:function	line:118
+apply_weights_correction	../lsuv_initializer.py	/^def apply_weights_correction(m):$/;"	kind:function	line:100
+argparse	../models/cifar10/main_dxy.py	/^import argparse$/;"	kind:namespace	line:5
+argparse	../models/cifar10/main_kuangliu.py	/^import argparse$/;"	kind:namespace	line:14
+argparse	../models/convert_torch.py	/^import argparse$/;"	kind:namespace	line:2
+args	../models/cifar10/main_dxy.py	/^args = parser.parse_args()$/;"	kind:variable	line:33
+args	../models/cifar10/main_kuangliu.py	/^args = parser.parse_args()$/;"	kind:variable	line:24
+args	../models/convert_torch.py	/^args = parser.parse_args()$/;"	kind:variable	line:284
+attrgetter	../imports.py	/^from operator import itemgetter, attrgetter$/;"	kind:namespace	line:18
+attrgetter	../utils.py	/^from operator import itemgetter, attrgetter, methodcaller$/;"	kind:namespace	line:5
+backends	../models/cifar10/main_dxy.py	/^import torch.backends.cudnn as cudnn$/;"	kind:namespace	line:7
+backends	../models/cifar10/main_kuangliu.py	/^import torch.backends.cudnn as cudnn$/;"	kind:namespace	line:8
+backends	../torch_imports.py	/^from torch import nn, cuda, backends, FloatTensor, LongTensor, optim$/;"	kind:namespace	line:4
+backward	../torchqrnn/forget_mult.py	/^    def backward(self, grad_h):$/;"	kind:member	line:138
+batch_sz	../model.py	/^def batch_sz(x, seq_first=False):$/;"	kind:function	line:226
+batchify	../nlp.py	/^    def batchify(self, data):$/;"	kind:member	line:145
+batchify	../text.py	/^    def batchify(self, data):$/;"	kind:member	line:176
+batchnorm_to_fp32	../fp16.py	/^def batchnorm_to_fp32(module):$/;"	kind:function	line:31
+bcolz	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+bcolz	../utils.py	/^import bcolz$/;"	kind:namespace	line:19
+begin_time	../models/cifar10/utils_kuangliu.py	/^begin_time = last_time$/;"	kind:variable	line:50
+best_acc	../models/cifar10/main_kuangliu.py	/^    best_acc = checkpoint['acc']$/;"	kind:variable	line:60
+best_acc	../models/cifar10/main_kuangliu.py	/^best_acc = 0  # best test accuracy$/;"	kind:variable	line:28
+bn	../models/cifar10/wideresnet.py	/^def bn(ni, init_zero=False):$/;"	kind:function	line:11
+bn	../models/fa_resnet.py	/^def bn(planes, init_zero=False):$/;"	kind:function	line:27
+bn	../models/resnet.py	/^def bn(planes, init_zero=False):$/;"	kind:function	line:22
+bn1	../models/fa_resnet.py	/^def bn1(planes):$/;"	kind:function	line:21
+bn1	../models/resnet.py	/^def bn1(planes):$/;"	kind:function	line:16
+bn_freeze	../learner.py	/^    def bn_freeze(self, do_freeze):$/;"	kind:member	line:74
+bn_relu_conv	../models/cifar10/wideresnet.py	/^def bn_relu_conv(ni, nf, ks, stride, init_zero=False):$/;"	kind:function	line:17
+bnf_resnet50	../models/fa_resnet.py	/^def bnf_resnet50 (): return ResNet(BottleneckFinal, [3, 4, 6, 3])$/;"	kind:function	line:221
+bnf_resnet50	../models/resnet.py	/^def bnf_resnet50 (): return ResNet(BottleneckFinal, [3, 4, 6, 3])$/;"	kind:function	line:207
+bnz_resnet50	../models/fa_resnet.py	/^def bnz_resnet50 (): return ResNet(BottleneckZero, [3, 4, 6, 3])$/;"	kind:function	line:222
+bnz_resnet50	../models/resnet.py	/^def bnz_resnet50 (): return ResNet(BottleneckZero, [3, 4, 6, 3])$/;"	kind:function	line:208
+c	../dataset.py	/^    def c(self): return self.trn_ds.c$/;"	kind:member	line:356
+c	../nlp.py	/^    def c(self): return self.trn_ds.c$/;"	kind:member	line:85
+calc_lr	../sgdr.py	/^    def calc_lr(self, init_lrs): raise NotImplementedError$/;"	kind:member	line:158
+calc_lr	../sgdr.py	/^    def calc_lr(self, init_lrs):$/;"	kind:member	line:179
+calc_lr	../sgdr.py	/^    def calc_lr(self, init_lrs):$/;"	kind:member	line:244
+calc_lr	../sgdr.py	/^    def calc_lr(self, init_lrs):$/;"	kind:member	line:274
+calc_lr	../sgdr.py	/^    def calc_lr(self, init_lrs):$/;"	kind:member	line:307
+calc_mom	../sgdr.py	/^    def calc_mom(self): raise NotImplementedError$/;"	kind:member	line:161
+calc_mom	../sgdr.py	/^    def calc_mom(self):$/;"	kind:member	line:287
+calc_mom	../sgdr.py	/^    def calc_mom(self):$/;"	kind:member	line:324
+calc_pr	../nlp.py	/^def calc_pr(y_i, x, y, b):$/;"	kind:function	line:45
+calc_r	../nlp.py	/^def calc_r(y_i, x, y):$/;"	kind:function	line:51
+categorical_accuracy	../utils.py	/^from keras.metrics import categorical_crossentropy, categorical_accuracy$/;"	kind:namespace	line:36
+categorical_crossentropy	../utils.py	/^from keras.metrics import categorical_crossentropy, categorical_accuracy$/;"	kind:namespace	line:36
+ceil	../utils.py	/^def ceil(x): return int(math.ceil(x))$/;"	kind:function	line:51
+ceildiv	../plots.py	/^def ceildiv(a, b):$/;"	kind:function	line:5
+center_crop	../transforms.py	/^def center_crop(im, min_sz=None):$/;"	kind:function	line:60
+chain	../imports.py	/^from itertools import chain$/;"	kind:namespace	line:10
+chain	../utils.py	/^from itertools import chain$/;"	kind:namespace	line:8
+chain_params	../core.py	/^def chain_params(p):$/;"	kind:function	line:95
+checkpoint	../models/cifar10/main_kuangliu.py	/^    checkpoint = torch.load('.\/checkpoint\/ckpt.t7')$/;"	kind:variable	line:58
+children	../learner.py	/^    def children(self): return children(self.model)$/;"	kind:member	line:53
+children	../torch_imports.py	/^def children(m): return m if isinstance(m, (list, tuple)) else list(m.children())$/;"	kind:function	line:31
+choice	../utils.py	/^from numpy.random import random, permutation, randn, normal, uniform, choice$/;"	kind:namespace	line:11
+chunk_iter	../core.py	/^def chunk_iter(iterable, chunk_size):$/;"	kind:function	line:171
+classes	../models/cifar10/main_kuangliu.py	/^classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')$/;"	kind:variable	line:51
+classifier	../models/nasnet.py	/^    def classifier(self, x):$/;"	kind:member	line:581
+clear_tqdm	../imports.py	/^def clear_tqdm():$/;"	kind:function	line:40
+collect_bn_modules	../swa.py	/^def collect_bn_modules(module, bn_modules):$/;"	kind:function	line:41
+collections	../dataloader.py	/^import collections,sys,traceback,threading$/;"	kind:namespace	line:5
+collections	../executors.py	/^import collections$/;"	kind:namespace	line:1
+collections	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+column_data.py	../column_data.py	1;"	kind:file	line:1
+combine_date	../structured.py	/^def combine_date(years, months=1, days=1, weeks=None, hours=None, minutes=None,$/;"	kind:function	line:35
+compile	../torchqrnn/forget_mult.py	/^    def compile(self):$/;"	kind:member	line:102
+compose	../transforms.py	/^def compose(im, y, fns):$/;"	kind:function	line:613
+concat	../lm_rnn.py	/^    def concat(self, arrs):$/;"	kind:member	line:132
+cond_init	../initializers.py	/^def cond_init(m, init_fn):$/;"	kind:function	line:4
+configured_gpus	../torchqrnn/forget_mult.py	/^    configured_gpus = {}$/;"	kind:variable	line:97
+confusion_matrix	../plots.py	/^from sklearn.metrics import confusion_matrix$/;"	kind:namespace	line:3
+confusion_matrix	../utils.py	/^from sklearn.metrics import confusion_matrix$/;"	kind:namespace	line:16
+contextlib	../imports.py	/^import contextlib$/;"	kind:namespace	line:6
+conv	../models/resnet.py	/^def conv(ni, nf, ks=3, stride=1):$/;"	kind:function	line:13
+conv3x3	../models/fa_resnet.py	/^def conv3x3(in_planes, out_planes, stride=1):$/;"	kind:function	line:16
+conv_2d	../models/cifar10/wideresnet.py	/^def conv_2d(ni, nf, ks, stride): return nn.Conv2d(ni, nf, kernel_size=ks, stride=stride, padding=ks\/\/2, bias=False)$/;"	kind:function	line:9
+conv_bn_relu	../models/unet.py	/^def conv_bn_relu(in_c, out_c, kernel_size, stride, padding):$/;"	kind:function	line:22
+conv_dict	../core.py	/^conv_dict = {np.dtype('int8'): torch.LongTensor, np.dtype('int16'): torch.LongTensor,$/;"	kind:variable	line:21
+conv_learner.py	../conv_learner.py	1;"	kind:file	line:1
+convert_secs2time	../models/cifar10/main_dxy.py	/^from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time$/;"	kind:namespace	line:10
+convert_secs2time	../models/cifar10/utils.py	/^def convert_secs2time(epoch_time):$/;"	kind:function	line:105
+convert_torch.py	../models/convert_torch.py	1;"	kind:file	line:1
+coords2px	../transforms.py	/^def coords2px(y, x):$/;"	kind:function	line:194
+copy	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+copy	../sgdr.py	/^import copy$/;"	kind:namespace	line:5
+copy_fp32_to_model	../fp16.py	/^def copy_fp32_to_model(m, fp32_params):$/;"	kind:function	line:60
+copy_layer	../utils.py	/^def copy_layer(layer): return layer_from_config(wrap_config(layer))$/;"	kind:function	line:74
+copy_layers	../utils.py	/^def copy_layers(layers): return [copy_layer(layer) for layer in layers]$/;"	kind:function	line:76
+copy_model_to_fp32	../fp16.py	/^def copy_model_to_fp32(m, optim):$/;"	kind:function	line:45
+copy_param	../models/convert_torch.py	/^def copy_param(m,n):$/;"	kind:function	line:41
+copy_weights	../utils.py	/^def copy_weights(from_layers, to_layers):$/;"	kind:function	line:78
+core.py	../core.py	1;"	kind:file	line:1
+count_conv_fc_layers	../lsuv_initializer.py	/^def count_conv_fc_layers(m):$/;"	kind:function	line:72
+create_empty_bcolz	../conv_learner.py	/^    def create_empty_bcolz(self, n, name):$/;"	kind:member	line:142
+create_fc_layer	../conv_learner.py	/^    def create_fc_layer(self, ni, nf, p, actn=None):$/;"	kind:member	line:58
+create_td	../nlp.py	/^    def create_td(self, it): return TextDataLoader(it, self.text_fld, self.label_fld)$/;"	kind:member	line:336
+create_variable	../core.py	/^def create_variable(x, volatile, requires_grad=False):$/;"	kind:function	line:44
+criterion	../models/cifar10/main_kuangliu.py	/^criterion = F.nll_loss$/;"	kind:variable	line:81
+crop	../transforms.py	/^def crop(im, r, c, sz): $/;"	kind:function	line:116
+crop_fn_lu	../transforms.py	/^crop_fn_lu = {CropType.RANDOM: RandomCrop, CropType.CENTER: CenterCrop, CropType.NO: NoCrop, CropType.GOOGLENET: GoogleNetResize}$/;"	kind:variable	line:628
+csv	../dataset.py	/^import csv$/;"	kind:namespace	line:1
+csv_source	../dataset.py	/^def csv_source(folder, csv_file, skip_header=True, suffix='', continuous=False, cat_separator=' '):$/;"	kind:function	line:135
+cuda	../torch_imports.py	/^from torch import nn, cuda, backends, FloatTensor, LongTensor, optim$/;"	kind:namespace	line:4
+cudnn	../models/cifar10/main_dxy.py	/^import torch.backends.cudnn as cudnn$/;"	kind:namespace	line:7
+cudnn	../models/cifar10/main_kuangliu.py	/^import torch.backends.cudnn as cudnn$/;"	kind:namespace	line:8
+cut_model	../model.py	/^def cut_model(m, cut):$/;"	kind:function	line:10
+cutout	../transforms.py	/^def cutout(im, n_holes, length):$/;"	kind:function	line:94
+cv2	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+darknet.py	../models/darknet.py	1;"	kind:file	line:1
+darknet_53	../models/darknet.py	/^def darknet_53(num_classes=1000):    return Darknet([1,2,8,8,4], num_classes)$/;"	kind:function	line:46
+darknet_mini	../models/darknet.py	/^def darknet_mini(num_classes=1000): return Darknet([1,2,4,4,2], num_classes, start_nf=24)$/;"	kind:function	line:48
+darknet_mini2	../models/darknet.py	/^def darknet_mini2(num_classes=1000): return Darknet([1,2,8,8,4], num_classes, start_nf=16)$/;"	kind:function	line:49
+darknet_mini3	../models/darknet.py	/^def darknet_mini3(num_classes=1000): return Darknet([1,2,4,4], num_classes)$/;"	kind:function	line:50
+darknet_small	../models/darknet.py	/^def darknet_small(num_classes=1000): return Darknet([1,2,4,8,4], num_classes)$/;"	kind:function	line:47
+data	../conv_learner.py	/^    def data(self): return self.fc_data if self.precompute else self.data_$/;"	kind:member	line:140
+data	../learner.py	/^    def data(self): return self.data_$/;"	kind:member	line:59
+datafy	../core.py	/^def datafy(x):$/;"	kind:function	line:17
+dataloader.py	../dataloader.py	1;"	kind:file	line:1
+dataset.py	../dataset.py	1;"	kind:file	line:1
+datetime	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+delistify	../core.py	/^def delistify(x): return x[0] if is_listy(x) else x$/;"	kind:function	line:10
+denorm	../dataset.py	/^    def denorm(self,arr):$/;"	kind:member	line:252
+densenet121	../torch_imports.py	/^from torchvision.models import densenet121, densenet161, densenet169, densenet201$/;"	kind:namespace	line:12
+densenet161	../torch_imports.py	/^from torchvision.models import densenet121, densenet161, densenet169, densenet201$/;"	kind:namespace	line:12
+densenet169	../torch_imports.py	/^from torchvision.models import densenet121, densenet161, densenet169, densenet201$/;"	kind:namespace	line:12
+densenet201	../torch_imports.py	/^from torchvision.models import densenet121, densenet161, densenet169, densenet201$/;"	kind:namespace	line:12
+det_dihedral	../transforms.py	/^def det_dihedral(dih): return lambda x: dihedral(x, dih)$/;"	kind:function	line:122
+det_lighting	../transforms.py	/^def det_lighting(b, c): return lambda x: lighting(x, b, c)$/;"	kind:function	line:124
+det_rotate	../transforms.py	/^def det_rotate(deg): return lambda x: rotate_cv(x, deg)$/;"	kind:function	line:125
+det_stretch	../transforms.py	/^def det_stretch(sr, sc): return lambda x: stretch_cv(x, sr, sc)$/;"	kind:function	line:123
+det_zoom	../transforms.py	/^def det_zoom(zoom): return lambda x: zoom_cv(x, zoom)$/;"	kind:function	line:126
+dict_source	../dataset.py	/^def dict_source(folder, fnames, csv_labels, suffix='', continuous=False):$/;"	kind:function	line:139
+dihedral	../transforms.py	/^def dihedral(x, dih):$/;"	kind:function	line:33
+division	../models/cifar10/main_dxy.py	/^from __future__ import division$/;"	kind:namespace	line:1
+dn121	../torch_imports.py	/^def dn121(pre): return children(densenet121(pre))[0]$/;"	kind:function	line:85
+dn161	../torch_imports.py	/^def dn161(pre): return children(densenet161(pre))[0]$/;"	kind:function	line:89
+dn169	../torch_imports.py	/^def dn169(pre): return children(densenet169(pre))[0]$/;"	kind:function	line:93
+dn201	../torch_imports.py	/^def dn201(pre): return children(densenet201(pre))[0]$/;"	kind:function	line:97
+do_caps	../text.py	/^    def do_caps(ss):$/;"	kind:member	line:71
+do_clip	../utils.py	/^def do_clip(arr, mx):$/;"	kind:function	line:66
+do_transform	../transforms.py	/^    def do_transform(self, im, is_y):$/;"	kind:member	line:286
+do_transform	../transforms.py	/^    def do_transform(self, img, is_y):$/;"	kind:member	line:572
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y): raise NotImplementedError$/;"	kind:member	line:245
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y): return np.fliplr(x).copy() if self.store.do_flip else x$/;"	kind:member	line:454
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y): return self.store.trans.do_transform(x, is_y)$/;"	kind:member	line:501
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:304
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:327
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:348
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:366
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:399
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:427
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:443
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:466
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:511
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:523
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:529
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:552
+do_transform	../transforms.py	/^    def do_transform(self, x, is_y):$/;"	kind:member	line:604
+dotprod_nb_learner	../nlp.py	/^    def dotprod_nb_learner(self, **kwargs): return self.get_model(DotProdNB, **kwargs)$/;"	kind:member	line:98
+draw_line	../sgdr.py	/^def draw_line(ax,x):$/;"	kind:function	line:594
+draw_text	../sgdr.py	/^def draw_text(ax,x, text):$/;"	kind:function	line:598
+draw_tree	../structured.py	/^def draw_tree(t, df, size=10, ratio=0.6, precision=0):$/;"	kind:function	line:22
+dreload	../imports.py	/^from IPython.lib.deepreload import reload as dreload$/;"	kind:namespace	line:1
+dropout_mask	../rnn_reg.py	/^def dropout_mask(x, sz, dropout):$/;"	kind:function	line:9
+dset	../models/cifar10/main_dxy.py	/^import torchvision.datasets as dset$/;"	kind:namespace	line:8
+emb_init	../column_data.py	/^def emb_init(x):$/;"	kind:function	line:82
+ensemble	../imports.py	/^from sklearn import metrics, ensemble, preprocessing$/;"	kind:namespace	line:17
+evaluate	../model.py	/^    def evaluate(self, xs, y):$/;"	kind:member	line:76
+executors.py	../executors.py	1;"	kind:file	line:1
+expansion	../models/cifar10/preact_resnet.py	/^    expansion = 1$/;"	kind:variable	line:16
+expansion	../models/cifar10/preact_resnet.py	/^    expansion = 4$/;"	kind:variable	line:41
+expansion	../models/cifar10/resnext.py	/^  expansion = 4$/;"	kind:variable	line:7
+expansion	../models/fa_resnet.py	/^    expansion = 1$/;"	kind:variable	line:34
+expansion	../models/fa_resnet.py	/^    expansion = 4$/;"	kind:variable	line:133
+expansion	../models/fa_resnet.py	/^    expansion = 4$/;"	kind:variable	line:63
+expansion	../models/fa_resnet.py	/^    expansion = 4$/;"	kind:variable	line:97
+expansion	../models/resnet.py	/^    expansion = 1$/;"	kind:variable	line:30
+expansion	../models/resnet.py	/^    expansion = 4$/;"	kind:variable	line:128
+expansion	../models/resnet.py	/^    expansion = 4$/;"	kind:variable	line:60
+expansion	../models/resnet.py	/^    expansion = 4$/;"	kind:variable	line:93
+expansion	../models/senet.py	/^    expansion = 4$/;"	kind:variable	line:141
+expansion	../models/senet.py	/^    expansion = 4$/;"	kind:variable	line:167
+expansion	../models/senet.py	/^    expansion = 4$/;"	kind:variable	line:190
+export_graphviz	../structured.py	/^from sklearn.tree import export_graphviz$/;"	kind:namespace	line:7
+f1	../metrics.py	/^def f1(log_preds, targs, thresh=0.5): return fbeta(log_preds, targs, 1, thresh)$/;"	kind:function	line:70
+f1_np	../metrics.py	/^def f1_np(preds, targs, thresh=0.5): return fbeta_np(preds, targs, 1, thresh)$/;"	kind:function	line:71
+fa_resnet.py	../models/fa_resnet.py	1;"	kind:file	line:1
+fa_resnet101	../models/fa_resnet.py	/^def fa_resnet101(pretrained=False, **kwargs): return load(ResNet(Bottleneck, [3, 4, 23, 3], **kwargs), pretrained, 'resnet101')$/;"	kind:function	line:219
+fa_resnet152	../models/fa_resnet.py	/^def fa_resnet152(pretrained=False, **kwargs): return load(ResNet(Bottleneck, [3, 8, 36, 3], **kwargs), pretrained, 'resnet152')$/;"	kind:function	line:220
+fa_resnet18	../models/fa_resnet.py	/^def fa_resnet18(pretrained=False, **kwargs):  return load(ResNet(BasicBlock, [2, 2, 2, 2], **kwargs), pretrained, 'resnet18')$/;"	kind:function	line:216
+fa_resnet34	../models/fa_resnet.py	/^def fa_resnet34(pretrained=False, **kwargs):  return load(ResNet(BasicBlock, [3, 4, 6, 3], **kwargs), pretrained, 'resnet34')$/;"	kind:function	line:217
+fa_resnet50	../models/fa_resnet.py	/^def fa_resnet50(pretrained=False, **kwargs):  return load(ResNet(Bottleneck, [3, 4, 6, 3], **kwargs), pretrained, 'resnet50')$/;"	kind:function	line:218
+fbeta	../metrics.py	/^def fbeta(log_preds, targs, beta, thresh=0.5):$/;"	kind:function	line:48
+fbeta_np	../metrics.py	/^def fbeta_np(preds, targs, beta, thresh=0.5):$/;"	kind:function	line:62
+fbeta_torch	../losses.py	/^def fbeta_torch(y_true, y_pred, beta, threshold, eps=1e-9):$/;"	kind:function	line:4
+features	../models/inceptionresnetv2.py	/^    def features(self, input):$/;"	kind:member	line:282
+features	../models/nasnet.py	/^    def features(self, x):$/;"	kind:member	line:550
+features	../models/senet.py	/^    def features(self, x):$/;"	kind:member	line:350
+features	../models/unet.py	/^    features=None$/;"	kind:variable	line:47
+fit	../learner.py	/^    def fit(self, lrs, n_cycle, wds=None, **kwargs):$/;"	kind:member	line:277
+fit	../model.py	/^def fit(model, data, n_epochs, opt, crit, metrics=None, callbacks=None, stepper=Stepper,$/;"	kind:function	line:88
+fit	../text.py	/^    def fit(self, *args, **kwargs): return super().fit(*args, **kwargs, seq_first=True)$/;"	kind:member	line:211
+fit_gen	../learner.py	/^    def fit_gen(self, model, data, layer_opt, n_cycle, cycle_len=None, cycle_mult=1, cycle_save_name=None, best_save_name=None,$/;"	kind:member	line:129
+fit_opt_sched	../learner.py	/^    def fit_opt_sched(self, phases, cycle_save_name=None, best_save_name=None, stop_div=False, data_list=None, callbacks=None, $/;"	kind:member	line:412
+fix_batchnorm	../swa.py	/^def fix_batchnorm(swa_model, train_dl):$/;"	kind:function	line:45
+fix_missing	../structured.py	/^def fix_missing(df, col, name, na_dict):$/;"	kind:function	line:206
+fixed	../imports.py	/^from ipywidgets import interact, interactive, fixed, widgets$/;"	kind:namespace	line:23
+flip_tensor	../nlp.py	/^def flip_tensor(x, dim):$/;"	kind:function	line:110
+float	../conv_learner.py	/^    def float(self):$/;"	kind:member	line:133
+float	../learner.py	/^    def float(self):$/;"	kind:member	line:123
+floor	../utils.py	/^def floor(x): return int(math.floor(x))$/;"	kind:function	line:50
+folder_source	../dataset.py	/^def folder_source(path, folder):$/;"	kind:function	line:89
+forest	../structured.py	/^from sklearn.ensemble import forest$/;"	kind:namespace	line:6
+forget_mult.py	../torchqrnn/forget_mult.py	1;"	kind:file	line:1
+format_time	../models/cifar10/utils_kuangliu.py	/^def format_time(seconds):$/;"	kind:function	line:94
+forward	../adaptive_softmax.py	/^    def forward(self, input):$/;"	kind:member	line:29
+forward	../adaptive_softmax.py	/^    def forward(self, input, target):$/;"	kind:member	line:69
+forward	../column_data.py	/^    def forward(self, users, items):$/;"	kind:member	line:209
+forward	../column_data.py	/^    def forward(self, x_cat, x_cont):$/;"	kind:member	line:115
+forward	../core.py	/^    def forward(self, x):$/;"	kind:member	line:145
+forward	../fp16.py	/^    def forward(self, input):$/;"	kind:member	line:13
+forward	../layers.py	/^    def forward(self, x): return self.f(x)$/;"	kind:member	line:14
+forward	../layers.py	/^    def forward(self, x): return torch.cat([self.mp(x), self.ap(x)], 1)$/;"	kind:member	line:10
+forward	../layers.py	/^    def forward(self, x): return x.view(x.size(0), -1)$/;"	kind:member	line:18
+forward	../lm_rnn.py	/^    def forward(self, input):$/;"	kind:member	line:135
+forward	../lm_rnn.py	/^    def forward(self, input):$/;"	kind:member	line:157
+forward	../lm_rnn.py	/^    def forward(self, input):$/;"	kind:member	line:185
+forward	../lm_rnn.py	/^    def forward(self, input):$/;"	kind:member	line:84
+forward	../lm_rnn.py	/^    def forward(self, x): return self.lin(self.drop(self.bn(x)))$/;"	kind:member	line:172
+forward	../models/cifar10/preact_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:30
+forward	../models/cifar10/preact_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:57
+forward	../models/cifar10/preact_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:87
+forward	../models/cifar10/resnext.py	/^  def forward(self, x):$/;"	kind:member	line:25
+forward	../models/cifar10/resnext.py	/^  def forward(self, x):$/;"	kind:member	line:93
+forward	../models/cifar10/senet.py	/^    def forward(self, x):$/;"	kind:member	line:102
+forward	../models/cifar10/senet.py	/^    def forward(self, x):$/;"	kind:member	line:31
+forward	../models/cifar10/senet.py	/^    def forward(self, x):$/;"	kind:member	line:64
+forward	../models/cifar10/wideresnet.py	/^    def forward(self, x): return self.features(x)$/;"	kind:member	line:58
+forward	../models/cifar10/wideresnet.py	/^    def forward(self, x):$/;"	kind:member	line:32
+forward	../models/convert_torch.py	/^    def forward(self, input):$/;"	kind:member	line:27
+forward	../models/convert_torch.py	/^    def forward(self, input):$/;"	kind:member	line:31
+forward	../models/convert_torch.py	/^    def forward(self, input):$/;"	kind:member	line:36
+forward	../models/darknet.py	/^    def forward(self, x): return self.conv2(self.conv1(x)) + x$/;"	kind:member	line:24
+forward	../models/darknet.py	/^    def forward(self, x): return self.layers(x)$/;"	kind:member	line:44
+forward	../models/darknet.py	/^    def forward(self, x): return self.relu(self.bn(self.conv(x)))$/;"	kind:member	line:15
+forward	../models/fa_resnet.py	/^    def forward(self, x): return self.features(x)$/;"	kind:member	line:210
+forward	../models/fa_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:112
+forward	../models/fa_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:148
+forward	../models/fa_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:46
+forward	../models/fa_resnet.py	/^    def forward(self, x):$/;"	kind:member	line:78
+forward	../models/inceptionresnetv2.py	/^    def forward(self, input):$/;"	kind:member	line:306
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:113
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:139
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:172
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:201
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:25
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:55
+forward	../models/inceptionresnetv2.py	/^    def forward(self, x):$/;"	kind:member	line:87
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:118
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:150
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:177
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:19
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:205
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:256
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:32
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:55
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:68
+forward	../models/inceptionv4.py	/^    def forward(self, x):$/;"	kind:member	line:96
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:107
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:123
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:158
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:37
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:51
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:587
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:69
+forward	../models/nasnet.py	/^    def forward(self, x):$/;"	kind:member	line:86
+forward	../models/nasnet.py	/^    def forward(self, x, x_prev):$/;"	kind:member	line:288
+forward	../models/nasnet.py	/^    def forward(self, x, x_prev):$/;"	kind:member	line:351
+forward	../models/nasnet.py	/^    def forward(self, x, x_prev):$/;"	kind:member	line:405
+forward	../models/nasnet.py	/^    def forward(self, x, x_prev):$/;"	kind:member	line:460
+forward	../models/nasnet.py	/^    def forward(self, x_conv0, x_stem_0):$/;"	kind:member	line:218
+forward	../models/resnet.py	/^    def forward(self, x): return self.features(x)$/;"	kind:member	line:204
+forward	../models/resnet.py	/^    def forward(self, x):$/;"	kind:member	line:107
+forward	../models/resnet.py	/^    def forward(self, x):$/;"	kind:member	line:142
+forward	../models/resnet.py	/^    def forward(self, x):$/;"	kind:member	line:42
+forward	../models/resnet.py	/^    def forward(self, x):$/;"	kind:member	line:74
+forward	../models/resnext_101_32x4d.py	/^    def forward(self, input):$/;"	kind:member	line:19
+forward	../models/resnext_101_32x4d.py	/^    def forward(self, input):$/;"	kind:member	line:23
+forward	../models/resnext_101_32x4d.py	/^    def forward(self, input):$/;"	kind:member	line:27
+forward	../models/resnext_101_64x4d.py	/^    def forward(self, input):$/;"	kind:member	line:19
+forward	../models/resnext_101_64x4d.py	/^    def forward(self, input):$/;"	kind:member	line:23
+forward	../models/resnext_101_64x4d.py	/^    def forward(self, input):$/;"	kind:member	line:27
+forward	../models/resnext_50_32x4d.py	/^    def forward(self, input):$/;"	kind:member	line:19
+forward	../models/resnext_50_32x4d.py	/^    def forward(self, input):$/;"	kind:member	line:23
+forward	../models/resnext_50_32x4d.py	/^    def forward(self, input):$/;"	kind:member	line:27
+forward	../models/senet.py	/^    def forward(self, x):$/;"	kind:member	line:100
+forward	../models/senet.py	/^    def forward(self, x):$/;"	kind:member	line:114
+forward	../models/senet.py	/^    def forward(self, x):$/;"	kind:member	line:366
+forward	../models/unet.py	/^    def forward(self, up_in, x_in):$/;"	kind:member	line:38
+forward	../models/unet.py	/^    def forward(self, x):$/;"	kind:member	line:84
+forward	../models/wideresnet.py	/^    def forward(self, x): return self.layer(x)$/;"	kind:member	line:42
+forward	../models/wideresnet.py	/^    def forward(self, x):$/;"	kind:member	line:24
+forward	../models/wideresnet.py	/^    def forward(self, x):$/;"	kind:member	line:70
+forward	../models/wrn_50_2f.py	/^    def forward(self, input):$/;"	kind:member	line:19
+forward	../models/wrn_50_2f.py	/^    def forward(self, input):$/;"	kind:member	line:23
+forward	../models/wrn_50_2f.py	/^    def forward(self, input):$/;"	kind:member	line:27
+forward	../nlp.py	/^    def forward(self, feat_idx, feat_cnt, sz):$/;"	kind:member	line:22
+forward	../nlp.py	/^    def forward(self, feat_idx, feat_cnt, sz):$/;"	kind:member	line:34
+forward	../rnn_reg.py	/^    def forward(self, *args):$/;"	kind:member	line:113
+forward	../rnn_reg.py	/^    def forward(self, words, dropout=0.1, scale=None):$/;"	kind:member	line:168
+forward	../rnn_reg.py	/^    def forward(self, x):$/;"	kind:member	line:55
+forward	../torchqrnn/forget_mult.py	/^    def forward(self, f, x, hidden_init=None):$/;"	kind:member	line:122
+forward	../torchqrnn/forget_mult.py	/^    def forward(self, f, x, hidden_init=None):$/;"	kind:member	line:80
+forward	../torchqrnn/forget_mult.py	/^    def forward(self, f, x, hidden_init=None, use_cuda=True):$/;"	kind:member	line:174
+forward	../torchqrnn/qrnn.py	/^    def forward(self, X, hidden=None):$/;"	kind:member	line:52
+forward	../torchqrnn/qrnn.py	/^    def forward(self, input, hidden=None):$/;"	kind:member	line:160
+forward_prepare	../models/convert_torch.py	/^    def forward_prepare(self, input):$/;"	kind:member	line:20
+forward_prepare	../models/resnext_101_32x4d.py	/^    def forward_prepare(self, input):$/;"	kind:member	line:12
+forward_prepare	../models/resnext_101_64x4d.py	/^    def forward_prepare(self, input):$/;"	kind:member	line:12
+forward_prepare	../models/resnext_50_32x4d.py	/^    def forward_prepare(self, input):$/;"	kind:member	line:12
+forward_prepare	../models/wrn_50_2f.py	/^    def forward_prepare(self, input):$/;"	kind:member	line:12
+fp16.py	../fp16.py	1;"	kind:file	line:1
+freeze	../conv_learner.py	/^    def freeze(self):$/;"	kind:member	line:189
+freeze_all_but	../learner.py	/^    def freeze_all_but(self, n):$/;"	kind:member	line:82
+freeze_groups	../learner.py	/^    def freeze_groups(self, groups):$/;"	kind:member	line:87
+freeze_to	../learner.py	/^    def freeze_to(self, n):$/;"	kind:member	line:77
+from_arrays	../column_data.py	/^    def from_arrays(cls, path, val_idxs, xs, y, is_reg=True, is_multi=False, bs=64, test_xs=None, shuffle=True):$/;"	kind:member	line:57
+from_arrays	../dataset.py	/^    def from_arrays(cls, path, trn, val, bs=64, tfms=(None,None), classes=None, num_workers=4, test=None, continuous=False):$/;"	kind:member	line:398
+from_bow	../nlp.py	/^    def from_bow(cls, trn_bow, trn_y, val_bow, val_y, sl):$/;"	kind:member	line:102
+from_csv	../column_data.py	/^    def from_csv(cls, path, csv, user_name, item_name, rating_name):$/;"	kind:member	line:171
+from_csv	../dataset.py	/^    def from_csv(cls, path, folder, csv_fname, bs=64, tfms=(None,None),$/;"	kind:member	line:444
+from_data_frame	../column_data.py	/^    def from_data_frame(cls, df, cat_flds, y=None, is_reg=True, is_multi=False):$/;"	kind:member	line:46
+from_data_frame	../column_data.py	/^    def from_data_frame(cls, df, cols_x, col_y, is_reg=True, is_multi=False):$/;"	kind:member	line:18
+from_data_frame	../column_data.py	/^    def from_data_frame(cls, path, df, user_name, item_name, rating_name):$/;"	kind:member	line:167
+from_data_frame	../column_data.py	/^    def from_data_frame(cls, path, val_idxs, df, y, cat_flds, bs=64, is_reg=True, is_multi=False, test_df=None, shuffle=True):$/;"	kind:member	line:72
+from_data_frames	../column_data.py	/^    def from_data_frames(cls, df_cat, df_cont, y=None, is_reg=True, is_multi=False):$/;"	kind:member	line:40
+from_data_frames	../column_data.py	/^    def from_data_frames(cls, path, trn_df, val_df, trn_y, val_y, cat_flds, bs=64, is_reg=True, is_multi=False, test_df=None, shuffle=True):$/;"	kind:member	line:65
+from_dataframes	../nlp.py	/^    def from_dataframes(cls, path, field, col, train_df, val_df, test_df=None, bs=64, bptt=70, **kwargs):$/;"	kind:member	line:282
+from_dls	../dataset.py	/^    def from_dls(cls, path,trn_dl,val_dl,test_dl=None):$/;"	kind:member	line:316
+from_model_data	../learner.py	/^    def from_model_data(cls, m, data, **kwargs):$/;"	kind:member	line:45
+from_names_and_array	../dataset.py	/^    def from_names_and_array(cls, path, fnames, y, classes, val_idxs=None, test_name=None,$/;"	kind:member	line:502
+from_path_and_array	../dataset.py	/^    def from_path_and_array(cls, path, folder, y, classes=None, val_idxs=None, test_name=None,$/;"	kind:member	line:477
+from_paths	../dataset.py	/^    def from_paths(cls, path, bs=64, tfms=(None,None), trn_name='train', val_name='valid', test_name=None, test_with_labels=False, num_workers=8):$/;"	kind:member	line:420
+from_splits	../nlp.py	/^    def from_splits(cls, path, splits, bs, text_name='text', label_name='label'):$/;"	kind:member	line:339
+from_text_files	../nlp.py	/^    def from_text_files(cls, path, field, train, validation, test=None, bs=64, bptt=70, **kwargs):$/;"	kind:member	line:288
+function	../torchqrnn/forget_mult.py	/^from cupy.cuda import function$/;"	kind:namespace	line:4
+get	../dataset.py	/^    def get(self, tfm, x, y):$/;"	kind:member	line:172
+get1item	../dataset.py	/^    def get1item(self, idx):$/;"	kind:member	line:160
+get_activations	../conv_learner.py	/^    def get_activations(self, force=False):$/;"	kind:member	line:165
+get_batch	../dataloader.py	/^    def get_batch(self, indices):$/;"	kind:member	line:74
+get_batch	../nlp.py	/^    def get_batch(self, i, seq_len):$/;"	kind:member	line:152
+get_batch	../text.py	/^    def get_batch(self, i, seq_len):$/;"	kind:member	line:183
+get_c	../dataset.py	/^    def get_c(self): return int(self.y.max())+1$/;"	kind:member	line:273
+get_c	../dataset.py	/^    def get_c(self): return int(self.y.max())+1$/;"	kind:member	line:296
+get_c	../dataset.py	/^    def get_c(self): return self.y.shape[1]$/;"	kind:member	line:305
+get_c	../dataset.py	/^    def get_c(self):$/;"	kind:member	line:181
+get_c	../dataset.py	/^    def get_c(self):$/;"	kind:member	line:269
+get_classes	../utils.py	/^def get_classes(path):$/;"	kind:function	line:88
+get_cv_idxs	../dataset.py	/^def get_cv_idxs(n, cv_idx=0, val_pct=0.2, seed=42):$/;"	kind:function	line:10
+get_cycle_end	../learner.py	/^    def get_cycle_end(self, name):$/;"	kind:member	line:112
+get_data	../column_data.py	/^    def get_data(self, val_idxs, bs):$/;"	kind:member	line:183
+get_data	../io.py	/^def get_data(url, filename):$/;"	kind:function	line:13
+get_dl	../dataset.py	/^    def get_dl(self, ds, shuffle):$/;"	kind:member	line:348
+get_ds	../dataset.py	/^    def get_ds(fn, trn, val, tfms, test=None, **kwargs):$/;"	kind:member	line:372
+get_emb	../column_data.py	/^def get_emb(ni,nf):$/;"	kind:function	line:195
+get_fc_layers	../conv_learner.py	/^    def get_fc_layers(self):$/;"	kind:member	line:65
+get_file	../utils.py	/^from keras.utils.data_utils import get_file$/;"	kind:namespace	line:25
+get_language_model	../lm_rnn.py	/^def get_language_model(n_tok, emb_sz, n_hid, n_layers, pad_token,$/;"	kind:function	line:204
+get_layer_groups	../column_data.py	/^    def get_layer_groups(self): return self.model$/;"	kind:member	line:225
+get_layer_groups	../column_data.py	/^    def get_layer_groups(self):$/;"	kind:member	line:152
+get_layer_groups	../conv_learner.py	/^    def get_layer_groups(self):$/;"	kind:member	line:155
+get_layer_groups	../conv_learner.py	/^    def get_layer_groups(self, do_fc=False):$/;"	kind:member	line:76
+get_layer_groups	../core.py	/^    def get_layer_groups(self): return [self.model]$/;"	kind:member	line:137
+get_layer_groups	../core.py	/^    def get_layer_groups(self, do_fc=False): return children(self.model)$/;"	kind:member	line:134
+get_layer_groups	../learner.py	/^    def get_layer_groups(self): return self.models.get_layer_groups()$/;"	kind:member	line:253
+get_layer_groups	../nlp.py	/^    def get_layer_groups(self):$/;"	kind:member	line:330
+get_layer_groups	../text.py	/^    def get_layer_groups(self):$/;"	kind:member	line:190
+get_layer_groups	../text.py	/^    def get_layer_groups(self):$/;"	kind:member	line:218
+get_layer_opt	../learner.py	/^    def get_layer_opt(self, lrs, wds):$/;"	kind:member	line:255
+get_learner	../column_data.py	/^    def get_learner(self, emb_szs, n_cont, emb_drop, out_sz, szs, drops,$/;"	kind:member	line:76
+get_learner	../column_data.py	/^    def get_learner(self, n_factors, val_idxs, bs, **kwargs):$/;"	kind:member	line:191
+get_mean_and_std	../models/cifar10/utils_kuangliu.py	/^def get_mean_and_std(dataset):$/;"	kind:function	line:15
+get_model	../column_data.py	/^    def get_model(self, n_factors):$/;"	kind:member	line:187
+get_model	../nlp.py	/^    def get_model(self, f, **kwargs):$/;"	kind:member	line:91
+get_model	../nlp.py	/^    def get_model(self, opt_fn, emb_sz, n_hid, n_layers, **kwargs):$/;"	kind:member	line:263
+get_model	../nlp.py	/^    def get_model(self, opt_fn, max_sl, bptt, emb_sz, n_hid, n_layers, dropout, **kwargs):$/;"	kind:member	line:363
+get_model	../text.py	/^    def get_model(self, opt_fn, emb_sz, n_hid, n_layers, **kwargs):$/;"	kind:member	line:200
+get_model_path	../learner.py	/^    def get_model_path(self, name): return os.path.join(self.models_path,name)+'.h5'$/;"	kind:member	line:100
+get_n	../dataset.py	/^    def get_n(self): return len(self.fnames)$/;"	kind:member	line:246
+get_n	../dataset.py	/^    def get_n(self): return len(self.y)$/;"	kind:member	line:291
+get_n	../dataset.py	/^    def get_n(self):$/;"	kind:member	line:176
+get_nn_mappers	../structured.py	/^def get_nn_mappers(df, cat_vars, contin_vars):$/;"	kind:function	line:470
+get_prediction	../model.py	/^def get_prediction(x):$/;"	kind:function	line:243
+get_rnn_classifer	../lm_rnn.py	/^get_rnn_classifer=get_rnn_classifier$/;"	kind:variable	line:247
+get_rnn_classifier	../lm_rnn.py	/^def get_rnn_classifier(bptt, max_seq, n_class, n_tok, emb_sz, n_hid, n_layers, pad_token, layers, drops, bidir=False,$/;"	kind:function	line:241
+get_sample	../structured.py	/^def get_sample(df,n):$/;"	kind:function	line:47
+get_sfs_idxs	../models/unet.py	/^def get_sfs_idxs(sfs, last=True):$/;"	kind:function	line:7
+get_sz	../dataset.py	/^    def get_sz(self): return self.transform.sz$/;"	kind:member	line:244
+get_sz	../dataset.py	/^    def get_sz(self): return self.x.shape[1]$/;"	kind:member	line:292
+get_sz	../dataset.py	/^    def get_sz(self):$/;"	kind:member	line:186
+get_tensor	../dataloader.py	/^def get_tensor(batch, pin, half=False):$/;"	kind:function	line:10
+get_x	../dataset.py	/^    def get_x(self, i): return open_image(os.path.join(self.path, self.fnames[i]))$/;"	kind:member	line:245
+get_x	../dataset.py	/^    def get_x(self, i): return self.x[i]$/;"	kind:member	line:289
+get_x	../dataset.py	/^    def get_x(self, i):$/;"	kind:member	line:191
+get_y	../dataset.py	/^    def get_y(self, i): return self.y[i]$/;"	kind:member	line:268
+get_y	../dataset.py	/^    def get_y(self, i): return self.y[i]$/;"	kind:member	line:290
+get_y	../dataset.py	/^    def get_y(self, i): return self.y[i]$/;"	kind:member	line:297
+get_y	../dataset.py	/^    def get_y(self, i):$/;"	kind:member	line:196
+gg	../lsuv_initializer.py	/^gg = {}$/;"	kind:variable	line:35
+glob	../imports.py	/^from glob import glob, iglob$/;"	kind:namespace	line:8
+glob	../utils.py	/^from glob import glob$/;"	kind:namespace	line:3
+googlenet_resize	../transforms.py	/^def googlenet_resize(im, targ, min_area_frac, min_aspect_ratio, max_aspect_ratio, flip_hw_p, interpolation=cv2.INTER_AREA):$/;"	kind:function	line:68
+graphviz	../imports.py	/^import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb$/;"	kind:namespace	line:5
+gray	../utils.py	/^def gray(img): return np.rollaxis(img, 0, 1).dot(to_bw)$/;"	kind:function	line:46
+gzip	../io.py	/^import gzip$/;"	kind:namespace	line:4
+h5py	../models/inceptionv4.py	/^    import h5py$/;"	kind:namespace	line:424
+half	../conv_learner.py	/^    def half(self):$/;"	kind:member	line:128
+half	../learner.py	/^    def half(self):$/;"	kind:member	line:119
+help	../models/convert_torch.py	/^                    help='output file name prefix, xxx.py xxx.pth')$/;"	kind:variable	line:283
+help	../models/convert_torch.py	/^                    help='torch model file in t7 format')$/;"	kind:variable	line:281
+hook	../model.py	/^        def hook(module, input, output):$/;"	kind:function	line:270
+hook_fn	../models/unet.py	/^    def hook_fn(self, module, input, output): self.features = output$/;"	kind:member	line:49
+iglob	../imports.py	/^from glob import glob, iglob$/;"	kind:namespace	line:8
+image	../utils.py	/^from keras.preprocessing import image, sequence$/;"	kind:namespace	line:38
+image_gen	../transforms.py	/^def image_gen(normalizer, denorm, sz, tfms=None, max_zoom=None, pad=0, crop_type=None,$/;"	kind:function	line:645
+imagenet_stats	../transforms.py	/^imagenet_stats = A([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])$/;"	kind:variable	line:704
+imports.py	../imports.py	1;"	kind:file	line:1
+imread	../utils.py	/^from scipy.ndimage import imread$/;"	kind:namespace	line:15
+in_ipynb	../imports.py	/^def in_ipynb():$/;"	kind:function	line:30
+in_notebook	../imports.py	/^def in_notebook(): return IPKernelApp.initialized()$/;"	kind:function	line:28
+inception_4	../torch_imports.py	/^def inception_4(pre): return children(inceptionv4(pretrained=pre))[0]$/;"	kind:function	line:61
+inception_models	../transforms.py	/^inception_models = (inception_4, inceptionresnet_2)$/;"	kind:variable	line:707
+inception_stats	../transforms.py	/^inception_stats = A([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])$/;"	kind:variable	line:706
+inceptionresnet_2	../torch_imports.py	/^def inceptionresnet_2(pre): return load_pre(pre, InceptionResnetV2, 'inceptionresnetv2-d579a627')$/;"	kind:function	line:65
+inceptionresnetv2	../models/inceptionresnetv2.py	/^def inceptionresnetv2(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:311
+inceptionresnetv2.py	../models/inceptionresnetv2.py	1;"	kind:file	line:1
+inceptionv4	../models/inceptionv4.py	/^def inceptionv4(pretrained=True):$/;"	kind:function	line:263
+inceptionv4	../torch_imports.py	/^from .models.inceptionv4 import inceptionv4$/;"	kind:namespace	line:19
+inceptionv4.py	../models/inceptionv4.py	1;"	kind:file	line:1
+init	../lsuv_initializer.py	/^import torch.nn.init$/;"	kind:namespace	line:32
+init	../models/cifar10/resnext.py	/^from torch.nn import init$/;"	kind:namespace	line:3
+init	../models/cifar10/utils_kuangliu.py	/^import torch.nn.init as init$/;"	kind:namespace	line:12
+init_params	../models/cifar10/utils_kuangliu.py	/^def init_params(net):$/;"	kind:function	line:29
+initialize_pretrained_model	../models/senet.py	/^def initialize_pretrained_model(model, num_classes, settings):$/;"	kind:function	line:372
+initializers.py	../initializers.py	1;"	kind:file	line:1
+initrange	../lm_rnn.py	/^    initrange=0.1$/;"	kind:variable	line:148
+initrange	../lm_rnn.py	/^    initrange=0.1$/;"	kind:variable	line:38
+interact	../imports.py	/^from ipywidgets import interact, interactive, fixed, widgets$/;"	kind:namespace	line:23
+interactive	../imports.py	/^from ipywidgets import interact, interactive, fixed, widgets$/;"	kind:namespace	line:23
+io.py	../io.py	1;"	kind:file	line:1
+is_date	../structured.py	/^def is_date(x): return np.issubdtype(x.dtype, np.datetime64)$/;"	kind:function	line:122
+is_float	../fp16.py	/^def is_float(tensor):$/;"	kind:function	line:26
+is_iter	../core.py	/^def is_iter(x): return isinstance(x, collections.Iterable)$/;"	kind:function	line:7
+is_listy	../core.py	/^def is_listy(x): return isinstance(x, (list,tuple))$/;"	kind:function	line:6
+is_multi	../dataset.py	/^    def is_multi(self): return True$/;"	kind:member	line:278
+is_multi	../dataset.py	/^    def is_multi(self): return True$/;"	kind:member	line:307
+is_multi	../dataset.py	/^    def is_multi(self): return self.trn_ds.is_multi$/;"	kind:member	line:324
+is_multi	../dataset.py	/^    def is_multi(self):$/;"	kind:member	line:201
+is_numeric_dtype	../structured.py	/^from pandas.api.types import is_string_dtype, is_numeric_dtype$/;"	kind:namespace	line:5
+is_reg	../dataset.py	/^    def is_reg(self): return True$/;"	kind:member	line:282
+is_reg	../dataset.py	/^    def is_reg(self): return True$/;"	kind:member	line:301
+is_reg	../dataset.py	/^    def is_reg(self): return self.trn_ds.is_reg$/;"	kind:member	line:322
+is_reg	../dataset.py	/^    def is_reg(self):$/;"	kind:member	line:206
+is_string_dtype	../structured.py	/^from pandas.api.types import is_string_dtype, is_numeric_dtype$/;"	kind:namespace	line:5
+itemgetter	../imports.py	/^from operator import itemgetter, attrgetter$/;"	kind:namespace	line:18
+itemgetter	../utils.py	/^from operator import itemgetter, attrgetter, methodcaller$/;"	kind:namespace	line:5
+itertools	../executors.py	/^import itertools$/;"	kind:namespace	line:2
+itertools	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+itertools	../utils.py	/^import itertools$/;"	kind:namespace	line:7
+jag_stack	../dataloader.py	/^    def jag_stack(self, b):$/;"	kind:member	line:53
+json	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+json	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+kaiming_normal	../torch_imports.py	/^    from torch.nn.init import kaiming_normal_ as kaiming_normal$/;"	kind:namespace	line:29
+kaiming_normal	../torch_imports.py	/^from torch.nn.init import kaiming_uniform, kaiming_normal$/;"	kind:namespace	line:8
+kaiming_uniform	../torch_imports.py	/^    from torch.nn.init import kaiming_uniform_ as kaiming_uniform$/;"	kind:namespace	line:28
+kaiming_uniform	../torch_imports.py	/^from torch.nn.init import kaiming_uniform, kaiming_normal$/;"	kind:namespace	line:8
+keras	../utils.py	/^import keras$/;"	kind:namespace	line:23
+l1	../utils.py	/^from keras.regularizers import l2, l1$/;"	kind:namespace	line:32
+l2	../utils.py	/^from keras.regularizers import l2, l1$/;"	kind:namespace	line:32
+language_modeling	../nlp.py	/^from torchtext.datasets import language_modeling$/;"	kind:namespace	line:12
+last_time	../models/cifar10/utils_kuangliu.py	/^last_time = time.time()$/;"	kind:variable	line:49
+layer_from_config	../utils.py	/^from keras.layers import deserialize as layer_from_config$/;"	kind:namespace	line:35
+layer_optimizer.py	../layer_optimizer.py	1;"	kind:file	line:1
+layers.py	../layers.py	1;"	kind:file	line:1
+learner.py	../learner.py	1;"	kind:file	line:1
+lighting	../transforms.py	/^def lighting(im, b, c):$/;"	kind:function	line:38
+limit_mem	../utils.py	/^def limit_mem():$/;"	kind:function	line:95
+listify	../core.py	/^def listify(x, y):$/;"	kind:function	line:11
+lm_rnn.py	../lm_rnn.py	1;"	kind:file	line:1
+load	../core.py	/^def load(fn): $/;"	kind:function	line:156
+load	../learner.py	/^    def load(self, name): $/;"	kind:member	line:106
+load	../models/fa_resnet.py	/^def load(model, pre, name):$/;"	kind:function	line:212
+load	../models/inceptionv4.py	/^def load():$/;"	kind:function	line:337
+load2	../core.py	/^def load2(fn):$/;"	kind:function	line:159
+load_array	../core.py	/^def load_array(fname): $/;"	kind:function	line:163
+load_array	../utils.py	/^def load_array(fname): return bcolz.open(fname)[:]$/;"	kind:function	line:86
+load_conv2d	../models/inceptionv4.py	/^def load_conv2d(state_dict, name_pth, name_tf):$/;"	kind:function	line:279
+load_cycle	../learner.py	/^    def load_cycle(self, name, cycle): self.load(f'{name}_cyc_{cycle}')$/;"	kind:member	line:117
+load_encoder	../nlp.py	/^    def load_encoder(self, name): load_model(self.model[0], self.get_model_path(name))$/;"	kind:member	line:166
+load_encoder	../text.py	/^    def load_encoder(self, name): load_model(self.model[0], self.get_model_path(name))$/;"	kind:member	line:214
+load_img_id	../plots.py	/^def load_img_id(ds, idx, path): return np.array(PIL.Image.open(os.path.join(path, ds.fnames[idx])))$/;"	kind:function	line:74
+load_linear	../models/inceptionv4.py	/^def load_linear(state_dict, name_pth, name_tf):$/;"	kind:function	line:289
+load_lua	../models/convert_torch.py	/^from torch.utils.serialization import load_lua$/;"	kind:namespace	line:8
+load_mixed_4a_7a	../models/inceptionv4.py	/^def load_mixed_4a_7a(state_dict, name_pth, name_tf):$/;"	kind:function	line:295
+load_mixed_5	../models/inceptionv4.py	/^def load_mixed_5(state_dict, name_pth, name_tf):$/;"	kind:function	line:303
+load_mixed_6	../models/inceptionv4.py	/^def load_mixed_6(state_dict, name_pth, name_tf):$/;"	kind:function	line:312
+load_mixed_7	../models/inceptionv4.py	/^def load_mixed_7(state_dict, name_pth, name_tf):$/;"	kind:function	line:324
+load_model	../torch_imports.py	/^def load_model(m, p):$/;"	kind:function	line:33
+load_pre	../torch_imports.py	/^def load_pre(pre, f, fn):$/;"	kind:function	line:42
+load_state_dict	../fp16.py	/^    def load_state_dict(self, *inputs, **kwargs):$/;"	kind:member	line:17
+log	../sgdr.py	/^    def log(self, string):$/;"	kind:member	line:56
+log_prob	../adaptive_softmax.py	/^    def log_prob(self, input):$/;"	kind:member	line:37
+logits	../models/inceptionresnetv2.py	/^    def logits(self, features):$/;"	kind:member	line:300
+logits	../models/senet.py	/^    def logits(self, x):$/;"	kind:member	line:358
+losses.py	../losses.py	1;"	kind:file	line:1
+lr	../layer_optimizer.py	/^    def lr(self): return self.lrs[-1]$/;"	kind:member	line:24
+lr_find	../learner.py	/^    def lr_find(self, start_lr=1e-5, end_lr=10, wds=None, linear=False, **kwargs):$/;"	kind:member	line:311
+lr_find2	../learner.py	/^    def lr_find2(self, start_lr=1e-5, end_lr=10, num_it = 100, wds=None, linear=False, stop_dv=True, **kwargs):$/;"	kind:member	line:350
+lsuv_init	../learner.py	/^    def lsuv_init(self, needed_std=1.0, std_tol=0.1, max_attempts=10, do_orthonorm=False):         $/;"	kind:member	line:65
+lsuv_initializer.py	../lsuv_initializer.py	1;"	kind:file	line:1
+lsuv_learner	../conv_learner.py	/^    def lsuv_learner(cls, f, data, ps=None, xtra_fc=None, xtra_cut=0, custom_head=None, precompute=False,$/;"	kind:member	line:117
+lua_recursive_model	../models/convert_torch.py	/^def lua_recursive_model(module,seq):$/;"	kind:function	line:51
+lua_recursive_source	../models/convert_torch.py	/^def lua_recursive_source(module):$/;"	kind:function	line:141
+main	../models/cifar10/main_dxy.py	/^def main():$/;"	kind:function	line:43
+main_dxy.py	../models/cifar10/main_dxy.py	1;"	kind:file	line:1
+main_kuangliu.py	../models/cifar10/main_kuangliu.py	1;"	kind:file	line:1
+make_group_layer	../models/darknet.py	/^    def make_group_layer(self, ch_in, num_blocks, stride=1):$/;"	kind:member	line:29
+make_square	../transforms.py	/^    def make_square(y, x):$/;"	kind:member	line:252
+map	../executors.py	/^    def map(self, fn, *iterables, timeout=None, chunksize=1, prefetch=None):$/;"	kind:member	line:7
+map_none	../core.py	/^def map_none(x, f): return None if x is None else f(x)$/;"	kind:function	line:9
+map_over	../core.py	/^def map_over(x, f): return [f(o) for o in x] if is_listy(x) else f(x)$/;"	kind:function	line:8
+map_y	../transforms.py	/^    def map_y(self, y0, x):$/;"	kind:member	line:259
+math	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+math	../models/cifar10/resnext.py	/^import math$/;"	kind:namespace	line:4
+math	../models/cifar10/utils_kuangliu.py	/^import math$/;"	kind:namespace	line:9
+math	../models/cifar10/wideresnet.py	/^import math$/;"	kind:namespace	line:3
+math	../models/convert_torch.py	/^import math$/;"	kind:namespace	line:12
+math	../models/fa_resnet.py	/^import math$/;"	kind:namespace	line:2
+math	../models/resnet.py	/^import math$/;"	kind:namespace	line:2
+math	../models/senet.py	/^import math$/;"	kind:namespace	line:9
+math	../models/wideresnet.py	/^import math$/;"	kind:namespace	line:3
+math	../sgdr.py	/^import math$/;"	kind:namespace	line:6
+math	../torchqrnn/forget_mult.py	/^import math$/;"	kind:namespace	line:1
+math	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+matplotlib	../imports.py	/^import seaborn as sns, matplotlib$/;"	kind:namespace	line:4
+matplotlib	../models/cifar10/utils.py	/^import matplotlib$/;"	kind:namespace	line:3
+matplotlib	../models/cifar10/utils.py	/^import matplotlib.pyplot as plt$/;"	kind:namespace	line:5
+max_accuracy	../models/cifar10/utils.py	/^  def max_accuracy(self, istrain):$/;"	kind:member	line:49
+merge	../utils.py	/^from keras.layers import Input, Embedding, Reshape, merge, LSTM, Bidirectional$/;"	kind:namespace	line:29
+methodcaller	../utils.py	/^from operator import itemgetter, attrgetter, methodcaller$/;"	kind:namespace	line:5
+metrics	../imports.py	/^from sklearn import metrics, ensemble, preprocessing$/;"	kind:namespace	line:17
+metrics.py	../metrics.py	1;"	kind:file	line:1
+misc	../models/inceptionv4.py	/^    from scipy import misc$/;"	kind:namespace	line:384
+misc	../utils.py	/^from scipy import misc, ndimage$/;"	kind:namespace	line:13
+model	../conv_learner.py	/^    def model(self): return self.models.fc_model if self.precompute else self.models.model$/;"	kind:member	line:126
+model	../learner.py	/^    def model(self): return self.models.model$/;"	kind:member	line:56
+model.py	../model.py	1;"	kind:file	line:1
+model_features	../conv_learner.py	/^model_features = {inception_4: 3072, dn121: 2048, dn161: 4416,} # nasnetalarge: 4032*2}$/;"	kind:variable	line:13
+model_meta	../conv_learner.py	/^model_meta = {$/;"	kind:variable	line:6
+model_summary	../model.py	/^def model_summary(m, inputs):$/;"	kind:function	line:268
+model_urls	../models/fa_resnet.py	/^model_urls = {$/;"	kind:variable	line:7
+model_urls	../models/inceptionresnetv2.py	/^model_urls = {$/;"	kind:variable	line:7
+model_urls	../models/inceptionv4.py	/^model_urls = {$/;"	kind:variable	line:7
+model_urls	../models/resnet.py	/^model_urls = {$/;"	kind:variable	line:8
+model_zoo	../models/fa_resnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+model_zoo	../models/inceptionresnetv2.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+model_zoo	../models/inceptionv4.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+model_zoo	../models/nasnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:4
+model_zoo	../models/resnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+model_zoo	../models/senet.py	/^from torch.utils import model_zoo$/;"	kind:namespace	line:13
+model_zoo	../models/senet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:10
+mom	../layer_optimizer.py	/^    def mom(self):$/;"	kind:member	line:27
+most_by_correct	../plots.py	/^    def most_by_correct(self, y, is_correct):$/;"	kind:member	line:148
+most_by_mask	../plots.py	/^    def most_by_mask(self, mask, y, mult):$/;"	kind:member	line:119
+most_by_uncertain	../plots.py	/^    def most_by_uncertain(self, y):$/;"	kind:member	line:173
+most_uncertain_by_mask	../plots.py	/^    def most_uncertain_by_mask(self, mask, y):$/;"	kind:member	line:134
+n	../models/convert_torch.py	/^    n = nn.Sequential()$/;"	kind:variable	line:274
+n_hot	../dataset.py	/^def n_hot(ids, c):$/;"	kind:function	line:81
+name	../conv_learner.py	/^    def name(self): return f'{self.f.__name__}_{self.xtra_cut}'$/;"	kind:member	line:56
+namedtuple	../torchqrnn/forget_mult.py	/^from collections import namedtuple$/;"	kind:namespace	line:6
+nasnet.py	../models/nasnet.py	1;"	kind:file	line:1
+nasnetalarge	../models/nasnet.py	/^def nasnetalarge(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:593
+nasnetalarge	../torch_imports.py	/^from .models.nasnet import nasnetalarge$/;"	kind:namespace	line:20
+nb_learner	../nlp.py	/^    def nb_learner(self, **kwargs): return self.get_model(SimpleNB, **kwargs)$/;"	kind:member	line:99
+ndimage	../utils.py	/^from scipy import misc, ndimage$/;"	kind:namespace	line:13
+net	../models/cifar10/main_kuangliu.py	/^    net = SENet18()$/;"	kind:variable	line:73
+net	../models/cifar10/main_kuangliu.py	/^    net = checkpoint['net']$/;"	kind:variable	line:59
+newaxis	../utils.py	/^from numpy import newaxis$/;"	kind:namespace	line:12
+next	../model.py	/^    def next(self):$/;"	kind:member	line:207
+next	../utils.py	/^    def next(self, *args, **kwargs):$/;"	kind:member	line:116
+next_val	../sgdr.py	/^    def next_val(self):$/;"	kind:member	line:465
+nhot_labels	../dataset.py	/^def nhot_labels(label2idx, csv_labels, fnames, c):$/;"	kind:function	line:129
+nlp.py	../nlp.py	1;"	kind:file	line:1
+nn	../fp16.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../layers.py	/^from torch import nn$/;"	kind:namespace	line:2
+nn	../lsuv_initializer.py	/^import torch.nn as nn$/;"	kind:namespace	line:33
+nn	../lsuv_initializer.py	/^import torch.nn.init$/;"	kind:namespace	line:32
+nn	../models/cifar10/main_kuangliu.py	/^import torch.nn as nn$/;"	kind:namespace	line:5
+nn	../models/cifar10/main_kuangliu.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:7
+nn	../models/cifar10/preact_resnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:8
+nn	../models/cifar10/preact_resnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:9
+nn	../models/cifar10/resnext.py	/^import torch.nn as nn$/;"	kind:namespace	line:1
+nn	../models/cifar10/resnext.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:2
+nn	../models/cifar10/senet.py	/^import torch.nn as nn$/;"	kind:namespace	line:6
+nn	../models/cifar10/senet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:7
+nn	../models/cifar10/utils_kuangliu.py	/^import torch.nn as nn$/;"	kind:namespace	line:11
+nn	../models/cifar10/utils_kuangliu.py	/^import torch.nn.init as init$/;"	kind:namespace	line:12
+nn	../models/cifar10/wideresnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:5
+nn	../models/cifar10/wideresnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:6
+nn	../models/convert_torch.py	/^import torch.nn as nn$/;"	kind:namespace	line:4
+nn	../models/convert_torch.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:5
+nn	../models/darknet.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../models/darknet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+nn	../models/fa_resnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:1
+nn	../models/inceptionresnetv2.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../models/inceptionv4.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../models/nasnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../models/nasnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+nn	../models/resnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:1
+nn	../models/resnext_101_32x4d.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+nn	../models/resnext_101_64x4d.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+nn	../models/resnext_50_32x4d.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+nn	../models/senet.py	/^import torch.nn as nn$/;"	kind:namespace	line:12
+nn	../models/unet.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../models/unet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+nn	../models/wideresnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:5
+nn	../models/wideresnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:6
+nn	../models/wrn_50_2f.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+nn	../rnn_reg.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:4
+nn	../rnn_train.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+nn	../torch_imports.py	/^from torch import nn, cuda, backends, FloatTensor, LongTensor, optim$/;"	kind:namespace	line:4
+nn	../torch_imports.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:5
+nn	../torchqrnn/qrnn.py	/^from torch import nn$/;"	kind:namespace	line:2
+no_crop	../transforms.py	/^def no_crop(im, min_sz=None, interpolation=cv2.INTER_AREA):$/;"	kind:function	line:54
+no_grad_context	../core.py	/^def no_grad_context(): return torch.no_grad() if IS_TORCH_04 else contextlib.suppress()$/;"	kind:function	line:184
+noop	../core.py	/^def noop(*args, **kwargs): return$/;"	kind:function	line:79
+noop	../models/cifar10/wideresnet.py	/^def noop(x): return x$/;"	kind:function	line:21
+noop	../transforms.py	/^def noop(x):$/;"	kind:function	line:695
+normal	../utils.py	/^from numpy.random import random, permutation, randn, normal, uniform, choice$/;"	kind:namespace	line:11
+np	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+np	../lsuv_initializer.py	/^import numpy as np$/;"	kind:namespace	line:30
+np	../models/cifar10/utils.py	/^import numpy as np$/;"	kind:namespace	line:2
+np	../models/convert_torch.py	/^import numpy as np$/;"	kind:namespace	line:10
+np	../models/unet.py	/^import numpy as np$/;"	kind:namespace	line:5
+np	../transforms_pil.py	/^import numpy as np$/;"	kind:namespace	line:2
+np	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+np_collate	../dataloader.py	/^    def np_collate(self, batch):$/;"	kind:member	line:63
+np_utils	../utils.py	/^from keras.utils import np_utils$/;"	kind:namespace	line:26
+num_cpus	../core.py	/^def num_cpus():$/;"	kind:function	line:125
+num_features	../model.py	/^def num_features(m):$/;"	kind:function	line:23
+numericalize	../structured.py	/^def numericalize(df, col, name, max_n_cat):$/;"	kind:function	line:278
+numericalize_tok	../text.py	/^def numericalize_tok(tokens, max_vocab=50000, min_freq=0, unk_tok="_unk_", pad_tok="_pad_", bos_tok="_bos_", eos_tok="_eos_"):$/;"	kind:function	line:19
+on_batch_begin	../sgdr.py	/^    def on_batch_begin(self): pass$/;"	kind:member	line:15
+on_batch_begin	../sgdr.py	/^    def on_batch_begin(self):$/;"	kind:member	line:40
+on_batch_begin	../sgdr.py	/^    def on_batch_begin(self):$/;"	kind:member	line:423
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, loss):$/;"	kind:member	line:142
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, loss):$/;"	kind:member	line:210
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, loss):$/;"	kind:member	line:85
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, metrics): pass$/;"	kind:member	line:19
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, metrics):$/;"	kind:member	line:183
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, metrics):$/;"	kind:member	line:50
+on_batch_end	../sgdr.py	/^    def on_batch_end(self, metrics):$/;"	kind:member	line:543
+on_epoch_end	../sgdr.py	/^    def on_epoch_end(self, metrics): pass$/;"	kind:member	line:17
+on_epoch_end	../sgdr.py	/^    def on_epoch_end(self, metrics):$/;"	kind:member	line:381
+on_epoch_end	../sgdr.py	/^    def on_epoch_end(self, metrics):$/;"	kind:member	line:44
+on_epoch_end	../sgdr.py	/^    def on_epoch_end(self, metrics):$/;"	kind:member	line:446
+on_epoch_end	../sgdr.py	/^    def on_epoch_end(self, metrics):$/;"	kind:member	line:79
+on_epoch_end	../swa.py	/^    def on_epoch_end(self, metrics):$/;"	kind:member	line:25
+on_phase_begin	../sgdr.py	/^    def on_phase_begin(self): pass$/;"	kind:member	line:16
+on_phase_begin	../sgdr.py	/^    def on_phase_begin(self):$/;"	kind:member	line:42
+on_phase_begin	../sgdr.py	/^    def on_phase_begin(self):$/;"	kind:member	line:551
+on_phase_end	../sgdr.py	/^    def on_phase_end(self): pass$/;"	kind:member	line:18
+on_phase_end	../sgdr.py	/^    def on_phase_end(self):$/;"	kind:member	line:47
+on_phase_end	../sgdr.py	/^    def on_phase_end(self):$/;"	kind:member	line:554
+on_train_begin	../sgdr.py	/^    def on_train_begin(self): pass$/;"	kind:member	line:14
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:136
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:175
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:240
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:270
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:303
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:34
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:419
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:539
+on_train_begin	../sgdr.py	/^    def on_train_begin(self):$/;"	kind:member	line:70
+on_train_begin	../swa.py	/^    def on_train_begin(self):$/;"	kind:member	line:21
+on_train_end	../sgdr.py	/^    def on_train_end(self): pass$/;"	kind:member	line:20
+on_train_end	../sgdr.py	/^    def on_train_end(self):$/;"	kind:member	line:53
+one_hidden	../lm_rnn.py	/^    def one_hidden(self, l):$/;"	kind:member	line:115
+one_hot	../core.py	/^def one_hot(a,c): return np.eye(c)[a]$/;"	kind:function	line:116
+open_image	../dataset.py	/^def open_image(fn):$/;"	kind:function	line:210
+opt_params	../layer_optimizer.py	/^    def opt_params(self):$/;"	kind:member	line:17
+opt_params	../layer_optimizer.py	/^def opt_params(parm, lr, wd):$/;"	kind:function	line:5
+optim	../models/cifar10/main_kuangliu.py	/^import torch.optim as optim$/;"	kind:namespace	line:6
+optim	../models/convert_torch.py	/^import torch.optim as optim$/;"	kind:namespace	line:6
+optim	../torch_imports.py	/^from torch import nn, cuda, backends, FloatTensor, LongTensor, optim$/;"	kind:namespace	line:4
+optimizer	../models/cifar10/main_kuangliu.py	/^optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)$/;"	kind:variable	line:82
+orthogonal_weights_init	../lsuv_initializer.py	/^def orthogonal_weights_init(m):$/;"	kind:function	line:82
+os	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+os	../models/cifar10/main_dxy.py	/^import os, sys, shutil, time, random$/;"	kind:namespace	line:4
+os	../models/cifar10/main_kuangliu.py	/^import os$/;"	kind:namespace	line:13
+os	../models/cifar10/utils.py	/^import os, sys, time$/;"	kind:namespace	line:1
+os	../models/cifar10/utils_kuangliu.py	/^import os$/;"	kind:namespace	line:6
+os	../models/convert_torch.py	/^import os$/;"	kind:namespace	line:11
+os	../models/inceptionresnetv2.py	/^import os$/;"	kind:namespace	line:4
+os	../models/inceptionv4.py	/^import os$/;"	kind:namespace	line:4
+os	../torch_imports.py	/^import os$/;"	kind:namespace	line:1
+os	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+parallel_trees	../structured.py	/^def parallel_trees(m, fn, n_jobs=8):$/;"	kind:function	line:19
+parse_csv_labels	../dataset.py	/^def parse_csv_labels(fn, skip_header=True, cat_separator = ' '):$/;"	kind:function	line:105
+parser	../models/cifar10/main_dxy.py	/^parser = argparse.ArgumentParser(description='Trains ResNeXt on CIFAR or ImageNet', formatter_class=argparse.ArgumentDefaultsHelpFormatter)$/;"	kind:variable	line:12
+parser	../models/cifar10/main_kuangliu.py	/^parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')$/;"	kind:variable	line:21
+parser	../models/convert_torch.py	/^parser = argparse.ArgumentParser(description='Convert torch t7 model to pytorch')$/;"	kind:variable	line:279
+partial	../imports.py	/^from functools import partial$/;"	kind:namespace	line:11
+partition	../core.py	/^def partition(a, sz): $/;"	kind:function	line:118
+partition_by_cores	../core.py	/^def partition_by_cores(a):$/;"	kind:function	line:122
+pd	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+pd	../utils.py	/^import pandas as pd$/;"	kind:namespace	line:10
+pdb	../imports.py	/^import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb$/;"	kind:namespace	line:5
+permutation	../utils.py	/^from numpy.random import random, permutation, randn, normal, uniform, choice$/;"	kind:namespace	line:11
+phase_begin	../sgdr.py	/^    def phase_begin(self, layer_opt, nb_batches):$/;"	kind:member	line:510
+pickle	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+pickle	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+plot	../sgdr.py	/^    def plot(self, n_skip=10, n_skip_end=5):$/;"	kind:member	line:190
+plot	../sgdr.py	/^    def plot(self, n_skip=10, n_skip_end=5, linear=None):$/;"	kind:member	line:585
+plot	../sgdr.py	/^    def plot(self, n_skip=10, n_skip_end=5, smoothed=True):$/;"	kind:member	line:215
+plot	../utils.py	/^def plot(img): plt.imshow(to_plot(img))$/;"	kind:function	line:48
+plot_by_correct	../plots.py	/^    def plot_by_correct(self, y, is_correct):$/;"	kind:member	line:164
+plot_confusion_matrix	../plots.py	/^def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues, figsize=None):$/;"	kind:function	line:42
+plot_curve	../models/cifar10/utils.py	/^  def plot_curve(self, save_path):$/;"	kind:member	line:54
+plot_loss	../sgdr.py	/^    def plot_loss(self, n_skip=10, n_skip_end=5):$/;"	kind:member	line:100
+plot_lr	../sgdr.py	/^    def plot_lr(self):$/;"	kind:member	line:111
+plot_lr	../sgdr.py	/^    def plot_lr(self, show_text=True, show_moms=True):$/;"	kind:member	line:557
+plot_most_correct	../plots.py	/^    def plot_most_correct(self, y):$/;"	kind:member	line:184
+plot_most_incorrect	../plots.py	/^    def plot_most_incorrect(self, y):$/;"	kind:member	line:191
+plot_most_uncertain	../plots.py	/^    def plot_most_uncertain(self, y):$/;"	kind:member	line:198
+plot_val_with_title	../plots.py	/^    def plot_val_with_title(self, idxs, y):$/;"	kind:member	line:99
+plots	../plots.py	/^def plots(ims, figsize=(12,6), rows=1, interp=False, titles=None, maintitle=None):$/;"	kind:function	line:8
+plots	../utils.py	/^def plots(ims, figsize=(12,6), rows=1, interp=False, titles=None):$/;"	kind:function	line:53
+plots.py	../plots.py	1;"	kind:file	line:1
+plots_from_files	../plots.py	/^def plots_from_files(imspaths, figsize=(10,5), rows=1, titles=None, maintitle=None):$/;"	kind:function	line:22
+plots_raw	../plots.py	/^def plots_raw(ims, figsize=(12,6), rows=1, titles=None):$/;"	kind:function	line:66
+plt	../imports.py	/^from matplotlib import pyplot as plt, rcParams, animation$/;"	kind:namespace	line:22
+plt	../models/cifar10/utils.py	/^import matplotlib.pyplot as plt$/;"	kind:namespace	line:5
+plt	../utils.py	/^from matplotlib import pyplot as plt$/;"	kind:namespace	line:4
+pool	../lm_rnn.py	/^    def pool(self, x, bs, is_max):$/;"	kind:member	line:181
+preact_resnet.py	../models/cifar10/preact_resnet.py	1;"	kind:file	line:1
+precision	../metrics.py	/^def precision(log_preds, targs, thresh=0.5, epsilon=1e-8):$/;"	kind:function	line:37
+precision_np	../metrics.py	/^def precision_np(preds, targs, thresh=0.5, epsilon=1e-8):$/;"	kind:function	line:43
+predict	../learner.py	/^    def predict(self, is_test=False, use_swa=False):$/;"	kind:member	line:371
+predict	../model.py	/^def predict(m, dl):$/;"	kind:function	line:247
+predict_array	../learner.py	/^    def predict_array(self, arr):$/;"	kind:member	line:383
+predict_batch	../model.py	/^def predict_batch(m, x):$/;"	kind:function	line:251
+predict_dl	../learner.py	/^    def predict_dl(self, dl): return predict_with_targs(self.model, dl)[0]$/;"	kind:member	line:381
+predict_to_bcolz	../model.py	/^def predict_to_bcolz(m, gen, arr, workers=4):$/;"	kind:function	line:13
+predict_with_targs	../learner.py	/^    def predict_with_targs(self, is_test=False, use_swa=False):$/;"	kind:member	line:376
+predict_with_targs	../model.py	/^def predict_with_targs(m, dl):$/;"	kind:function	line:263
+predict_with_targs_	../model.py	/^def predict_with_targs_(m, dl):$/;"	kind:function	line:256
+preprocessing	../imports.py	/^from sklearn import metrics, ensemble, preprocessing$/;"	kind:namespace	line:17
+pretrained	../conv_learner.py	/^    def pretrained(cls, f, data, ps=None, xtra_fc=None, xtra_cut=0, custom_head=None, precompute=False,$/;"	kind:member	line:110
+pretrained_settings	../models/nasnet.py	/^pretrained_settings = {$/;"	kind:variable	line:7
+pretrained_settings	../models/senet.py	/^pretrained_settings = {$/;"	kind:variable	line:18
+print_function	../models/cifar10/main_kuangliu.py	/^from __future__ import print_function$/;"	kind:namespace	line:2
+print_function	../models/convert_torch.py	/^from __future__ import print_function$/;"	kind:namespace	line:1
+print_log	../models/cifar10/main_dxy.py	/^def print_log(print_string, log):$/;"	kind:function	line:242
+print_stats	../model.py	/^def print_stats(epoch, values, visualize, prev_val=[], decimals=6):$/;"	kind:function	line:187
+proc_all	../text.py	/^    def proc_all(ss, lang):$/;"	kind:member	line:93
+proc_all_mp	../text.py	/^    def proc_all_mp(ss, lang='en', ncpus = None):$/;"	kind:member	line:98
+proc_col	../column_data.py	/^    def proc_col(self,col):$/;"	kind:member	line:175
+proc_df	../structured.py	/^def proc_df(df, y_fld=None, skip_flds=None, ignore_flds=None, do_scale=False, na_dict=None,$/;"	kind:function	line:333
+proc_text	../text.py	/^    def proc_text(self, s):$/;"	kind:member	line:84
+progress_bar	../models/cifar10/main_kuangliu.py	/^from utils import progress_bar$/;"	kind:namespace	line:17
+progress_bar	../models/cifar10/utils_kuangliu.py	/^def progress_bar(current, total, msg=None):$/;"	kind:function	line:51
+ptx	../torchqrnn/forget_mult.py	/^    ptx = None$/;"	kind:variable	line:98
+qrnn.py	../torchqrnn/qrnn.py	1;"	kind:file	line:1
+queue	../dataloader.py	/^import torch, queue$/;"	kind:namespace	line:1
+r	../nlp.py	/^    def r(self):$/;"	kind:member	line:88
+rand0	../transforms.py	/^def rand0(s): return random.random()*(s*2)-s$/;"	kind:function	line:128
+randn	../utils.py	/^from numpy.random import random, permutation, randn, normal, uniform, choice$/;"	kind:namespace	line:11
+random	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+random	../models/cifar10/main_dxy.py	/^import os, sys, shutil, time, random$/;"	kind:namespace	line:4
+random	../utils.py	/^from numpy.random import random, permutation, randn, normal, uniform, choice$/;"	kind:namespace	line:11
+rcParams	../imports.py	/^from matplotlib import pyplot as plt, rcParams, animation$/;"	kind:namespace	line:22
+re	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+re	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+re_rep	../text.py	/^    re_rep = re.compile(r'(\\S)(\\1{3,})')$/;"	kind:variable	line:55
+re_tok	../text.py	/^re_tok = re.compile(f'([{string.punctuation}“”¨«»®´·º½¾¿¡§£₤‘’])')$/;"	kind:variable	line:8
+re_word_rep	../text.py	/^    re_word_rep = re.compile(r'(\\b\\w+\\W+)(\\1{3,})')$/;"	kind:variable	line:56
+read_dir	../dataset.py	/^def read_dir(path, folder):$/;"	kind:function	line:54
+read_dirs	../dataset.py	/^def read_dirs(path, folder):$/;"	kind:function	line:66
+recall	../metrics.py	/^def recall(log_preds, targs, thresh=0.5, epsilon=1e-8):$/;"	kind:function	line:26
+recall_np	../metrics.py	/^def recall_np(preds, targs, thresh=0.5, epsilon=1e-8):$/;"	kind:function	line:32
+reduce	../models/convert_torch.py	/^from functools import reduce$/;"	kind:namespace	line:13
+reduce	../models/resnext_101_32x4d.py	/^from functools import reduce$/;"	kind:namespace	line:5
+reduce	../models/resnext_101_64x4d.py	/^from functools import reduce$/;"	kind:namespace	line:5
+reduce	../models/resnext_50_32x4d.py	/^from functools import reduce$/;"	kind:namespace	line:5
+reduce	../models/wrn_50_2f.py	/^from functools import reduce$/;"	kind:namespace	line:5
+register_hook	../model.py	/^    def register_hook(module):$/;"	kind:function	line:269
+remap_target	../adaptive_softmax.py	/^    def remap_target(self, target):$/;"	kind:member	line:60
+remove	../models/unet.py	/^    def remove(self): self.hook.remove()$/;"	kind:member	line:50
+remove_hooks	../lsuv_initializer.py	/^def remove_hooks(hooks):$/;"	kind:function	line:77
+repackage_var	../lm_rnn.py	/^def repackage_var(h):$/;"	kind:function	line:20
+replace_rep	../text.py	/^    def replace_rep(m):$/;"	kind:member	line:59
+replace_wrep	../text.py	/^    def replace_wrep(m):$/;"	kind:member	line:65
+reset	../adaptive_softmax.py	/^    def reset(self):$/;"	kind:member	line:15
+reset	../lm_rnn.py	/^    def reset(self):$/;"	kind:member	line:120
+reset	../lm_rnn.py	/^    def reset(self):$/;"	kind:member	line:199
+reset	../model.py	/^    def reset(self, train=True):$/;"	kind:member	line:41
+reset	../models/cifar10/utils.py	/^  def reset(self):$/;"	kind:member	line:12
+reset	../models/cifar10/utils.py	/^  def reset(self, total_epoch):$/;"	kind:member	line:30
+reset	../torchqrnn/qrnn.py	/^    def reset(self):$/;"	kind:member	line:156
+reset	../torchqrnn/qrnn.py	/^    def reset(self):$/;"	kind:member	line:48
+reset	../utils.py	/^    def reset(self):$/;"	kind:member	line:110
+reset_rf_samples	../structured.py	/^def reset_rf_samples():$/;"	kind:function	line:464
+resize	../dataset.py	/^    def resize(self, targ_sz, new_path='tmp'):$/;"	kind:member	line:361
+resize_img	../dataset.py	/^def resize_img(fname, targ, path, new_path):$/;"	kind:function	line:28
+resize_imgs	../dataset.py	/^    def resize_imgs(self, targ, new_path):$/;"	kind:member	line:248
+resize_imgs	../dataset.py	/^def resize_imgs(fnames, targ, path, new_path):$/;"	kind:function	line:41
+resized	../dataset.py	/^    def resized(self, dl, targ, new_path):$/;"	kind:member	line:358
+resnet.py	../models/resnet.py	1;"	kind:file	line:1
+resnet101	../torch_imports.py	/^from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152$/;"	kind:namespace	line:10
+resnet152	../torch_imports.py	/^from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152$/;"	kind:namespace	line:10
+resnet18	../torch_imports.py	/^from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152$/;"	kind:namespace	line:10
+resnet34	../torch_imports.py	/^from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152$/;"	kind:namespace	line:10
+resnet50	../torch_imports.py	/^from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152$/;"	kind:namespace	line:10
+resnext.py	../models/cifar10/resnext.py	1;"	kind:file	line:1
+resnext101	../torch_imports.py	/^def resnext101(pre): return load_pre(pre, resnext_101_32x4d, 'resnext_101_32x4d')$/;"	kind:function	line:73
+resnext101_64	../torch_imports.py	/^def resnext101_64(pre): return load_pre(pre, resnext_101_64x4d, 'resnext_101_64x4d')$/;"	kind:function	line:77
+resnext29_16_64	../models/cifar10/resnext.py	/^def resnext29_16_64(num_classes=10):$/;"	kind:function	line:103
+resnext29_8_64	../models/cifar10/resnext.py	/^def resnext29_8_64(num_classes=10):$/;"	kind:function	line:112
+resnext50	../torch_imports.py	/^def resnext50(pre): return load_pre(pre, resnext_50_32x4d, 'resnext_50_32x4d')$/;"	kind:function	line:69
+resnext_101_32x4d	../models/resnext_101_32x4d.py	/^def resnext_101_32x4d(): return nn.Sequential( # Sequential,$/;"	kind:function	line:31
+resnext_101_32x4d	../torch_imports.py	/^from .models.resnext_101_32x4d import resnext_101_32x4d$/;"	kind:namespace	line:15
+resnext_101_32x4d.py	../models/resnext_101_32x4d.py	1;"	kind:file	line:1
+resnext_101_64x4d	../models/resnext_101_64x4d.py	/^def resnext_101_64x4d(): return nn.Sequential( # Sequential,$/;"	kind:function	line:31
+resnext_101_64x4d	../torch_imports.py	/^from .models.resnext_101_64x4d import resnext_101_64x4d$/;"	kind:namespace	line:16
+resnext_101_64x4d.py	../models/resnext_101_64x4d.py	1;"	kind:file	line:1
+resnext_50_32x4d	../models/resnext_50_32x4d.py	/^def resnext_50_32x4d(): return nn.Sequential( # Sequential,$/;"	kind:function	line:31
+resnext_50_32x4d	../torch_imports.py	/^from .models.resnext_50_32x4d import resnext_50_32x4d$/;"	kind:namespace	line:14
+resnext_50_32x4d.py	../models/resnext_50_32x4d.py	1;"	kind:file	line:1
+result_iterator	../executors.py	/^        def result_iterator():$/;"	kind:function	line:19
+rf_feat_importance	../structured.py	/^def rf_feat_importance(m, df):$/;"	kind:function	line:453
+rnn_reg.py	../rnn_reg.py	1;"	kind:file	line:1
+rnn_train.py	../rnn_train.py	1;"	kind:file	line:1
+rotate_cv	../transforms.py	/^def rotate_cv(im, deg, mode=cv2.BORDER_CONSTANT, interpolation=cv2.INTER_AREA):$/;"	kind:function	line:44
+save	../core.py	/^def save(fn, a): $/;"	kind:function	line:153
+save	../learner.py	/^    def save(self, name): $/;"	kind:member	line:102
+save_array	../utils.py	/^def save_array(fname, arr):$/;"	kind:function	line:82
+save_checkpoint	../models/cifar10/main_dxy.py	/^def save_checkpoint(state, is_best, save_path, filename):$/;"	kind:function	line:247
+save_cycle	../learner.py	/^    def save_cycle(self, name, cycle): self.save(f'{name}_cyc_{cycle}')$/;"	kind:member	line:116
+save_encoder	../nlp.py	/^    def save_encoder(self, name): save_model(self.model[0], self.get_model_path(name))$/;"	kind:member	line:164
+save_encoder	../text.py	/^    def save_encoder(self, name): save_model(self.model[0], self.get_model_path(name))$/;"	kind:member	line:213
+save_fc1	../conv_learner.py	/^    def save_fc1(self):$/;"	kind:member	line:174
+save_metrics	../sgdr.py	/^    def save_metrics(self,vals):$/;"	kind:member	line:95
+save_model	../torch_imports.py	/^def save_model(m, p): torch.save(m.state_dict(), p)$/;"	kind:function	line:32
+save_when_acc	../sgdr.py	/^    def save_when_acc(self, metrics):$/;"	kind:member	line:371
+save_when_only_loss	../sgdr.py	/^    def save_when_only_loss(self, metrics):$/;"	kind:member	line:365
+scale_min	../transforms.py	/^def scale_min(im, targ, interpolation=cv2.INTER_AREA):$/;"	kind:function	line:5
+scale_to	../transforms.py	/^def scale_to(x, ratio, targ): $/;"	kind:function	line:112
+scale_vars	../structured.py	/^def scale_vars(df, mapper):$/;"	kind:function	line:325
+scipy	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+scipy	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+se_resnet101	../models/senet.py	/^def se_resnet101(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:404
+se_resnet152	../models/senet.py	/^def se_resnet152(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:415
+se_resnet50	../models/senet.py	/^def se_resnet50(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:393
+se_resnext101_32x4d	../models/senet.py	/^def se_resnext101_32x4d(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:437
+se_resnext50_32x4d	../models/senet.py	/^def se_resnext50_32x4d(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:426
+senet.py	../models/cifar10/senet.py	1;"	kind:file	line:1
+senet.py	../models/senet.py	1;"	kind:file	line:1
+senet154	../models/senet.py	/^def senet154(num_classes=1000, pretrained='imagenet'):$/;"	kind:function	line:384
+seq2seq_reg	../lm_rnn.py	/^def seq2seq_reg(output, xtra, loss, alpha=0, beta=0):$/;"	kind:function	line:10
+sequence	../utils.py	/^from keras.preprocessing import image, sequence$/;"	kind:namespace	line:38
+set_beta	../layer_optimizer.py	/^    def set_beta(self,beta):$/;"	kind:member	line:56
+set_bn_freeze	../learner.py	/^    def set_bn_freeze(self, m, do_freeze):$/;"	kind:member	line:71
+set_data	../conv_learner.py	/^    def set_data(self, data, precompute=False):$/;"	kind:member	line:145
+set_data	../learner.py	/^    def set_data(self, data): self.data_ = data$/;"	kind:member	line:110
+set_grad_enabled	../core.py	/^def set_grad_enabled(mode): return torch.set_grad_enabled(mode) if IS_TORCH_04 else contextlib.suppress()$/;"	kind:function	line:182
+set_grad_enabled	../lm_rnn.py	/^from .core import set_grad_enabled$/;"	kind:namespace	line:6
+set_lrs	../layer_optimizer.py	/^    def set_lrs(self, lrs):$/;"	kind:member	line:33
+set_lrs	../layer_optimizer.py	/^def set_lrs(opt, lrs):$/;"	kind:function	line:70
+set_mom	../layer_optimizer.py	/^    def set_mom(self,momentum):$/;"	kind:member	line:50
+set_opt_fn	../layer_optimizer.py	/^    def set_opt_fn(self, opt_fn):$/;"	kind:member	line:62
+set_plot_sizes	../structured.py	/^def set_plot_sizes(sml, med, big):$/;"	kind:function	line:10
+set_rf_samples	../structured.py	/^def set_rf_samples(n):$/;"	kind:function	line:457
+set_spawn.py	../set_spawn.py	1;"	kind:file	line:1
+set_start_method	../set_spawn.py	/^from multiprocessing import set_start_method$/;"	kind:namespace	line:1
+set_state	../transforms.py	/^    def set_state(self): pass$/;"	kind:member	line:230
+set_state	../transforms.py	/^    def set_state(self): self.store.do_flip = random.random()<self.p$/;"	kind:member	line:453
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:323
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:389
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:423
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:439
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:462
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:492
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:508
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:519
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:547
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:569
+set_state	../transforms.py	/^    def set_state(self):$/;"	kind:member	line:600
+set_target	../adaptive_softmax.py	/^    def set_target(self, target):$/;"	kind:member	line:21
+set_train_mode	../model.py	/^def set_train_mode(m):$/;"	kind:function	line:81
+set_trainable	../core.py	/^def set_trainable(l, b):$/;"	kind:function	line:110
+set_trainable_attr	../core.py	/^def set_trainable_attr(m,b):$/;"	kind:function	line:100
+set_wds	../layer_optimizer.py	/^    def set_wds(self, wds):$/;"	kind:member	line:44
+set_wds	../layer_optimizer.py	/^def set_wds(opt, wds):$/;"	kind:function	line:79
+set_wds_out	../layer_optimizer.py	/^    def set_wds_out(self, wds):$/;"	kind:member	line:38
+set_wds_out	../layer_optimizer.py	/^def set_wds_out(opt, wds):$/;"	kind:function	line:74
+sgdr.py	../sgdr.py	1;"	kind:file	line:1
+shutil	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+shutil	../models/cifar10/main_dxy.py	/^import os, sys, shutil, time, random$/;"	kind:namespace	line:4
+simplify_source	../models/convert_torch.py	/^def simplify_source(s):$/;"	kind:function	line:211
+sklearn	../imports.py	/^import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb$/;"	kind:namespace	line:5
+sklearn_pandas	../imports.py	/^import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb$/;"	kind:namespace	line:5
+smooth_curve	../sgdr.py	/^def smooth_curve(vals, beta):$/;"	kind:function	line:602
+sns	../imports.py	/^import seaborn as sns, matplotlib$/;"	kind:namespace	line:4
+spacy	../text.py	/^import spacy$/;"	kind:namespace	line:5
+spacy_tok	../text.py	/^    def spacy_tok(self,x):$/;"	kind:member	line:52
+split_by_idx	../dataset.py	/^def split_by_idx(idxs, *a):$/;"	kind:function	line:515
+split_by_idxs	../core.py	/^def split_by_idxs(seq, idxs):$/;"	kind:function	line:81
+splits	../nlp.py	/^    def splits(cls, train_df=None, val_df=None, test_df=None, keep_nones=False, **kwargs):$/;"	kind:member	line:196
+start_epoch	../models/cifar10/main_kuangliu.py	/^    start_epoch = checkpoint['epoch']$/;"	kind:variable	line:61
+start_epoch	../models/cifar10/main_kuangliu.py	/^start_epoch = 0  # start from epoch 0 or last checkpoint epoch$/;"	kind:variable	line:29
+state_dict	../fp16.py	/^    def state_dict(self, *inputs, **kwargs):$/;"	kind:member	line:20
+step	../model.py	/^    def step(self, xs, y, epoch):$/;"	kind:member	line:48
+store_activations	../lsuv_initializer.py	/^def store_activations(self, input, output):$/;"	kind:function	line:58
+stretch_cv	../transforms.py	/^def stretch_cv(x,sr,sc,interpolation=cv2.INTER_AREA):$/;"	kind:function	line:24
+string	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+string_classes	../dataloader.py	/^string_classes = (str, bytes)$/;"	kind:variable	line:7
+structured.py	../structured.py	1;"	kind:file	line:1
+sub_br	../text.py	/^    def sub_br(self,x): return self.re_br.sub("\\n", x)$/;"	kind:member	line:50
+sum_geom	../core.py	/^def sum_geom(a,r,n): return a*n if r==1 else math.ceil(a*(1-r**n)\/(1-r))$/;"	kind:function	line:4
+summary	../column_data.py	/^    def summary(self): return model_summary(self.model, [torch.ones(3).long(), torch.ones(3).long()])$/;"	kind:member	line:221
+summary	../column_data.py	/^    def summary(self):$/;"	kind:member	line:146
+summary	../conv_learner.py	/^    def summary(self):$/;"	kind:member	line:158
+summary	../learner.py	/^    def summary(self): return model_summary(self.model, [torch.rand(3, 3, self.data.sz,self.data.sz)])$/;"	kind:member	line:61
+svd_orthonormal	../lsuv_initializer.py	/^def svd_orthonormal(w):$/;"	kind:function	line:47
+swa.py	../swa.py	1;"	kind:file	line:1
+sys	../dataloader.py	/^import collections,sys,traceback,threading$/;"	kind:namespace	line:5
+sys	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+sys	../models/cifar10/main_dxy.py	/^import os, sys, shutil, time, random$/;"	kind:namespace	line:4
+sys	../models/cifar10/utils.py	/^import os, sys, time$/;"	kind:namespace	line:1
+sys	../models/cifar10/utils_kuangliu.py	/^import sys$/;"	kind:namespace	line:7
+sys	../models/inceptionresnetv2.py	/^import sys$/;"	kind:namespace	line:5
+sys	../models/inceptionv4.py	/^import sys$/;"	kind:namespace	line:5
+sys	../utils.py	/^import math, os, json, sys, re, numpy as np, pickle, PIL, scipy$/;"	kind:namespace	line:1
+sz	../dataset.py	/^    def sz(self): return self.trn_ds.sz$/;"	kind:member	line:354
+term_width	../models/cifar10/utils_kuangliu.py	/^term_width = int(term_width)$/;"	kind:variable	line:46
+test	../models/cifar10/main_kuangliu.py	/^def test(epoch):$/;"	kind:function	line:108
+test	../models/inceptionv4.py	/^def test(model):$/;"	kind:function	line:382
+test_conv2d	../models/inceptionv4.py	/^def test_conv2d(module, name):$/;"	kind:function	line:399
+test_dist	../models/inceptionv4.py	/^    def test_dist(self, input, output):$/;"	kind:function	line:406
+test_ds	../dataset.py	/^    def test_ds(self): return self.test_dl.dataset$/;"	kind:member	line:330
+test_mixed_4a_7a	../models/inceptionv4.py	/^def test_mixed_4a_7a(module, name):$/;"	kind:function	line:410
+testloader	../models/cifar10/main_kuangliu.py	/^testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=4)$/;"	kind:variable	line:49
+testset	../models/cifar10/main_kuangliu.py	/^testset = torchvision.datasets.CIFAR10(root='.\/data', train=False, download=True, transform=transform_test)$/;"	kind:variable	line:48
+text.py	../text.py	1;"	kind:file	line:1
+texts_labels_from_folders	../text.py	/^def texts_labels_from_folders(path, folders):$/;"	kind:function	line:11
+tfms_from_model	../transforms.py	/^def tfms_from_model(f_model, sz, aug_tfms=None, max_zoom=None, pad=0, crop_type=CropType.RANDOM,$/;"	kind:function	line:724
+tfms_from_stats	../transforms.py	/^def tfms_from_stats(stats, sz, aug_tfms=None, max_zoom=None, pad=0, crop_type=CropType.RANDOM,$/;"	kind:function	line:709
+threading	../dataloader.py	/^import collections,sys,traceback,threading$/;"	kind:namespace	line:5
+threading	../imports.py	/^import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2$/;"	kind:namespace	line:2
+time	../executors.py	/^import time$/;"	kind:namespace	line:4
+time	../imports.py	/^import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy$/;"	kind:namespace	line:3
+time	../learner.py	/^import time$/;"	kind:namespace	line:15
+time	../models/cifar10/main_dxy.py	/^import os, sys, shutil, time, random$/;"	kind:namespace	line:4
+time	../models/cifar10/utils.py	/^import os, sys, time$/;"	kind:namespace	line:1
+time	../models/cifar10/utils_kuangliu.py	/^import time$/;"	kind:namespace	line:8
+time_file_str	../models/cifar10/utils.py	/^def time_file_str():$/;"	kind:function	line:111
+time_string	../models/cifar10/main_dxy.py	/^from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time$/;"	kind:namespace	line:10
+time_string	../models/cifar10/utils.py	/^def time_string():$/;"	kind:function	line:100
+timer	../sgdr.py	/^from timeit import default_timer as timer$/;"	kind:namespace	line:4
+tnrange	../imports.py	/^    tnrange=trange$/;"	kind:variable	line:57
+tnrange	../imports.py	/^from tqdm import tqdm_notebook, tnrange$/;"	kind:namespace	line:38
+to_bb	../transforms.py	/^def to_bb(YY, y="deprecated"):$/;"	kind:function	line:183
+to_bw	../utils.py	/^to_bw = np.array([0.299, 0.587, 0.114])$/;"	kind:variable	line:44
+to_categorical	../utils.py	/^from keras.utils.np_utils import to_categorical$/;"	kind:namespace	line:27
+to_gpu	../core.py	/^def to_gpu(x, *args, **kwargs):$/;"	kind:function	line:75
+to_model	../nlp.py	/^    def to_model(self, m, opt_fn):$/;"	kind:member	line:359
+to_np	../core.py	/^def to_np(v):$/;"	kind:function	line:65
+to_plot	../utils.py	/^def to_plot(img): return np.rollaxis(img, 0, 1).astype(np.uint8)$/;"	kind:function	line:47
+tokenize	../text.py	/^def tokenize(s): return re_tok.sub(r' \\1 ', s).split()$/;"	kind:function	line:9
+torch	../dataloader.py	/^import torch, queue$/;"	kind:namespace	line:1
+torch	../fp16.py	/^import torch$/;"	kind:namespace	line:1
+torch	../fp16.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../layers.py	/^import torch$/;"	kind:namespace	line:1
+torch	../lsuv_initializer.py	/^import torch$/;"	kind:namespace	line:31
+torch	../lsuv_initializer.py	/^import torch.nn as nn$/;"	kind:namespace	line:33
+torch	../lsuv_initializer.py	/^import torch.nn.init$/;"	kind:namespace	line:32
+torch	../models/cifar10/main_dxy.py	/^import torch$/;"	kind:namespace	line:6
+torch	../models/cifar10/main_dxy.py	/^import torch.backends.cudnn as cudnn$/;"	kind:namespace	line:7
+torch	../models/cifar10/main_kuangliu.py	/^import torch$/;"	kind:namespace	line:4
+torch	../models/cifar10/main_kuangliu.py	/^import torch.backends.cudnn as cudnn$/;"	kind:namespace	line:8
+torch	../models/cifar10/main_kuangliu.py	/^import torch.nn as nn$/;"	kind:namespace	line:5
+torch	../models/cifar10/main_kuangliu.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:7
+torch	../models/cifar10/main_kuangliu.py	/^import torch.optim as optim$/;"	kind:namespace	line:6
+torch	../models/cifar10/preact_resnet.py	/^import torch$/;"	kind:namespace	line:7
+torch	../models/cifar10/preact_resnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:8
+torch	../models/cifar10/preact_resnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:9
+torch	../models/cifar10/resnext.py	/^import torch.nn as nn$/;"	kind:namespace	line:1
+torch	../models/cifar10/resnext.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:2
+torch	../models/cifar10/senet.py	/^import torch$/;"	kind:namespace	line:5
+torch	../models/cifar10/senet.py	/^import torch.nn as nn$/;"	kind:namespace	line:6
+torch	../models/cifar10/senet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:7
+torch	../models/cifar10/utils_kuangliu.py	/^import torch.nn as nn$/;"	kind:namespace	line:11
+torch	../models/cifar10/utils_kuangliu.py	/^import torch.nn.init as init$/;"	kind:namespace	line:12
+torch	../models/cifar10/wideresnet.py	/^import torch$/;"	kind:namespace	line:4
+torch	../models/cifar10/wideresnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:5
+torch	../models/cifar10/wideresnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:6
+torch	../models/convert_torch.py	/^import torch$/;"	kind:namespace	line:3
+torch	../models/convert_torch.py	/^import torch.nn as nn$/;"	kind:namespace	line:4
+torch	../models/convert_torch.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:5
+torch	../models/convert_torch.py	/^import torch.optim as optim$/;"	kind:namespace	line:6
+torch	../models/darknet.py	/^import torch$/;"	kind:namespace	line:1
+torch	../models/darknet.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../models/darknet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+torch	../models/fa_resnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:1
+torch	../models/fa_resnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+torch	../models/inceptionresnetv2.py	/^import torch$/;"	kind:namespace	line:1
+torch	../models/inceptionresnetv2.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../models/inceptionresnetv2.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+torch	../models/inceptionv4.py	/^import torch$/;"	kind:namespace	line:1
+torch	../models/inceptionv4.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../models/inceptionv4.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+torch	../models/nasnet.py	/^import torch$/;"	kind:namespace	line:1
+torch	../models/nasnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../models/nasnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+torch	../models/nasnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:4
+torch	../models/resnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:1
+torch	../models/resnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+torch	../models/resnext_101_32x4d.py	/^import torch$/;"	kind:namespace	line:2
+torch	../models/resnext_101_32x4d.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+torch	../models/resnext_101_64x4d.py	/^import torch$/;"	kind:namespace	line:2
+torch	../models/resnext_101_64x4d.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+torch	../models/resnext_50_32x4d.py	/^import torch$/;"	kind:namespace	line:2
+torch	../models/resnext_50_32x4d.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+torch	../models/senet.py	/^import torch.nn as nn$/;"	kind:namespace	line:12
+torch	../models/senet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:10
+torch	../models/unet.py	/^import torch$/;"	kind:namespace	line:1
+torch	../models/unet.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../models/unet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:3
+torch	../models/wideresnet.py	/^import torch$/;"	kind:namespace	line:4
+torch	../models/wideresnet.py	/^import torch.nn as nn$/;"	kind:namespace	line:5
+torch	../models/wideresnet.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:6
+torch	../models/wrn_50_2f.py	/^import torch$/;"	kind:namespace	line:2
+torch	../models/wrn_50_2f.py	/^import torch.nn as nn$/;"	kind:namespace	line:3
+torch	../rnn_reg.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:4
+torch	../rnn_train.py	/^import torch$/;"	kind:namespace	line:1
+torch	../rnn_train.py	/^import torch.nn as nn$/;"	kind:namespace	line:2
+torch	../swa.py	/^import torch$/;"	kind:namespace	line:11
+torch	../torch_imports.py	/^import torch, torchvision, torchtext$/;"	kind:namespace	line:3
+torch	../torch_imports.py	/^import torch.nn.functional as F$/;"	kind:namespace	line:5
+torch	../torchqrnn/forget_mult.py	/^import torch$/;"	kind:namespace	line:2
+torch	../torchqrnn/qrnn.py	/^import torch$/;"	kind:namespace	line:1
+torch	../transforms_pil.py	/^import torch$/;"	kind:namespace	line:1
+torch_imports.py	../torch_imports.py	1;"	kind:file	line:1
+torch_item	../model.py	/^def torch_item(x): return x.item() if hasattr(x,'item') else x[0]$/;"	kind:function	line:31
+torch_to_pytorch	../models/convert_torch.py	/^def torch_to_pytorch(t7_filename,outputname=None):$/;"	kind:function	line:232
+torchtext	../torch_imports.py	/^import torch, torchvision, torchtext$/;"	kind:namespace	line:3
+torchvision	../models/cifar10/main_dxy.py	/^import torchvision.datasets as dset$/;"	kind:namespace	line:8
+torchvision	../models/cifar10/main_dxy.py	/^import torchvision.transforms as transforms$/;"	kind:namespace	line:9
+torchvision	../models/cifar10/main_kuangliu.py	/^import torchvision$/;"	kind:namespace	line:10
+torchvision	../models/cifar10/main_kuangliu.py	/^import torchvision.transforms as transforms$/;"	kind:namespace	line:11
+torchvision	../torch_imports.py	/^import torch, torchvision, torchtext$/;"	kind:namespace	line:3
+tq	../imports.py	/^import tqdm as tq$/;"	kind:namespace	line:37
+tqdm	../imports.py	/^    def tqdm(*args, **kwargs):$/;"	kind:function	line:49
+tqdm	../imports.py	/^    from tqdm import tqdm, trange$/;"	kind:namespace	line:56
+tqdm	../io.py	/^from tqdm import tqdm$/;"	kind:namespace	line:6
+tqdm_notebook	../imports.py	/^    tqdm_notebook=tqdm$/;"	kind:variable	line:58
+tqdm_notebook	../imports.py	/^from tqdm import tqdm_notebook, tnrange$/;"	kind:namespace	line:38
+traceback	../dataloader.py	/^import collections,sys,traceback,threading$/;"	kind:namespace	line:5
+train	../models/cifar10/main_dxy.py	/^def train(train_loader, model, criterion, optimizer, epoch, log):$/;"	kind:function	line:164
+train	../models/cifar10/main_kuangliu.py	/^def train(epoch):$/;"	kind:function	line:85
+train_cats	../structured.py	/^def train_cats(df):$/;"	kind:function	line:124
+train_test_split	../nlp.py	/^from sklearn.model_selection import train_test_split$/;"	kind:namespace	line:11
+trainable_params_	../core.py	/^def trainable_params_(m):$/;"	kind:function	line:91
+trainable_params_	../fp16.py	/^from .core import trainable_params_$/;"	kind:namespace	line:3
+trainloader	../models/cifar10/main_kuangliu.py	/^trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, num_workers=4)$/;"	kind:variable	line:46
+trainset	../models/cifar10/main_kuangliu.py	/^trainset = torchvision.datasets.CIFAR10(root='.\/data', train=True, download=True, transform=transform_train)$/;"	kind:variable	line:45
+trange	../imports.py	/^    def trange(*args, **kwargs):$/;"	kind:function	line:52
+trange	../imports.py	/^    from tqdm import tqdm, trange$/;"	kind:namespace	line:56
+transform	../transforms.py	/^    def transform(self, x, y=None):$/;"	kind:member	line:240
+transform_coord	../transforms.py	/^    def transform_coord(self, x, y): return self.transform(x),y$/;"	kind:member	line:238
+transform_coord	../transforms.py	/^    def transform_coord(self, x, ys):$/;"	kind:member	line:264
+transform_test	../models/cifar10/main_kuangliu.py	/^transform_test = transforms.Compose([$/;"	kind:variable	line:40
+transform_train	../models/cifar10/main_kuangliu.py	/^transform_train = transforms.Compose([$/;"	kind:variable	line:33
+transforms	../models/cifar10/main_dxy.py	/^import torchvision.transforms as transforms$/;"	kind:namespace	line:9
+transforms	../models/cifar10/main_kuangliu.py	/^import torchvision.transforms as transforms$/;"	kind:namespace	line:11
+transforms.py	../transforms.py	1;"	kind:file	line:1
+transforms_basic	../transforms.py	/^transforms_basic    = [RandomRotate(10), RandomLighting(0.05, 0.05)]$/;"	kind:variable	line:700
+transforms_pil.py	../transforms_pil.py	1;"	kind:file	line:1
+transforms_side_on	../transforms.py	/^transforms_side_on  = transforms_basic + [RandomFlip()]$/;"	kind:variable	line:701
+transforms_top_down	../transforms.py	/^transforms_top_down = transforms_basic + [RandomDihedral()]$/;"	kind:variable	line:702
+trn_ds	../dataset.py	/^    def trn_ds(self): return self.trn_dl.dataset$/;"	kind:member	line:326
+trn_y	../dataset.py	/^    def trn_y(self): return self.trn_ds.y$/;"	kind:member	line:332
+unet.py	../models/unet.py	1;"	kind:file	line:1
+unfreeze	../conv_learner.py	/^    def unfreeze(self):$/;"	kind:member	line:199
+unfreeze	../learner.py	/^    def unfreeze(self): self.freeze_to(0)$/;"	kind:member	line:98
+unfreeze_groups	../learner.py	/^    def unfreeze_groups(self, groups):$/;"	kind:member	line:93
+uniform	../utils.py	/^from numpy.random import random, permutation, randn, normal, uniform, choice$/;"	kind:namespace	line:11
+update	../models/cifar10/utils.py	/^  def update(self, idx, train_loss, train_acc, val_loss, val_acc):$/;"	kind:member	line:40
+update	../models/cifar10/utils.py	/^  def update(self, val, n=1):$/;"	kind:member	line:18
+update	../sgdr.py	/^    def update(self):$/;"	kind:member	line:526
+update_average_model	../swa.py	/^    def update_average_model(self):$/;"	kind:member	line:32
+update_fp32_grads	../fp16.py	/^def update_fp32_grads(fp32_params, m):$/;"	kind:function	line:66
+update_lr	../sgdr.py	/^    def update_lr(self):$/;"	kind:member	line:149
+update_mom	../sgdr.py	/^    def update_mom(self):$/;"	kind:member	line:153
+update_to	../io.py	/^    def update_to(self, b=1, bsize=1, tsize=None):$/;"	kind:member	line:9
+urlretrieve	../io.py	/^from urllib.request import urlretrieve$/;"	kind:namespace	line:5
+use_cuda	../models/cifar10/main_kuangliu.py	/^use_cuda = torch.cuda.is_available()$/;"	kind:variable	line:26
+utils	../models/fa_resnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+utils	../models/inceptionresnetv2.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+utils	../models/inceptionv4.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+utils	../models/nasnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:4
+utils	../models/resnet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:3
+utils	../models/senet.py	/^import torch.utils.model_zoo as model_zoo$/;"	kind:namespace	line:10
+utils.py	../models/cifar10/utils.py	1;"	kind:file	line:1
+utils.py	../utils.py	1;"	kind:file	line:1
+utils_kuangliu.py	../models/cifar10/utils_kuangliu.py	1;"	kind:file	line:1
+val_ds	../dataset.py	/^    def val_ds(self): return self.val_dl.dataset$/;"	kind:member	line:328
+val_y	../dataset.py	/^    def val_y(self): return self.val_ds.y$/;"	kind:member	line:334
+validate	../model.py	/^def validate(stepper, dl, metrics, epoch, seq_first=False, validate_skip = 0):$/;"	kind:function	line:230
+validate	../models/cifar10/main_dxy.py	/^def validate(val_loader, model, criterion, log):$/;"	kind:function	line:213
+validate_next	../model.py	/^def validate_next(stepper, metrics, val_iter):$/;"	kind:function	line:215
+varname	../models/convert_torch.py	/^    varname = t7_filename.replace('.t7','').replace('.','_').replace('-','_')$/;"	kind:variable	line:267
+vgg16	../torch_imports.py	/^def vgg16(pre): return children(vgg16_bn(pre))[0]$/;"	kind:function	line:101
+vgg16_bn	../torch_imports.py	/^from torchvision.models import vgg16_bn, vgg19_bn$/;"	kind:namespace	line:11
+vgg19	../torch_imports.py	/^def vgg19(pre): return children(vgg19_bn(pre))[0]$/;"	kind:function	line:105
+vgg19_bn	../torch_imports.py	/^from torchvision.models import vgg16_bn, vgg19_bn$/;"	kind:namespace	line:11
+vgg_resnet34	../models/resnet.py	/^def vgg_resnet34(): return ResNet(BasicBlock, [3, 4, 6, 3], vgg_head=True)$/;"	kind:function	line:212
+vgg_resnet50	../models/fa_resnet.py	/^def vgg_resnet50():  return ResNet(Bottleneck, [3, 4, 6, 3], vgg_head=True)$/;"	kind:function	line:226
+vgg_resnet50	../models/resnet.py	/^def vgg_resnet50(pretrained=False):$/;"	kind:function	line:213
+w125_resnet50	../models/fa_resnet.py	/^def w125_resnet50(): return ResNet(Bottleneck,[3, 4, 6, 3], k=1.125)$/;"	kind:function	line:225
+w125_resnet50	../models/resnet.py	/^def w125_resnet50(): return ResNet(Bottleneck, [3, 4, 6, 3], k=1.125)$/;"	kind:function	line:211
+w25_resnet50	../models/fa_resnet.py	/^def w25_resnet50():  return ResNet(Bottleneck, [3, 4, 4, 3], k=1.25)$/;"	kind:function	line:224
+w25_resnet50	../models/resnet.py	/^def w25_resnet50(): return ResNet(Bottleneck, [3, 4, 4, 3], k=1.25)$/;"	kind:function	line:210
+w5_resnet50	../models/fa_resnet.py	/^def w5_resnet50 ():  return ResNet(Bottleneck, [2, 3, 3, 2], k=1.5)$/;"	kind:function	line:223
+w5_resnet50	../models/resnet.py	/^def w5_resnet50 (): return ResNet(Bottleneck, [2, 3, 3, 2], k=1.5)$/;"	kind:function	line:209
+warm_up	../learner.py	/^    def warm_up(self, lr, wds=None):$/;"	kind:member	line:306
+warnings	../imports.py	/^import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb$/;"	kind:namespace	line:5
+warnings	../lm_rnn.py	/^import warnings$/;"	kind:namespace	line:1
+warnings	../torch_imports.py	/^import warnings$/;"	kind:namespace	line:23
+wideresnet.py	../models/cifar10/wideresnet.py	1;"	kind:file	line:1
+wideresnet.py	../models/wideresnet.py	1;"	kind:file	line:1
+widgets	../imports.py	/^from ipywidgets import interact, interactive, fixed, widgets$/;"	kind:namespace	line:23
+wrap_config	../utils.py	/^def wrap_config(layer):$/;"	kind:function	line:71
+wraps	../rnn_reg.py	/^from functools import wraps$/;"	kind:namespace	line:3
+wrn	../torch_imports.py	/^def wrn(pre): return load_pre(pre, wrn_50_2f, 'wrn_50_2f')$/;"	kind:function	line:81
+wrn_22	../models/cifar10/wideresnet.py	/^def wrn_22(): return WideResNet(num_groups=3, N=3, num_classes=10, k=6, drop_p=0.)$/;"	kind:function	line:61
+wrn_22_k10	../models/cifar10/wideresnet.py	/^def wrn_22_k10(): return WideResNet(num_groups=3, N=3, num_classes=10, k=10, drop_p=0.)$/;"	kind:function	line:63
+wrn_22_k8	../models/cifar10/wideresnet.py	/^def wrn_22_k8(): return WideResNet(num_groups=3, N=3, num_classes=10, k=8, drop_p=0.)$/;"	kind:function	line:62
+wrn_22_k8_p2	../models/cifar10/wideresnet.py	/^def wrn_22_k8_p2(): return WideResNet(num_groups=3, N=3, num_classes=10, k=8, drop_p=0.2)$/;"	kind:function	line:64
+wrn_28	../models/cifar10/wideresnet.py	/^def wrn_28(): return WideResNet(num_groups=3, N=4, num_classes=10, k=6, drop_p=0.)$/;"	kind:function	line:65
+wrn_28_k8	../models/cifar10/wideresnet.py	/^def wrn_28_k8(): return WideResNet(num_groups=3, N=4, num_classes=10, k=8, drop_p=0.)$/;"	kind:function	line:66
+wrn_28_k8_p2	../models/cifar10/wideresnet.py	/^def wrn_28_k8_p2(): return WideResNet(num_groups=3, N=4, num_classes=10, k=8, drop_p=0.2)$/;"	kind:function	line:67
+wrn_28_p2	../models/cifar10/wideresnet.py	/^def wrn_28_p2(): return WideResNet(num_groups=3, N=4, num_classes=10, k=6, drop_p=0.2)$/;"	kind:function	line:68
+wrn_50_2f	../models/wrn_50_2f.py	/^def wrn_50_2f(): return nn.Sequential( # Sequential,$/;"	kind:function	line:31
+wrn_50_2f	../torch_imports.py	/^from .models.wrn_50_2f import wrn_50_2f$/;"	kind:namespace	line:17
+wrn_50_2f.py	../models/wrn_50_2f.py	1;"	kind:file	line:1
+zip_strict_	../layer_optimizer.py	/^def zip_strict_(l, r):$/;"	kind:function	line:66
+zoom	../utils.py	/^from scipy.ndimage.interpolation import zoom$/;"	kind:namespace	line:14
+zoom_cv	../transforms.py	/^def zoom_cv(x,z):$/;"	kind:function	line:17
