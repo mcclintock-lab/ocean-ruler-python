@@ -42,7 +42,6 @@ def setup(fishery_type, loadFull=False):
     tform = transforms_side_on
 
     numTypes = 2
-
     if "scallop" in fishery_type:
         mlPath = os.environ['ML_PATH']+"/ml_data/scallop/"
         sz = 320
