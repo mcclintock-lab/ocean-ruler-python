@@ -6,3 +6,5 @@ machine_learning/ml_data/ablob/valid
 machine_learning/ml_data/quarter_square/train
 machine_learning/ml_data/quarter_square/valid
 machine_learning/tmp
+
+env.py

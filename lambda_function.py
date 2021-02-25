@@ -26,6 +26,7 @@ import csv
 import targets
 import ast
 import PIL
+import env
 
 ABALONE = "abalone"
 RULER = "ruler"
@@ -103,8 +104,8 @@ def runFromML(imageName, maskImageName, fullMaskName, username, email, uuid, ref
         #if is_deployed:
         
         if True:
-            dynamo_name = 'ocean-ruler-main';
-            s3_bucket_name = 'oceanruler-tnc-images';
+            dynamo_name = env.DYNAMO_MAIN_TABLE
+            s3_bucket_name = env.IMAGE_BUCKET
           
             presigned_url = uploads.upload_worker(username, email, uuid, locCode, picDate, targetLength, rating, notes,
                 left_point[0], left_point[1],right_point[0], right_point[1], 
