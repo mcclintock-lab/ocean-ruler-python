@@ -2,9 +2,10 @@ import cv2
 import utils
 import boto3
 import argparse
+import os
 
 def do_s3_upload():
-    bucket_name = 'oceanruler-tnc-images-prodops';
+    bucket_name = os.environ.get('IMAGE_BUCKET', 'oceanruler-tnc-images-prodops')
     ap = argparse.ArgumentParser()
     args = ap.parse_known_args()[1]
     
