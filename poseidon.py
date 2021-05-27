@@ -58,23 +58,23 @@ def setup(fishery_type, loadFull=False):
         sz = 320
         model_name = FINFISH_MODEL
         maxZoom = 1.0
-    else:    
+    else:
         mlPath = os.environ['ML_PATH']+"/ml_data/ablob/"
         tform = transforms_top_down
         sz = 320
         model_name = AB_MODEL
         maxZoom = 1.1
 
-    
+
     #the fastai model loading and application
     arch = resnet34
-    bs = 64    
+    bs = 64
 
     m = arch(True)
     #stride (second arg) needs to match num classes, otherwise assert is thrown in pytorch
-    m = nn.Sequential(*children(m)[:-2], 
-                      nn.Conv2d(512, numTypes, 3, padding=1,groups=1), 
-                      nn.AdaptiveAvgPool2d(1), Flatten(), 
+    m = nn.Sequential(*children(m)[:-2],
+                      nn.Conv2d(512, numTypes, 3, padding=1,groups=1),
+                      nn.AdaptiveAvgPool2d(1), Flatten(),
                       nn.LogSoftmax())
 
     #load the model from the transforms
@@ -95,13 +95,13 @@ def setupQuarterSquareModel():
     #PATH = "machine_learning/ml_data/ablob/"
     sz = 480
     arch = resnet34
-    bs = 64    
+    bs = 64
 
     m = arch(True)
     #stride (second arg) needs to match num classes, otherwise assert is thrown in pytorch
-    m = nn.Sequential(*children(m)[:-2], 
-                      nn.Conv2d(512, 2, 3, padding=1), 
-                      nn.AdaptiveAvgPool2d(1), Flatten(), 
+    m = nn.Sequential(*children(m)[:-2],
+                      nn.Conv2d(512, 2, 3, padding=1),
+                      nn.AdaptiveAvgPool2d(1), Flatten(),
                       nn.LogSoftmax())
 
 
@@ -120,7 +120,7 @@ def loadData(imgName, targetPath, tfms, learn):
 
     preds = learn.predict_dl(dl)
     preds = np.argmax(preds)
-    
+
     return dl
 
 class SaveFeatures():
@@ -187,7 +187,7 @@ def read_args():
         print("key err: {}".format(ke))
         hasRefObject = False
 
-    
+
     if not hasRefObject:
         #for running it locally, not through the server. these are all deefaults
         print(" batch -- falling back to abalone & quarter")
@@ -215,12 +215,12 @@ def read_args():
         loc_code = args["loc_code"]
         showResults = args["show"]
         measurement_direction = args["measurement_direction"]
-    
+
     print("show: {}".format(showResults))
     return imageName, ref_object, ref_object_units, ref_object_size, fishery_type, uuid, username, email, original_filename, original_size, loc_code, showResults, measurement_direction
 
 def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMultiplier, show, extraMask, isQuarterOrSquare,fullPrefix=""):
-    """ Run the fastai model for a fishery 
+    """ Run the fastai model for a fishery
 
 
     """
@@ -240,8 +240,8 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
 
     py = np.exp(to_np(py)[0]); py
     feat = np.maximum(0,to_np(sfs[3].features[0]))
-    
-    
+
+
     f2=np.dot(np.rollaxis(feat,0,3), py)
     maxVal = f2.max()
     f2-=f2.min()
@@ -250,7 +250,7 @@ def runModel(m, tfms, data, learn, imgName, targetPath, multiplier, restrictedMu
     new_shape = (dx.shape[0],dx.shape[1])
     filter = np.array(Image.fromarray(f2).resize(new_shape))
     maxVal = filter.max()*multiplier
-    
+
     rMaxVal = filter.max()*restrictedMultiplier
 
     f2Filtered = np.ma.masked_where(filter <=maxVal, filter)
@@ -291,7 +291,7 @@ def get_orientation_info(imageName):
     print("image name: {}".format(imageName))
     img=Image.open(imageName)
     #for orientation in ExifTags.TAGS.keys():
-        
+
     exif = {
         PIL.ExifTags.TAGS[k]: v
         for k, v in img._getexif().items()
@@ -300,12 +300,12 @@ def get_orientation_info(imageName):
     #exif=dict(pil_image._getexif().items())
     print("EXIF DATA: {}".format(exif))
     return exif['orientation']
-'''        
+'''
 
 def writeMask(zeroMask, outMaskName, show=False):
     #make sure doesn't hit edges
     nrows, ncols = zeroMask.shape
-    
+
     square_mask = np.ones((nrows, ncols), dtype=bool)
     for (x,y), value in np.ndenumerate(square_mask):
         square_mask[x][y] = x<2 or x > nrows-2 or y<2 or y>ncols-2
@@ -337,12 +337,12 @@ def execute():
 
 
     targetPath, imgName = os.path.split(imageName)
-    
+
     if imageName == None:
         return
 
     #the multiplier is used to determine how much to 'trust' the model output
-    #the higher the number, the more precise the model is expected to be, and the 
+    #the higher the number, the more precise the model is expected to be, and the
     #output will be clipped more precisely
     #if ends of the input is getting chopped off (nose and tail of fish, e.g., drop the number)
     multiplier = 0.85
@@ -386,7 +386,7 @@ def execute():
             refObjectMaskName = imageName
         else:
             refObjectMask, refObjectMaskName = runModel(quarterSquareModel, qsTfms, qsData, qsLearn, imgName, targetPath, 0.2, 0, False, refObjectMask, True)
-    
+
     else:
         print("getting quarter masks...")
         #same with quarter. too many cases where its right next to the target (abalone)
