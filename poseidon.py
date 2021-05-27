@@ -355,7 +355,7 @@ def execute():
         rMultiplier = 0.5
     elif(utils.isFinfish(fishery_type)):
         #going higher than 0.32 starts to chop off fish edges...
-        multiplier = 0.32
+        multiplier = 0.2
         rMultiplier = 0.5
     else:
         multiplier = 0.4
